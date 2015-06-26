@@ -1,11 +1,9 @@
-#include "noc.hpp"
-#include "mux.hpp"
-
 #ifndef _TREE_CLASS_
 #define _TREE_CLASS_
 
 class Noc;
 class Mux;
+class Memory;
 
 class Packet
 {

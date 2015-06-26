@@ -5,8 +5,8 @@
 #include "memory.hpp"
 #include "tree.hpp"
 #include "processor.hpp"
-#include "tile.hpp"
 #include "noc.hpp"
+#include "tile.hpp"
 
 using namespace std;
 
