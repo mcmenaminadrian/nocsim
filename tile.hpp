@@ -4,12 +4,14 @@
 #define _TILE_CLASS_
 
 class Memory;
+class Processor;
 
 class Tile
 {
 private:
 	Memory *tileLocalMemory;
 	Processor *tileProcessor;
+	std::vector<Mux *> treeLeaves;
 
 public:
 	Tile()
@@ -24,6 +26,8 @@ public:
 		delete tileProcessor;
 		delete tileLocalMemory;
 	}
+
+	void addTreeLeaf(Mux* leaf);
 };
 
 #endif

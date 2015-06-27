@@ -4,6 +4,9 @@
 #include "mux.hpp"
 #include "memory.hpp"
 #include "tree.hpp"
+#include "noc.hpp"
+#include "processor.hpp"
+#include "tile.hpp"
 
 using namespace std;
 
@@ -17,6 +20,11 @@ void Mux::joinUpRight(Mux* right)
 {
 	hiRange = right->hiRange;
 	midRangeRight = right->lowRange;
+}
+
+void Mux::routePacket(Packet* packet)
+{
+	
 }
 
 
@@ -38,6 +46,7 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	{
 		(nodes[0])[i]->assignNumber(i);
 		(nodes[0])[i]->assignMemory(&globalMemory);
+		noc.tileAt(i)->addTreeLeaf(nodes[0][i]);
 	}
 	//root Mux - connects to global memory
 	nodes.push_back(vector<Mux *>(1));

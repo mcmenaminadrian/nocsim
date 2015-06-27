@@ -78,6 +78,4 @@ int main(int argc, char *argv[])
 		trees.push_back(Tree(globalMemory[i], tiles, columns, rows));
 	}
 
-
-
 }

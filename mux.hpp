@@ -31,6 +31,7 @@ public:
 	}
 	void assignMemory(Memory* gMemory) { globalMemory = gMemory; }
 	void joinMemory(Memory* gMemory);
+	void routePacket(Packet *pack);
 	
 };	
 #endif
