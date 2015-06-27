@@ -78,8 +78,8 @@ void Memory::writeLong(const long address, const long value)
 	}
 }
 
-void Memory::attachTree(Mux& root)
+void Memory::attachTree(Mux* root)
 {
-	rootMux = &root;
-	root.joinMemory(this);
+	rootMux = root;
+	root->joinMemory(this);
 }

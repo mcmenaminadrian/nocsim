@@ -2,6 +2,7 @@
 #define _NOC_CLASS_
 
 class Tile;
+class Tree;
 
 class Noc {
 
@@ -10,6 +11,6 @@ private:
 
 public:
 	Noc(const long columns, const long rows);
-	const bool attach(Tree& memoryTree, const long leaf);
+	bool attach(Tree& memoryTree, const long leaf);
 };
 #endif

@@ -23,8 +23,8 @@ public:
 	Mux(Memory *gMem):globalMemory(gMem){};
 	const long getLowRange() const { return lowRange;};
 	const long getHiRange() const { return hiRange; };
-	void joinUpLeft(Mux& joiner);
-	void joinUpRight(Mux& joiner);
+	void joinUpLeft(Mux* joiner);
+	void joinUpRight(Mux* joiner);
 	void assignNumber(const int i) {
 		lowRange = i;
 		hiRange = i;

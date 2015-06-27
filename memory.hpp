@@ -1,10 +1,9 @@
-#include "mux.hpp"
-
 //Memory class
 
 #ifndef _MEMORY_CLASS_
 #define _MEMORY_CLASS_
 
+class Mux;
 
 class Memory {
 
@@ -20,7 +19,7 @@ public:
 	long readLong(const long address);
 	void writeByte(const long address, const char value);
 	void writeLong(const long address, const long value);
-	void attachTree(Mux& root);
+	void attachTree(Mux* root);
 };
 
 #endif

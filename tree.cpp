@@ -1,28 +1,29 @@
 #include <iostream>
 #include <vector>
+#include <map>
 #include "mux.hpp"
 #include "memory.hpp"
 #include "tree.hpp"
 
 using namespace std;
 
-Mux::joinUpLeft(Mux& left)
+void Mux::joinUpLeft(Mux* left)
 {
-	lowRange = left.lowRange;
-	midRangeLeft = left.hiRange;
+	lowRange = left->lowRange;
+	midRangeLeft = left->hiRange;
 }
 
-Mux::joinUpRight(Mux& right)
+void Mux::joinUpRight(Mux* right)
 {
-	hiRange = right.hiRange;
-	midRangeRight = right.lowRange;
+	hiRange = right->hiRange;
+	midRangeRight = right->lowRange;
 }
 
 
 
 Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 {
-	long totalLeaves = column * rows;
+	long totalLeaves = columns * rows;
 	levels = 0;
 	long muxCount = totalLeaves;
 
@@ -35,8 +36,8 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	//number the leaves
 	for (int i = 0; i < totalLeaves; i++)
 	{
-		(nodes[0])[i].assignNumber(i);
-		(nodes[0])[i].assignMemory(globalMemory);
+		(nodes[0])[i]->assignNumber(i);
+		(nodes[0])[i]->assignMemory(&globalMemory);
 	}
 	//root Mux - connects to global memory
 	nodes.push_back(vector<Mux *>(1));
@@ -46,11 +47,11 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	{
 		for (int j = 0; j < nodes[i].size(); j+= 2)
 		{
-			(nodes[i])[j].joinUpLeft((nodes[i + 1])[j/2]&);
-			(nodes[i])[j + 1].joinUpRight((nodes[i + 1])[j/2]&);
+			(nodes[i])[j]->joinUpLeft((nodes[i + 1])[j/2]);
+			(nodes[i])[j + 1]->joinUpRight((nodes[i + 1])[j/2]);
 		}
 	}
 
 	//attach root to global memory
-	globalMemory.attachTree(nodes.at(size() - 1)[0]&);
+	globalMemory.attachTree(nodes.at(nodes.size() - 1)[0]);
 }
