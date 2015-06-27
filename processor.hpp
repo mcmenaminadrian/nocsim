@@ -3,7 +3,7 @@
 
 class Processor {
 public:
-	Processor() {};
+	Processor();
 };
 
 #endif
