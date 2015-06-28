@@ -5,8 +5,8 @@
 
 using namespace std;
 
-void Mux::joinMemory(Memory *gMem)
+Mux::Mux(Memory *gMem): globalMemory(gMem)
 {
-	globalMemory = gMem;
+
 }
 

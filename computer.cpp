@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 	}
 
 	Noc tiles(columns, rows);
-
+	
 	//Now build tree recursively down from memories to tiles
 	for (int i = 0; i < memoryBlocks; i++)
 	{

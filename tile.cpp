@@ -10,7 +10,7 @@ using namespace std;
 
 Tile::Tile(): tileLocalMemory(new Memory(0, TILE_MEM_SIZE)),
 	tileProcessor(new Processor())
-{ }
+{}
 
 Tile::~Tile()
 {

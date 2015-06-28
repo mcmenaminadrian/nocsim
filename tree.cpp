@@ -37,19 +37,25 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 
 	//create the nodes
 	while (muxCount > 1) {
-		nodes.push_back(vector<Mux *>(muxCount));
+		nodes.push_back(vector<Mux *>(muxCount, new Mux(&globalMemory)));
 		muxCount /= 2;
 		levels++;
 	}
 	//number the leaves
 	for (int i = 0; i < totalLeaves; i++)
 	{
-		(nodes[0])[i]->assignNumber(i);
-		(nodes[0])[i]->assignMemory(&globalMemory);
-		noc.tileAt(i)->addTreeLeaf(nodes[0][i]);
+		Mux *target = nodes[0][i];
+		target->assignNumber(i);
+		Tile *targetTile = noc.tileAt(i);
+		if (!targetTile) {
+			cout << "Bad tile index" << endl;
+			throw "tile index error";
+		}
+		targetTile->addTreeLeaf(target);
 	}
 	//root Mux - connects to global memory
-	nodes.push_back(vector<Mux *>(1));
+	nodes.push_back(vector<Mux *>(1, new Mux(&globalMemory)));
+
 
 	//join the nodes internally
 	for (int i = 0; i < levels; i++)

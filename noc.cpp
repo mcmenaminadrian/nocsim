@@ -13,10 +13,7 @@ Noc::Noc(const long columns, const long rows):
 	columnCount(columns), rowCount(rows)
 {
 	for (int i = 0; i < columns; i++) {
-		tiles.push_back(vector<Tile *>(rows));
-		for (int j = 0; j < rows; j++) {
-			tiles[i].push_back(new Tile());
-		}
+		tiles.push_back(vector<Tile *>(rows, new Tile()));
 	}
 }
 
@@ -39,7 +36,6 @@ Tile* Noc::tileAt(long i)
 	if (i >= columnCount * rowCount || i < 0){
 		return NULL;
 	}
-
 	long columnAccessed = i/columnCount;
 	long rowAccessed = i - (columnAccessed * rowCount);
 	return tiles[columnAccessed][rowAccessed];

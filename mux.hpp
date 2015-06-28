@@ -20,7 +20,7 @@ private:
 
 public:
 
-	Mux(Memory *gMem):globalMemory(gMem){};
+	Mux(Memory *gMem);
 	const long getLowRange() const { return lowRange;};
 	const long getHiRange() const { return hiRange; };
 	void joinUpLeft(Mux* joiner);
@@ -29,8 +29,6 @@ public:
 		lowRange = i;
 		hiRange = i;
 	}
-	void assignMemory(Memory* gMemory) { globalMemory = gMemory; }
-	void joinMemory(Memory* gMemory);
 	void routePacket(Packet *pack);
 	
 };	
