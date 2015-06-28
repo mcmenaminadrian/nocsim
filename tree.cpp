@@ -28,7 +28,6 @@ void Mux::routePacket(Packet* packet)
 }
 
 
-
 Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 {
 	long totalLeaves = columns * rows;
@@ -37,14 +36,17 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 
 	//create the nodes
 	while (muxCount > 1) {
-		nodes.push_back(vector<Mux *>(muxCount, new Mux(&globalMemory)));
+		nodesTree.push_back(vector<Mux *>(muxCount));
+		for (int i = 0; i < muxCount; i++) {
+			nodesTree[levels][i] = new Mux(&globalMemory);
+		}
 		muxCount /= 2;
 		levels++;
 	}
 	//number the leaves
 	for (int i = 0; i < totalLeaves; i++)
 	{
-		Mux *target = nodes[0][i];
+		Mux *target = nodesTree[0][i];
 		target->assignNumber(i);
 		Tile *targetTile = noc.tileAt(i);
 		if (!targetTile) {
@@ -54,19 +56,29 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 		targetTile->addTreeLeaf(target);
 	}
 	//root Mux - connects to global memory
-	nodes.push_back(vector<Mux *>(1, new Mux(&globalMemory)));
+	nodesTree.push_back(vector<Mux *>(1));
+	nodesTree[levels][0] = new Mux(&globalMemory);
 
 
 	//join the nodes internally
 	for (int i = 0; i < levels; i++)
 	{
-		for (int j = 0; j < nodes[i].size(); j+= 2)
+		for (int j = 0; j < nodesTree[i].size(); j+= 2)
 		{
-			(nodes[i])[j]->joinUpLeft((nodes[i + 1])[j/2]);
-			(nodes[i])[j + 1]->joinUpRight((nodes[i + 1])[j/2]);
+			(nodesTree[i])[j]->joinUpLeft((nodesTree[i + 1])[j/2]);
+			(nodesTree[i])[j + 1]->joinUpRight((nodesTree[i + 1])[j/2]);
 		}
 	}
 
 	//attach root to global memory
-	globalMemory.attachTree(nodes.at(nodes.size() - 1)[0]);
+	globalMemory.attachTree(nodesTree.at(nodesTree.size() - 1)[0]);
 }
+
+Tree::~Tree()
+{
+	for (int i = 0; i <= levels; i++) {
+		for (int j = 0; j < nodesTree[i].size(); j++) {
+			delete nodesTree[i][j];
+		}
+	}
+} 

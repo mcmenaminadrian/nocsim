@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	long blockSize = 1024 * 1024 * 1024;
 	long rows = 32;
 	long columns = 32;
-	vector<Tree> trees;
+	vector<Tree *> trees;
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-?") == 0) {
@@ -70,12 +70,18 @@ int main(int argc, char *argv[])
 		globalMemory.push_back(Memory(i * blockSize, blockSize));
 	}
 
-	Noc tiles(columns, rows);
+	Noc networkTiles(columns, rows);
 	
 	//Now build tree recursively down from memories to tiles
 	for (int i = 0; i < memoryBlocks; i++)
 	{
-		trees.push_back(Tree(globalMemory[i], tiles, columns, rows));
+		trees.push_back(new Tree(globalMemory[i], networkTiles, columns,
+			rows));
+	}
+
+clean_up:
+	for (int i = 0; i < memoryBlocks; i++) {
+		delete trees[i];
 	}
 
 }

@@ -13,7 +13,10 @@ Noc::Noc(const long columns, const long rows):
 	columnCount(columns), rowCount(rows)
 {
 	for (int i = 0; i < columns; i++) {
-		tiles.push_back(vector<Tile *>(rows, new Tile()));
+		tiles.push_back(vector<Tile *>(rows));
+		for (int j = 0; j < rows; j++) {
+			tiles[i][j] = new Tile();
+		}
 	}
 }
 
@@ -21,7 +24,8 @@ Noc::~Noc()
 {
 	for (int i = 0; i < columnCount; i++) {
 		for (int j = 0; j < rowCount; j++) {
-			delete tiles[i][j];
+			Tile* toGo = tiles[i][j];
+			delete toGo;
 		}
 	}
 }

@@ -34,12 +34,13 @@ public:
 class Tree {
 
 private:
-	std::vector<std::vector<Mux *> > nodes;
+	std::vector<std::vector<Mux *> > nodesTree;
 	long levels;
 	
 
 public:
 	Tree(Memory& globalMemory, Noc& noc,
 		const long columns, const long rows);
+	~Tree();
 };
 #endif
