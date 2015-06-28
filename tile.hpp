@@ -14,18 +14,8 @@ private:
 	std::vector<Mux *> treeLeaves;
 
 public:
-	Tile()
-	{
-
-		tileLocalMemory = new Memory(0, TILE_MEM_SIZE);
-		tileProcessor = new Processor();
-	}
-
-	~Tile()
-	{
-		delete tileProcessor;
-		delete tileLocalMemory;
-	}
+	Tile();
+	~Tile();
 
 	void addTreeLeaf(Mux* leaf);
 };
