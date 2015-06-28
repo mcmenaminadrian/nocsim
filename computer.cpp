@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 	}
 
 	long totalTiles = rows * columns;
-	if (!((totalTiles == 0) && !(totalTiles & (totalTiles - 1)))) {
+	if ((totalTiles == 0) || (totalTiles & (totalTiles - 1))) {
 		cout << "Must have power of two for number of tiles." << endl;
 		exit(EXIT_FAILURE);
 	}  
