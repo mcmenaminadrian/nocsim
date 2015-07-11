@@ -15,7 +15,7 @@ Noc::Noc(const long columns, const long rows):
 	for (int i = 0; i < columns; i++) {
 		tiles.push_back(vector<Tile *>(rows));
 		for (int j = 0; j < rows; j++) {
-			tiles[i][j] = new Tile();
+			tiles[i][j] = new Tile(i, j);
 		}
 	}
 }
