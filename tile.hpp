@@ -12,14 +12,15 @@ private:
 	Memory *tileLocalMemory;
 	Processor *tileProcessor;
 	std::vector<Mux *> treeLeaves;
-	const long column;
-	const long row;
+	std::pair<long, long> coordinates;
+	std::vector<std::pair<long, long> > connections;
 
 public:
 	Tile(const long col, const long r);
 	~Tile();
 
 	void addTreeLeaf(Mux* leaf);
+	void addConnection(const long col, const long row);
 };
 
 #endif

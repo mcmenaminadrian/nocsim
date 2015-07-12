@@ -18,6 +18,19 @@ Noc::Noc(const long columns, const long rows):
 			tiles[i][j] = new Tile(i, j);
 		}
 	}
+	//construct non-memory network
+	for (int i = 0; i < columns; i++) {
+		for (int j = 0; j < (rows - 1); j++) {
+			tiles[i][j]->addConnection(i, j + 1);
+			tiles[i][j + 1]->addConnection(i, j);
+		}
+	}
+	for (int i = 0; i < (columns - 1); i++) {
+		for (int j = 0; j < rows; j++) {
+			tiles[i][j]->addConnection(i + 1, j);
+			tiles[i + 1][j]->addConnection(i, j);
+		}
+	}
 }
 
 Noc::~Noc()
