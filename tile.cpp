@@ -9,9 +9,10 @@
 
 using namespace std;
 
-Tile::Tile(const long c, const long r):
+Tile::Tile(const long c, const long r, const long pShift):
 	tileLocalMemory(new Memory(0, TILE_MEM_SIZE)),
-	tileProcessor(new Processor()), coordinates(pair<long, long>(c, r))
+	tileProcessor(new Processor()), coordinates(pair<long, long>(c, r)),
+	pageShift(pShift)
 {}
 
 Tile::~Tile()

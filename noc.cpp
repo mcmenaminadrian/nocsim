@@ -9,13 +9,13 @@
 
 using namespace std;
 
-Noc::Noc(const long columns, const long rows):
+Noc::Noc(const long columns, const long rows, const long pageShift):
 	columnCount(columns), rowCount(rows)
 {
 	for (int i = 0; i < columns; i++) {
 		tiles.push_back(vector<Tile *>(rows));
 		for (int j = 0; j < rows; j++) {
-			tiles[i][j] = new Tile(i, j);
+			tiles[i][j] = new Tile(i, j, pageShift);
 		}
 	}
 	//construct non-memory network

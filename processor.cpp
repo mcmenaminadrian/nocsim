@@ -3,6 +3,6 @@
 
 using namespace std;
 
-Processor::Processor()
+Processor::Processor(Tile *parent): masterTile(parent)
 {
 }

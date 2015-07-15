@@ -3,6 +3,7 @@
 #ifndef _TILE_CLASS_
 #define _TILE_CLASS_
 
+
 class Memory;
 class Processor;
 
@@ -14,9 +15,10 @@ private:
 	std::vector<Mux *> treeLeaves;
 	std::pair<long, long> coordinates;
 	std::vector<std::pair<long, long> > connections;
+	const long pageShift;
 
 public:
-	Tile(const long col, const long r);
+	Tile(const long col, const long r, const long pShift);
 	~Tile();
 
 	void addTreeLeaf(Mux* leaf);

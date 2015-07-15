@@ -12,7 +12,7 @@ private:
 	std::vector<std::vector<Tile * > > tiles;
 
 public:
-	Noc(const long columns, const long rows);
+	Noc(const long columns, const long rows, const long pageShift);
 	~Noc();
 	bool attach(Tree& memoryTree, const long leaf);
 	Tile* tileAt(long i);

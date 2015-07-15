@@ -19,6 +19,7 @@ void usage() {
 	cout << "-s    Memory block size: default 1GB" << endl;
 	cout << "-r    Rows of CPUs in NoC (default 32)" << endl;
 	cout << "-c    Columns of CPUs in NoC (default 32)" << endl;
+	cout << "-p    Page size in power of 2 (default 10)" << endl;
 
 	cout << "-?    Print this message and exit" << endl;
 }
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
 	long blockSize = 1024 * 1024 * 1024;
 	long rows = 32;
 	long columns = 32;
+	long pageShift = 10;
 	vector<Tree *> trees;
 
 	for (int i = 1; i < argc; i++) {
@@ -52,6 +54,10 @@ int main(int argc, char *argv[])
 			columns = atol(argv[++i]);
 			continue;
 		}
+		if (strcmp(argv[i], "-p") == 0) {
+			pageShift = atol(argv[++i]);
+			continue;
+		}
 
 		//unrecognised option
 		usage();
@@ -70,7 +76,7 @@ int main(int argc, char *argv[])
 		globalMemory.push_back(Memory(i * blockSize, blockSize));
 	}
 
-	Noc networkTiles(columns, rows);
+	Noc networkTiles(columns, rows, pageShift);
 	
 	//Now build tree recursively down from memories to tiles
 	for (int i = 0; i < memoryBlocks; i++)
