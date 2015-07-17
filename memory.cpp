@@ -13,7 +13,7 @@ Memory::Memory(const long startAddress, const long size)
 	memorySize = size;
 }
 
-char Memory::readByte(const long address)
+char Memory::readByte(const long address) const
 {
 	char retVal = 0;
 
@@ -33,7 +33,7 @@ char Memory::readByte(const long address)
 	return retVal;
 }
 
-long Memory::readLong(const long address)
+long Memory::readLong(const long address) const
 {
 	long retVal = 0;
 
@@ -76,6 +76,11 @@ void Memory::writeLong(const long address, const long value)
 	{
 		contents.at(address + i) = (value & (0xFF << (i * 8)));
 	}
+}
+
+unsigned long Memory::getSize() const
+{
+	return size;
 }
 
 void Memory::attachTree(Mux* root)

@@ -8,18 +8,19 @@ class Mux;
 class Memory {
 
 private:
-	long memorySize;
-	long start;
+	unsigned long memorySize;
+	unsigned long start;
 	std::map<long, char> contents;
 	Mux* rootMux;
 
 public:
-	Memory(const long start, const long size);
-	char readByte(const long address);
-	long readLong(const long address);
+	Memory(const unsigned long start, const unsigned long size);
+	char readByte(const long address) const;
+	long readLong(const long address) const;
 	void writeByte(const long address, const char value);
 	void writeLong(const long address, const long value);
 	void attachTree(Mux* root);
+	unsigned long getSize() const;
 };
 
 #endif

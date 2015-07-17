@@ -17,7 +17,7 @@ public:
 	void loadMem(const long regNo, const long memAddr);
 	void switchModeReal();
 	void switchModeVirtual();
-	
+	void createMemoryMap(Memory *local, long pShift);	
 };
 
 #endif
