@@ -89,8 +89,8 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 			result.first = true;
 			result.second = 
 				localMemory->readLong(
-				(i * PAGETABLEENTRY + PHYSOFFSET)
-				<< pageOffset - PAGETABLESLOCAL);
+				(i * PAGETABLEENTRY + PHYSOFFSET
+				<< pageOffset) - PAGETABLESLOCAL);
 			return result;
 		}
 	}
@@ -118,7 +118,7 @@ void Processor::load(const long regNo, const unsigned long value)
 		}
 		//now fetch virtual address
 		
-		result = localMemory->readLong(mapping.second + (
+		result = localMemory->readLong(mapping.second); 
 	}
 
 	registerFile[regNo] = result;

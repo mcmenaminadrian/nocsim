@@ -12,6 +12,7 @@ private:
 	ProcessorMode mode;
 	Memory *localMemory;
 	long pageShift;
+	unsigned long mask;
 
 public:
 	Processor(Tile* parent);
@@ -20,7 +21,8 @@ public:
 	void loadMem(const long regNo, const unsigned long memAddr);
 	void switchModeReal();
 	void switchModeVirtual();
-	void createMemoryMap(Memory *local, long pShift);	
+	void createMemoryMap(Memory *local, long pShift);
+	std::pair<bool, long> mapped(const unsigned long address) const;
 };
 
 #endif
