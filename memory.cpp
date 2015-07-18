@@ -78,6 +78,22 @@ void Memory::writeLong(const long address, const long value)
 	}
 }
 
+vector<char> Memory::readWord(const long address) const
+{
+	vector<char> result;
+	for (int i = 0; i < 4; i++) {
+		result.push_back(readByte(address + i);
+	}
+	return result;
+}
+
+void Memory::writeWord(const long address, vector<char> data)
+{
+	for (int i = 0; i < 4; i++) {
+		writeByte(address + i, data[i]);
+	}
+}
+
 unsigned long Memory::getSize() const
 {
 	return size;

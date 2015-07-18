@@ -12,6 +12,10 @@
 
 //page table flags
 //bit 0 - 0 for invalid entry, 1 for valid
+//bit 1 - 0 for moveable, 1 for fixed
+
+//page mappings
+#define PAGETABLESLOCAL 0xA000000000000000
 
 using namespace std;
 
@@ -28,13 +32,18 @@ void Processor::switchModeVirtual()
 	mode = VIRTUAL;
 }
 
-void Processor::createMemoryMap(Memory *localMemory, long pShift)
+void Processor::createMemoryMap(Memory *local, long pShift)
 {
+	localMemory = local;
+	pageShift = pShift
 	unsigned long memoryAvailable = localMemory->getSize();
-	unsigned long pagesAvailable = memoryAvailable >> pShift;
+	unsigned long pagesAvailable = memoryAvailable >> pageShift;
 	unsigned long requiredPTESize = pagesAvailable * PAGETABLEENTRY;
-	long requiredPTEPages = requiredPTESize >> pShift;
+	long requiredPTEPages = requiredPTESize >> pageShift;
 	long memoryOffset = 0;
+	//write out page table size
+	localMemory->writeLong(memoryOffset, requiredPTEPages);
+	memoryOffset += sizeof( long );
 	for (int i = 0; i < requiredPTEPages; i++) {
 		memoryOffset = i * PAGETABLEENTRY;
 		localMemory->writeLong(memoryOffset + FRAMEOFFSET, i);
@@ -42,9 +51,31 @@ void Processor::createMemoryMap(Memory *localMemory, long pShift)
 			localMemory->writeByte(memoryOffset + j, 0);
 		}
 	}
+	//now mark page mappings as valid and fixed
+	for (int i = 0; i < requiredPTESize; i++) {
+		localMemory->writeLong(PHYSOFFSET + i * (1 << pageOffset),
+			PAGETABLESLOCAL + i * PAGETABLEENTRY);
+		localMemory->writeLong(VIRTOFFSET + i * (1 << pageOffset),
+			PAGETABLESLOCAL + i * PAGETABLEENTRY);
+		vector<char> wordIn;
+		for (int j = 0; j < 3; j++) {
+			wordIn.push_back('\0');
+		}
+		wordIn.push_back(0x03);
+		localMemory->writeWord(FLAGOFFSET + i * (1 << pageOffset),
+			PAGETABLESLOCAL + i * PAGETABLEENTRY);
+	} 
 }
 
-void Processor::load(const long regNo, const long value)
+bool Processor::mapped(const unsigned long address) const
+{
+	long totalPages = localMemory->readLong(0);
+	unsigned long checkAddress = address >> pageShift;
+
+	for (int i = 0; i < totalPages; i++) {
+			
+
+void Processor::load(const long regNo, const unsigned long value)
 {
 	if (regNo < 0 || regNo >= REGISTER_FILE_SIZE) {
 		throw "Bad register number";

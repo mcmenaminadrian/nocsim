@@ -10,11 +10,14 @@ private:
 	Tile *masterTile;
 	enum ProcessorMode { REAL, VIRTUAL };
 	ProcessorMode mode;
+	Memory *localMemory;
+	long pageShift;
+
 public:
 	Processor(Tile* parent);
-	void load(const long regNo, const long value);
-	long read(const long regNo);
-	void loadMem(const long regNo, const long memAddr);
+	void load(const long regNo, const unsigned long value);
+	long read(const unsigned long regNo);
+	void loadMem(const long regNo, const unsigned long memAddr);
 	void switchModeReal();
 	void switchModeVirtual();
 	void createMemoryMap(Memory *local, long pShift);	
