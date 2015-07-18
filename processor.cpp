@@ -54,9 +54,9 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	//now mark page mappings as valid and fixed
 	for (int i = 0; i < requiredPTESize; i++) {
 		localMemory->writeLong(PHYSOFFSET + i * (1 << pageOffset),
-			PAGETABLESLOCAL + i * PAGETABLEENTRY);
+			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageOffset);
 		localMemory->writeLong(VIRTOFFSET + i * (1 << pageOffset),
-			PAGETABLESLOCAL + i * PAGETABLEENTRY);
+			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageOffset);
 		vector<char> wordIn;
 		for (int j = 0; j < 3; j++) {
 			wordIn.push_back('\0');
@@ -64,15 +64,39 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 		wordIn.push_back(0x03);
 		localMemory->writeWord(FLAGOFFSET + i * (1 << pageOffset),
 			PAGETABLESLOCAL + i * PAGETABLEENTRY);
-	} 
+	}
+	mask = 0;
+	for (int i = 0; i < pageShift; i++) {
+		mask |= 1 << i;
+	}
 }
 
-bool Processor::mapped(const unsigned long address) const
+pair<bool, long> Processor::mapped(const unsigned long address) const
 {
+	if (!mode == VIRTUAL) {
+		throw "testing virtual mapping in REAL mode";
+	}
 	long totalPages = localMemory->readLong(0);
 	unsigned long checkAddress = address >> pageShift;
 
 	for (int i = 0; i < totalPages; i++) {
+		if ((address >> pageOffset) ==
+			localMemory->readLong(i * PAGETABLEENTRY + VIRTOFFSET)
+			&& 
+			(localMemory->readWord(i * PAGETABLEENTRY + FLAGOFFSET)
+			& 0x01)) {
+			pair<bool, long> result;
+			result.first = true;
+			result.second = 
+				localMemory->readLong(
+				(i * PAGETABLEENTRY + PHYSOFFSET)
+				<< pageOffset - PAGETABLESLOCAL);
+			return result;
+		}
+	}
+	return pair<bool, long>(false, 0);
+}	
+		
 			
 
 void Processor::load(const long regNo, const unsigned long value)
@@ -86,12 +110,15 @@ void Processor::load(const long regNo, const unsigned long value)
 		//always runs
 	}
 	else if (mode == VIRTUAL) {
-		if (!mapped(value)) {
+		pair<bool, long> mapping = mapped(value);
+		if (!mapping.first) {
 			//simulate fault
 			//get mapping
 			//update pages etc
 		}
 		//now fetch virtual address
+		
+		result = localMemory->readLong(mapping.second + (
 	}
 
 	registerFile[regNo] = result;
