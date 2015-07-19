@@ -8,8 +8,8 @@ class Mux;
 class Memory {
 
 private:
-	unsigned long memorySize;
-	unsigned long start;
+	const unsigned long start;
+	const unsigned long memorySize;
 	std::map<long, char> contents;
 	Mux* rootMux;
 

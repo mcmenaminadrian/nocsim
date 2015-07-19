@@ -7,11 +7,9 @@
 
 using namespace std;
 
-Memory::Memory(const unsigned long startAddress, const unsigned long size)
-{
-	start = startAddress;
-	memorySize = size;
-}
+Memory::Memory(const unsigned long startAddress, const unsigned long size):
+	start(startAddress), memorySize(size)
+{}
 
 char Memory::readByte(const long address)
 {

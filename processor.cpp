@@ -1,7 +1,9 @@
 #include <iostream>
 #include <vector>
+#include <map>
 #include "mux.hpp"
 #include "tile.hpp"
+#include "memory.hpp"
 #include "processor.hpp"
 
 //Page table entries - physical addr, virtual addr, frame no, flags
@@ -40,7 +42,7 @@ void Processor::switchModeVirtual()
 void Processor::createMemoryMap(Memory *local, long pShift)
 {
 	localMemory = local;
-	pageShift = pShift
+	pageShift = pShift;
 	unsigned long memoryAvailable = localMemory->getSize();
 	unsigned long pagesAvailable = memoryAvailable >> pageShift;
 	unsigned long requiredPTESize = pagesAvailable * PAGETABLEENTRY;
@@ -58,16 +60,16 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	}
 	//now mark page mappings as valid and fixed
 	for (int i = 0; i < requiredPTESize; i++) {
-		localMemory->writeLong(PHYSOFFSET + i * (1 << pageOffset),
-			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageOffset);
-		localMemory->writeLong(VIRTOFFSET + i * (1 << pageOffset),
-			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageOffset);
+		localMemory->writeLong(PHYSOFFSET + i * (1 << pageShift),
+			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
+		localMemory->writeLong(VIRTOFFSET + i * (1 << pageShift),
+			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
 		vector<char> wordIn;
 		for (int j = 0; j < 3; j++) {
 			wordIn.push_back('\0');
 		}
 		wordIn.push_back(0x03);
-		localMemory->writeWord(FLAGOFFSET + i * (1 << pageOffset),
+		localMemory->writeWord(FLAGOFFSET + i * (1 << pageShift),
 			PAGETABLESLOCAL + i * PAGETABLEENTRY);
 	}
 	mask = 0;
@@ -78,14 +80,14 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 
 pair<bool, long> Processor::mapped(const unsigned long address) const
 {
-	if (!mode == VIRTUAL) {
+	if (mode != VIRTUAL) {
 		throw "testing virtual mapping in REAL mode";
 	}
 	long totalPages = localMemory->readLong(0);
 	unsigned long checkAddress = address >> pageShift;
 
 	for (int i = 0; i < totalPages; i++) {
-		if ((address >> pageOffset) ==
+		if ((address >> pageShift) ==
 			localMemory->readLong(i * PAGETABLEENTRY + VIRTOFFSET)
 			&& 
 			(localMemory->readWord(i * PAGETABLEENTRY + FLAGOFFSET)
@@ -94,8 +96,8 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 			result.first = true;
 			result.second = 
 				localMemory->readLong(
-				(i * PAGETABLEENTRY + PHYSOFFSET
-				<< pageOffset) - PAGETABLESLOCAL);
+				((i * PAGETABLEENTRY + PHYSOFFSET)
+				<< pageShift) - PAGETABLESLOCAL);
 			return result;
 		}
 	}
@@ -128,4 +130,3 @@ void Processor::load(const long regNo, const unsigned long value)
 
 	registerFile[regNo] = result;
 }
-		
