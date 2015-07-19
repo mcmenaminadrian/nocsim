@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include "mux.hpp"
 #include "tile.hpp"
 #include "processor.hpp"
 
@@ -24,6 +25,7 @@ using namespace std;
 Processor::Processor(Tile *parent): masterTile(parent), mode(REAL)
 {
 	registerFile = vector<unsigned long>(REGISTER_FILE_SIZE, 0);
+}
 
 void Processor::switchModeReal()
 {
