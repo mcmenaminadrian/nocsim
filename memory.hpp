@@ -15,9 +15,9 @@ private:
 
 public:
 	Memory(const unsigned long start, const unsigned long size);
-	char readByte(const long address) const;
-	long readLong(const long address) const;
-	std::vector<char> readWord(const long address) const;
+	char readByte(const long address);
+	long readLong(const long address);
+	std::vector<char> readWord(const long address);
 	void writeWord(const long address, std::vector<char>);
 	void writeByte(const long address, const char value);
 	void writeLong(const long address, const long value);

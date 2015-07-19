@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include "tile.hpp"
 #include "processor.hpp"
 
 //Page table entries - physical addr, virtual addr, frame no, flags
@@ -20,7 +22,8 @@
 using namespace std;
 
 Processor::Processor(Tile *parent): masterTile(parent), mode(REAL)
-{}
+{
+	registerFile = vector<unsigned long>(REGISTER_FILE_SIZE, 0);
 
 void Processor::switchModeReal()
 {

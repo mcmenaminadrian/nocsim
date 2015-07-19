@@ -2,10 +2,10 @@
 #include <vector>
 #include <map>
 #include "memory.hpp"
-#include "processor.hpp"
 #include "tile.hpp"
 #include "noc.hpp"
 #include "tree.hpp"
+#include "processor.hpp"
 
 using namespace std;
 

@@ -7,13 +7,13 @@
 
 using namespace std;
 
-Memory::Memory(const long startAddress, const long size)
+Memory::Memory(const unsigned long startAddress, const unsigned long size)
 {
 	start = startAddress;
 	memorySize = size;
 }
 
-char Memory::readByte(const long address) const
+char Memory::readByte(const long address)
 {
 	char retVal = 0;
 
@@ -33,7 +33,7 @@ char Memory::readByte(const long address) const
 	return retVal;
 }
 
-long Memory::readLong(const long address) const
+long Memory::readLong(const long address)
 {
 	long retVal = 0;
 
@@ -58,7 +58,7 @@ long Memory::readLong(const long address) const
 void Memory::writeByte(const long address, const char value)
 {
 	if (address < start || address > start + memorySize) {
-		cout << "Memory::readByte out of range" << endl;
+		cout << "Memory::writeByte out of range" << endl;
 		throw "Memory class range error";
 	}
 
@@ -78,11 +78,11 @@ void Memory::writeLong(const long address, const long value)
 	}
 }
 
-vector<char> Memory::readWord(const long address) const
+vector<char> Memory::readWord(const long address) 
 {
 	vector<char> result;
 	for (int i = 0; i < 4; i++) {
-		result.push_back(readByte(address + i);
+		result.push_back(readByte(address + i));
 	}
 	return result;
 }
@@ -96,7 +96,7 @@ void Memory::writeWord(const long address, vector<char> data)
 
 unsigned long Memory::getSize() const
 {
-	return size;
+	return memorySize;
 }
 
 void Memory::attachTree(Mux* root)

@@ -5,7 +5,7 @@
 
 class Processor {
 private:
-	std:vector<long> registerFile(REGISTER_FILE_SIZE);
+	std::vector<unsigned long> registerFile;
 	long programCounter;
 	Tile *masterTile;
 	enum ProcessorMode { REAL, VIRTUAL };
