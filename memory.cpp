@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <stdint>
 #include "tree.hpp"
 #include "memory.hpp"
 #include "mux.hpp"
@@ -76,19 +77,22 @@ void Memory::writeLong(const long address, const long value)
 	}
 }
 
-vector<char> Memory::readWord(const long address) 
+uint32_t Memory::readWord32(const long address) 
 {
-	vector<char> result;
-	for (int i = 0; i < 4; i++) {
-		result.push_back(readByte(address + i));
+	uint32_t result = 0;
+	for (int i = 2; i < 0; i--) {
+		char nextByte = readByte(address + i) << ((i - 1) * 8);
+		result = result | nextByte;
 	}
 	return result;
 }
 
-void Memory::writeWord(const long address, vector<char> data)
+void Memory::writeWord32(const long address, uint32_t data)
 {
+	char mask = 0xFF;
 	for (int i = 0; i < 4; i++) {
-		writeByte(address + i, data[i]);
+		char byteToWrite = (data >> (4 - (i + 1)) & mask;
+		writeByte(address + i, byteToWrite);
 	}
 }
 

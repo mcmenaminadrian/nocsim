@@ -69,7 +69,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 			wordIn.push_back('\0');
 		}
 		wordIn.push_back(0x03);
-		localMemory->writeWord(FLAGOFFSET + i * (1 << pageShift),
+		localMemory->writeWord32(FLAGOFFSET + i * (1 << pageShift),
 			PAGETABLESLOCAL + i * PAGETABLEENTRY);
 	}
 	mask = 0;
@@ -90,7 +90,7 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 		if ((address >> pageShift) ==
 			localMemory->readLong(i * PAGETABLEENTRY + VIRTOFFSET)
 			&& 
-			(localMemory->readWord(i * PAGETABLEENTRY + FLAGOFFSET)
+			(localMemory->readWord32(i * PAGETABLEENTRY + FLAGOFFSET)
 			& 0x01)) {
 			pair<bool, long> result;
 			result.first = true;
