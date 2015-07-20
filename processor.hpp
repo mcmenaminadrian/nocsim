@@ -3,6 +3,8 @@
 
 #define REGISTER_FILE_SIZE 32
 
+class Tile;
+
 class Processor {
 private:
 	std::vector<unsigned long> registerFile;

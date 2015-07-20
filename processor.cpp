@@ -84,8 +84,6 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 		throw "testing virtual mapping in REAL mode";
 	}
 	long totalPages = localMemory->readLong(0);
-	unsigned long checkAddress = address >> pageShift;
-
 	for (int i = 0; i < totalPages; i++) {
 		if ((address >> pageShift) ==
 			localMemory->readLong(i * PAGETABLEENTRY + VIRTOFFSET)
