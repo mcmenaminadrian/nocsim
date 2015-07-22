@@ -22,6 +22,7 @@
 //page mappings
 #define PAGETABLESLOCAL 0xA000000000000000
 
+
 using namespace std;
 
 Processor::Processor(Tile *parent): masterTile(parent), mode(REAL)
@@ -47,15 +48,27 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	unsigned long pagesAvailable = memoryAvailable >> pageShift;
 	unsigned long requiredPTESize = pagesAvailable * PAGETABLEENTRY;
 	long requiredPTEPages = requiredPTESize >> pageShift;
+	if ((requiredPTEPages << pageShift) != requiredPTESize) {
+		requiredPTEPages++;
+	}
 	long memoryOffset = 0;
-	//write out page table size
+	//write out page table size - page tables begin on page 1
 	localMemory->writeLong(memoryOffset, requiredPTEPages);
+	//how many pages needed for bitmaps?
+	unsigned long bitmapSize = ((1 << pageShift) / (BITMAP_BYTES)) / 8;
+	unsigned long totalBitmapSpace = bitmapSize * pagesAvailable;
+	unsigned long requiredBitmapPages = totalBitmapSpace >> pageShift;
+	if ((requiredBitmapPages << pageShift) != totalBitmapSpace) {
+		requiredBitmapPages++;
+	}
 	memoryOffset += sizeof( long );
+	localMemory->writeLong(memoryOffset, requiredBitmapPages);
+	memoryOffset = 1 << pageShift;
 	for (int i = 0; i < requiredPTEPages; i++) {
-		memoryOffset = i * PAGETABLEENTRY;
-		localMemory->writeLong(memoryOffset + FRAMEOFFSET, i);
+		long memoryLocalOffset = i * PAGETABLEENTRY + memoryOffset;
+		localMemory->writeLong(memoryLocalOffset + FRAMEOFFSET, i);
 		for (int j = FLAGOFFSET; j < ENDOFFSET; j++) {
-			localMemory->writeByte(memoryOffset + j, 0);
+			localMemory->writeByte(memoryLocalOffset + j, 0);
 		}
 	}
 	//now mark page mappings as valid and fixed
@@ -72,10 +85,9 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 		localMemory->writeWord32(FLAGOFFSET + i * (1 << pageShift),
 			PAGETABLESLOCAL + i * PAGETABLEENTRY);
 	}
-	mask = 0;
-	for (int i = 0; i < pageShift; i++) {
-		mask |= 1 << i;
-	}
+	mask = 0xFFFFFFFFFFFFFFFF;
+	mask = mask >> pageShift;
+	mask = mask << pageShift;
 }
 
 pair<bool, long> Processor::mapped(const unsigned long address) const
@@ -90,6 +102,7 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 			&& 
 			(localMemory->readWord32(i * PAGETABLEENTRY + FLAGOFFSET)
 			& 0x01)) {
+			//no need for a hard fault - but is segement mapped
 			pair<bool, long> result;
 			result.first = true;
 			result.second = 
