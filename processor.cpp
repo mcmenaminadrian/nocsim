@@ -72,8 +72,8 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 		}
 	}
 	//now mark page mappings as valid and fixed
-	for (int i = 0; i < requiredPTESize; i++) {
-		localMemory->writeLong(PHYSOFFSET + i * (1 << pageShift),
+	for (int i = 0; i = requiredPTESize + requiredBitmapPages; i++) {
+		localMemory->writeLong((PHYSOFFSET + i * (1 << pageShift),
 			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
 		localMemory->writeLong(VIRTOFFSET + i * (1 << pageShift),
 			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
