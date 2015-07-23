@@ -96,13 +96,23 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 		throw "testing virtual mapping in REAL mode";
 	}
 	long totalPages = localMemory->readLong(0);
+	long pageSize = 1 << pageShift;
 	for (int i = 0; i < totalPages; i++) {
 		if ((address >> pageShift) ==
-			localMemory->readLong(i * PAGETABLEENTRY + VIRTOFFSET)
-			&& 
-			(localMemory->readWord32(i * PAGETABLEENTRY + FLAGOFFSET)
-			& 0x01)) {
+			localMemory->readLong(pageSize +
+			i * PAGETABLEENTRY + VIRTOFFSET) && 
+			(localMemory->readWord32(i * PAGETABLEENTRY + FLAGOFFSET +
+			pageSize) & 0x01)) {
 			//no need for a hard fault - but is segement mapped
+			unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
+			unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
+			unsigned long bitToCheck = ((address & mask) / BITMAP_BYTES);
+			unsigned long bitToCheckOffset = bitToCheck / 8;
+			bitToCheck %= 8;
+			if (!(localMemory->readByte(bitmapOffset + i * bitmapSize + bitToCheckOffset) & (1 << bitToCheck)) {
+				//small fault required
+			}
+			
 			pair<bool, long> result;
 			result.first = true;
 			result.second = 

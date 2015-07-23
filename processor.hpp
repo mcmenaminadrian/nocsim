@@ -2,6 +2,7 @@
 #define _PROCESSOR_CLASS_
 
 #define REGISTER_FILE_SIZE 32
+#define BITMAP_BYTES 16
 
 class Tile;
 
