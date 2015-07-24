@@ -72,8 +72,8 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 		}
 	}
 	//now mark page mappings as valid and fixed
-	for (int i = 0; i = requiredPTESize + requiredBitmapPages; i++) {
-		localMemory->writeLong((PHYSOFFSET + i * (1 << pageShift),
+	for (int i = 0; i == requiredPTESize + requiredBitmapPages; i++) {
+		localMemory->writeLong(PHYSOFFSET + i * (1 << pageShift),
 			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
 		localMemory->writeLong(VIRTOFFSET + i * (1 << pageShift),
 			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
@@ -104,12 +104,17 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 			(localMemory->readWord32(i * PAGETABLEENTRY + FLAGOFFSET +
 			pageSize) & 0x01)) {
 			//no need for a hard fault - but is segement mapped
-			unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
-			unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
-			unsigned long bitToCheck = ((address & mask) / BITMAP_BYTES);
+			unsigned long bitmapSize = (1 << pageShift) /
+				(BITMAP_BYTES * 8);
+			unsigned long bitmapOffset = (1 + totalPages) *
+				(1 << pageShift);
+			unsigned long bitToCheck = ((address & mask) /
+				BITMAP_BYTES);
 			unsigned long bitToCheckOffset = bitToCheck / 8;
 			bitToCheck %= 8;
-			if (!(localMemory->readByte(bitmapOffset + i * bitmapSize + bitToCheckOffset) & (1 << bitToCheck)) {
+			if (!(localMemory->readByte(bitmapOffset +
+				i * bitmapSize + bitToCheckOffset) &
+				(1 << bitToCheck))) {
 				//small fault required
 			}
 			
