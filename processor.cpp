@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <boost/proto/core.hpp>
 #include "mux.hpp"
 #include "tile.hpp"
 #include "memory.hpp"
@@ -161,6 +162,7 @@ void Processor::load(const long regNo, const unsigned long value)
 
 long Processor::execute(string& filePath)
 {
+	ifstream instructionFile(filePath, ios::open);
+	//interpret instructions
 
-return 0;
 }
