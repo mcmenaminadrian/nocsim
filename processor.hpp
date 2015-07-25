@@ -26,6 +26,7 @@ public:
 	void switchModeVirtual();
 	void createMemoryMap(Memory *local, long pShift);
 	std::pair<bool, long> mapped(const unsigned long address) const;
+	long execute(std::string& filePath);
 };
 
 #endif

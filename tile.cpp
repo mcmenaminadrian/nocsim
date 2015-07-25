@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <string>
 #include "mux.hpp"
 #include "memory.hpp"
 #include "processor.hpp"
@@ -33,4 +34,9 @@ void Tile::addConnection(const long col, const long row)
 void Tile::addTreeLeaf(Mux *leaf)
 {
 	treeLeaves.push_back(leaf);
+}
+
+long Tile::execute(string& instructions)
+{
+	return tileProcessor->execute(instructions);
 }

@@ -4,6 +4,7 @@
 class Tile;
 class Tree;
 
+
 class Noc {
 
 private:
@@ -16,5 +17,6 @@ public:
 	~Noc();
 	bool attach(Tree& memoryTree, const long leaf);
 	Tile* tileAt(long i);
+	long executeInstructions(std::string& instructionFile);
 };
 #endif

@@ -23,6 +23,7 @@ public:
 
 	void addTreeLeaf(Mux* leaf);
 	void addConnection(const long col, const long row);
+	long execute(std::string& instructionFile);
 };
 
 #endif

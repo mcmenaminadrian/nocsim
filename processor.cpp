@@ -1,6 +1,8 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <map>
+#include <string>
 #include "mux.hpp"
 #include "tile.hpp"
 #include "memory.hpp"
@@ -155,4 +157,10 @@ void Processor::load(const long regNo, const unsigned long value)
 	}
 
 	registerFile[regNo] = result;
+}
+
+long Processor::execute(string& filePath)
+{
+
+return 0;
 }

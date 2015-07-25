@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <string>
 #include "mux.hpp"
 #include "memory.hpp"
 #include "tree.hpp"
@@ -15,6 +16,7 @@ void usage() {
 	cout << "nocSIM: simulate a large NOC array" << endl;
 	cout << "Copyright Adrian McMenamin, 2015" << endl;
 	cout << "---------" << endl;
+	cout << "-i    Path to instruction file (REQUIRED)" << endl;
 	cout << "-b    Memory blocks: default 4" << endl;
 	cout << "-s    Memory block size: default 1GB" << endl;
 	cout << "-r    Rows of CPUs in NoC (default 32)" << endl;
@@ -32,6 +34,8 @@ int main(int argc, char *argv[])
 	long columns = 32;
 	long pageShift = 10;
 	vector<Tree *> trees;
+	bool getInstructions = false;
+	string instructionFile;
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-?") == 0) {
@@ -58,8 +62,18 @@ int main(int argc, char *argv[])
 			pageShift = atol(argv[++i]);
 			continue;
 		}
-
+		if (strcmp(argv[i], "-i") == 0) {
+			instructionFile = argv[++i];
+			getInstructions = true;
+		}
+		
 		//unrecognised option
+		usage();
+		exit(EXIT_FAILURE);
+	}
+
+	if (!getInstructions) {
+		cout << "YOU MUST SPECIFY AN INSTRUCTION FILE..." << endl;
 		usage();
 		exit(EXIT_FAILURE);
 	}
@@ -84,6 +98,9 @@ int main(int argc, char *argv[])
 		trees.push_back(new Tree(globalMemory[i], networkTiles, columns,
 			rows));
 	}
+
+	//Let's Go!
+	networkTiles.executeInstructions(instructionFile);
 
 clean_up:
 	for (int i = 0; i < memoryBlocks; i++) {

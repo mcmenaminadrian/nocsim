@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <string>
 #include "memory.hpp"
 #include "tile.hpp"
 #include "noc.hpp"
@@ -58,4 +59,7 @@ Tile* Noc::tileAt(long i)
 	return tiles[columnAccessed][rowAccessed];
 }
 
-	
+long Noc::executeInstructions(string& instructionFile)
+{
+	return tileAt(0)->execute(instructionFile);
+}
