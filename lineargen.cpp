@@ -12,7 +12,7 @@ uniform_int_distribution<long> distribution(-1024, 1024);
 int main()
 {
 	vector<long> variables;
-	ofstream outfile("varaibles.csv", ios::out);
+	ofstream outfile("variables.csv", ios::out);
 	//generate variables
 	for (int i = 0; i < RANGE; i++) {
 		if (i > 0) {
