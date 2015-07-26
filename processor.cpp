@@ -162,7 +162,9 @@ void Processor::load(const long regNo, const unsigned long value)
 
 long Processor::execute(string& filePath)
 {
-	ifstream instructionFile(filePath, ios::open);
+	ifstream instructionFile(filePath, ios::in);
 	//interpret instructions
+
+	return 0;
 
 }
