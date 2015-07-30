@@ -2,7 +2,7 @@
 #include <fstream>
 #include <random>
 
-#define RANGE 1024
+#define RANGE 256
 
 using namespace std;
 
