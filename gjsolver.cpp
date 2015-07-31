@@ -38,8 +38,11 @@ int main()
 		lines.push_back(innerLine);
 	}
 
-	for (int i = 0; i < lines.size(); i++) {
-		
+	for (int i = 0; i < lines.size() - 1; i++) {
+		long factor = 
+		denominator[i] = (lines[i])[i];
+		for (int j = i; j < lines.size() - 1; j++) {
+				
 
 
 	return 0;
