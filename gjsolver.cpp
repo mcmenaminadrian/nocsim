@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <utility>
 
 
 //Gauss-Jordan elimination
@@ -38,13 +39,28 @@ int main()
 		lines.push_back(innerLine);
 	}
 
-	for (int i = 0; i < lines.size() - 1; i++) {
-		long factor = 
-		denominator[i] = (lines[i])[i];
-		for (int j = i; j < lines.size() - 1; j++) {
-				
+	for (int i = 0; i < lines.size(); i++) {
+		pair<long, long> pivot = (lines[i])[i];
+		pair<long, long> factor(pivot.second, pivot.first);
+		for (long j = i + 1; j < lines.size(); j++) {
+			pair<long, long> multiple(
+				(lines[j])[i].first * factor.first,
+				(lines[j])[i] * factor.second);
+			(lines[j])[i] = 0;
+			for (long k = i + 1; k <= lines.size(); k++) {
+				(lines[j])[k] = pair( /* (lines[j])[k] - multiple * (lines[i][k] * factor) */
+					(lines[j])[k].first * multiple.second * (lines[i])[k].second - multiple.first * (lines[i])[k].first * (lines[j])[k].second,
+					(lines[j])[k].second * multiple.first * (lines[i])[k].first - multiple.second * (lines[i])[k].second * (lines[j])[k].first);
+			}
+		}
+	}
+	cout << "DIAGONAL FORM" << endl;
+	for (int i = 0; i < lines.size(); i++) {
+		for (int j = 0; j < lines.size(); j++) {
+			cout << lines[i][j].first << "/" << lines[i][j].second << " , ";
+		}
+		cout << " == " << lines[i][lines.size()].first << " / " << lines[i][lines.size()] << end;
+	}
 
-
-	return 0;
 }
 		
