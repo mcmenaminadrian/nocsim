@@ -5,28 +5,33 @@
 #include <vector>
 #include <cstdlib>
 #include <utility>
+#include <gmpxx.h>
+
 
 
 //Gauss-Jordan elimination
 
 using namespace std;
 
-void gcd(pair<long, long>& input)
+void gcd(pair<mpz_class, mpz_class>& input)
 {
-	long first = abs(input.first);
-	long second = abs(input.second);
+	mpz_class first = abs(input.first);
+	mpz_class second = abs(input.second);
 	if (first > second) {
 		first = second;
 		second = abs(input.first);
 	}
 	while (second != 0) {
-		long temp = second;
+		mpz_class temp = second;
 		second = first%second;
 		first = temp;
 	}
 	input.first /= first;
 	input.second /= first;
-	cout << " GCD: " << first << "   ";
+	if (input.second < 0) {
+		input.first *= -1;
+		input.second *= -1;
+	}
 }
 
 int main()
@@ -34,7 +39,7 @@ int main()
 	string path("./variables.csv");
 	ifstream inputFile(path);
 
-	vector<long> answers;
+	vector<mpz_class> answers;
 	//answer line
 	string rawAnswer;
 	getline(inputFile, rawAnswer);
@@ -45,41 +50,59 @@ int main()
 	}
 
 	//now read in the system
-	vector<vector<pair<long, long> > > lines;
+	vector<vector<pair<mpz_class, mpz_class> > > lines;
 	while(getline(inputFile, rawAnswer)) {
 		istringstream stringy(rawAnswer);
-		vector<pair<long, long> > innerLine;
+		vector<pair<mpz_class, mpz_class> > innerLine;
 		while (getline(stringy, number, ',')) {
-			pair<long, long> addPair(atol(number.c_str()), 1);
+			pair<mpz_class, mpz_class>
+				addPair(atol(number.c_str()), 1);
 			innerLine.push_back(addPair);
 		}
 		lines.push_back(innerLine);
 	}
 
 	for (int i = 0; i < lines.size(); i++) {
-		pair<long, long> factor(lines[i][i].second, lines[i][i].first);
-		for (int j = i; j <= lines.size(); j++) {
-			lines[i][j].first *= factor.first;
-			lines[i][j].second *= factor.second;
+		pair<mpz_class, mpz_class> pivot(lines[i][i].second,
+			lines[i][i].first);
+		if (lines[i][i].first != 0) {
+			lines[i][i].first = 1;
+			lines[i][i].second = 1;
+		} else {
+			continue;
 		}
-		for (long j = i + 1; j < lines.size(); j++) {
-			pair<long, long> multiple(lines[j][i].first, lines[j][i].second);
-			cout << i << ":" << j << " --- factor is " << multiple.first << " / " << multiple.second << endl;
-			lines[j][i] = pair<long, long>(0, 0);
-			for (long k = i + 1; k <= lines.size(); k++) {
-				lines[j][k] = pair<long, long>( /* (lines[j])[k] - multiple * (lines[i][k] * factor) */
-					lines[j][k].first * multiple.second * lines[i][k].second - lines[i][k].first * multiple.first * lines[j][k].second,
-					lines[j][k].second * multiple.first * lines[i][k].first - lines[i][k].second * multiple.second * lines[i][k].first);
-				cout << "BEFORE: " << lines[j][k].first << " / " << lines[j][k].second;
+		for (int j = i + 1; j <= lines.size(); j++) {
+			lines[i][j].first *= pivot.first;
+			lines[i][j].second *= pivot.second;
+			gcd(lines[i][j]);
+		}
+		for (int j = i + 1; j < lines.size(); j++) {
+			pair<mpz_class, mpz_class> multiple(lines[j][i].first,
+				lines[j][i].second);	
+			lines[j][i] = pair<mpz_class, mpz_class>(0, 1);
+			for (int k = i + 1; k <= lines.size(); k++) {
+				pair<mpz_class, mpz_class>
+					factor(
+					multiple.first * lines[i][k].first,
+					multiple.second * lines[i][k].second);
+				gcd(factor);
+				lines[j][k] = pair<mpz_class, mpz_class>
+					(lines[j][k].first * factor.second -
+					factor.first * lines[j][k].second,
+					lines[j][k].second * factor.second);
 				gcd(lines[j][k]);
-				cout << "     AFTER: " << lines[j][k].first << " / " << lines[j][k].second << endl;
 			}
+			
 		}
 	}
 	cout << "DIAGONAL FORM" << endl;
 	for (int i = 0; i < lines.size(); i++) {
 		for (int j = 0; j < lines.size(); j++) {
-			cout << lines[i][j].first << "/" << lines[i][j].second << " , ";
+			if (lines[i][j].first == 0) {
+				cout << "0 , ";
+			} else {
+				cout << lines[i][j].first << "/" << lines[i][j].second << " , ";
+			}
 		}
 		cout << " == " << lines[i][lines.size()].first << " / " << lines[i][lines.size()].second << endl;
 	}

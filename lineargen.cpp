@@ -2,12 +2,12 @@
 #include <fstream>
 #include <random>
 
-#define RANGE 256
+#define RANGE 64 
 
 using namespace std;
 
 default_random_engine generator;
-uniform_int_distribution<long> distribution(-1024, 1024);
+uniform_int_distribution<long> distribution(-16, 16);
 
 int main()
 {
