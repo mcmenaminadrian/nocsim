@@ -95,6 +95,28 @@ int main()
 			
 		}
 	}
+	// now eliminate upper half
+	for (int i = lines.size() - 1; i > 0; i--) {
+		if (lines[i][i].first == 0) {
+			continue;
+		}
+		pair<mpz_class, mpz_class> answer = lines[i][lines.size()];
+		for (int j = i - 1; j >= 0; j--) {
+			pair<mpz_class, mpz_class> multiple = lines[j][i];
+			if (multiple.first == 0) {
+				continue;
+			}
+			lines[j][i] = pair<mpz_class, mpz_class>(0, 1);
+			lines[j][lines.size()].first =
+				lines[j][lines.size()].first * multiple.second
+				- answer.first * multiple.first * 
+				lines[j][lines.size()].second;
+			lines[j][lines.size()].second =
+				lines[j][lines.size()].second *
+				answer.second * multiple.second;
+			gcd(lines[j][lines.size()]);
+		}
+	}
 	cout << "DIAGONAL FORM" << endl;
 	for (int i = 0; i < lines.size(); i++) {
 		for (int j = 0; j < lines.size(); j++) {
