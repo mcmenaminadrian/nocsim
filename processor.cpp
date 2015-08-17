@@ -200,10 +200,10 @@ void Processor::add_(const long regA, const long regB, const long regC)
 	pcAdvance();
 }
 
-void Processor:addi_(const long regA, const long regB, const long address)
+void Processor::addi_(const long regA, const long regB, const long address)
 {
 	fetchAddress(address);
-	registerFile[regA] = registerFile[regB] + (long *)(address);
+	registerFile[regA] = registerFile[regB] + *(long *)(address);
 	pcAdvance();
 }
 
@@ -215,29 +215,30 @@ void Processor::and_(const long regA, const long regB, const long regC)
 
 void Processor::sw_(const long regA, const long regB, const long regC)
 {
-	fetchAdress(registerFile[regB] + registerFile[regC]);
-	(long *)(registerFile[regB] + registerFile[regC]) = registerFile[regA];
+	fetchAddress(registerFile[regB] + registerFile[regC]);
+	*((long *)(registerFile[regB] + registerFile[regC])) = registerFile[regA];
 	pcAdvance();
 }
 
 void Processor::swi_(const long regA, const long regB, const long address)
 {
 	fetchAddress(registerFile[regB] + address);
-	(long *)(registerFile[regB] + address) = registerFile[regA];
+	*((long *)(registerFile[regB] + address)) = registerFile[regA];
 	pcAdvance();
 }
 
 void Processor::lw_(const long regA, const long regB, const long regC)
 {
 	fetchAddress(registerFile[regB] + registerFile[regC]);
-	registerFile[regA] = (long *)(registerFile[regB] + registerFile[regC]);
+	registerFile[regA] =
+		*((long *)(registerFile[regB] + registerFile[regC]));
 	pcAdvance();
 }
 
 void Processor::lwi_(const long regA, const long regB, const long address)
 {
 	fetchAddress(registerFile[regB + address]);
-	registerFile[regA] = (long *)(registerFile[regB] + address);
+	registerFile[regA] = *((long *)(registerFile[regB] + address));
 	pcAdvance();
 }
 
