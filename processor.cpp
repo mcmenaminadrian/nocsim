@@ -160,11 +160,113 @@ void Processor::load(const long regNo, const unsigned long value)
 	registerFile[regNo] = result;
 }
 
-long Processor::execute(string& filePath)
-{
-	ifstream instructionFile(filePath, ios::in);
-	//interpret instructions
 
-	return 0;
+//limited RISC instruction set
+//based on Ridiciulously Simple Computer concept
+//instructions:
+//	add_ 	rA, rB, rC	: rA <- rB + rC
+//	addi_	rA, rB, imm	: rA <- rB + imm
+//	and_	rA, rB, rC	: rA <- rB & rC
+//	sw_	rA, rB, rC	: rA -> *(rB + rC)
+//	swi_	rA, rB, imm	: rA -> *(rB + imm)
+//	lw_	rA, rB, rC	: rA <- *(rB + rC)
+//	lwi_	rA, rB, imm	: rA <-	*(rB + imm)
+//	beq_	rA, rB, imm	: PC <- imm iff rA == rB
+//	br_	imm		: PC <- imm
+//	mul_	rA, rB, rC	: rA <- rB * rC
+//	muli_	rA, rB, imm	: rA <- rB * imm
+
+void Processor::setPCNull()
+{
+	programCounter = 0;
+}
+
+void Processor::pcAdvance(const long count = 4)
+{
+	programCounter += count;
+	fetchAddress(programCounter);
+}
+
+void Processor::fetchAddress(long address)
+{
+	//implement paging logic in here
 
 }
+
+void Processor::add_(const long regA, const long regB, const long regC)
+{
+	
+	registerFile[regA] = registerFile[regB] + registerFile[regC];
+	pcAdvance();
+}
+
+void Processor:addi_(const long regA, const long regB, const long address)
+{
+	fetchAddress(address);
+	registerFile[regA] = registerFile[regB] + (long *)(address);
+	pcAdvance();
+}
+
+void Processor::and_(const long regA, const long regB, const long regC)
+{
+	registerFile[regA] = registerFile[regB] & registerFile[regC];
+	pcAdvance();
+}
+
+void Processor::sw_(const long regA, const long regB, const long regC)
+{
+	fetchAdress(registerFile[regB] + registerFile[regC]);
+	(long *)(registerFile[regB] + registerFile[regC]) = registerFile[regA];
+	pcAdvance();
+}
+
+void Processor::swi_(const long regA, const long regB, const long address)
+{
+	fetchAddress(registerFile[regB] + address);
+	(long *)(registerFile[regB] + address) = registerFile[regA];
+	pcAdvance();
+}
+
+void Processor::lw_(const long regA, const long regB, const long regC)
+{
+	fetchAddress(registerFile[regB] + registerFile[regC]);
+	registerFile[regA] = (long *)(registerFile[regB] + registerFile[regC]);
+	pcAdvance();
+}
+
+void Processor::lwi_(const long regA, const long regB, const long address)
+{
+	fetchAddress(registerFile[regB + address]);
+	registerFile[regA] = (long *)(registerFile[regB] + address);
+	pcAdvance();
+}
+
+void Processor::beq_(const long regA, const long regB, const long address)
+{
+	if (registerFile[regA] == registerFile[regB]) {
+		setPCNull();
+		pcAdvance(address);
+		return;
+	}
+	else {
+		pcAdvance();
+	}
+}
+
+void Processor::br_(const long address)
+{
+	setPCNull();
+	pcAdvance(address);
+}
+
+void Processor::mul_(const long regA, const long regB, const long regC)
+{
+	registerFile[regA] = registerFile[regB] * registerFile[regC];
+	pcAdvance();
+}
+
+void Processor::muli_(const long regA, const long regB, const long multiplier)
+{
+	registerFile[regA] = registerFile[regB] * multiplier;
+	pcAdvance();
+} 

@@ -36,7 +36,7 @@ void Tile::addTreeLeaf(Mux *leaf)
 	treeLeaves.push_back(leaf);
 }
 
-long Tile::execute(string& instructions)
+long Tile::execute()
 {
-	return tileProcessor->execute(instructions);
+	return tileProcessor->execute();
 }
