@@ -1,5 +1,8 @@
 BOOST_PROTO=/opt/local/include
-CCFLAGS=-I$(BOOST_PROTO)
+AD_LIB=/opt/local/lib
+CCFLAGS=-I$(BOOST_PROTO) -L$(AD_LIB)
+
+CC=g++
 
 
 default: all
@@ -36,13 +39,13 @@ tile.o: tile.hpp tile.cpp
 	g++ -O2 -o tile.o -c -Wall tile.cpp
 
 solver: gjsolver.o
-	g++ -o solver -Wall gjsolver.o -L/opt/local/lib -lgmpxx -lgmp
+	g++ -o solver -Wall gjsolver.o $(CCFLAGS) -lgmpxx -lgmp
 
 generator: lineargen.o
 	g++ -o generator -Wall lineargen.o
 
 gjsolver.o: gjsolver.cpp
-	g++ -O2 -o gjsolver.o -c -Wall -I/opt/local/include gjsolver.cpp
+	g++ -O2 -o gjsolver.o -c -Wall $(CCFLAGS) gjsolver.cpp
 
 lineargen.o: lineargen.cpp
 	g++ -O2 -o lineargen.o -c -Wall lineargen.cpp
