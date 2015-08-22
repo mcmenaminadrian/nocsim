@@ -77,14 +77,12 @@ int main(int argc, char *argv[])
 		globalMemory.push_back(Memory(i * blockSize, blockSize));
 	}
 	Noc networkTiles(columns, rows, pageShift);
-	cout << "This far" << endl;
 	//Now build tree recursively down from memories to tiles
 	for (int i = 0; i < memoryBlocks; i++)
 	{
 		trees.push_back(new Tree(globalMemory[i], networkTiles, columns,
 			rows));
 	}
-	cout << "HERE!" << endl;
 	//Let's Go!
 	networkTiles.executeInstructions();
 

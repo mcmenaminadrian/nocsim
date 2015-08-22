@@ -71,10 +71,8 @@ void Memory::writeLong(const long address, const long value)
 		throw "Memory class range error";
 	}
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
-		cout << "Address: " << address << " i: " << i << endl;
-		cout << contents[0] << endl;
 		contents[address + i] = (value & (0xFF << (i * 8)));
 	}
 }

@@ -32,7 +32,6 @@ Noc::Noc(const long columns, const long rows, const long pageShift):
 			tiles[i + 1][j]->addConnection(i, j);
 		}
 	}
-	cout << "Hello" << endl;
 }
 
 Noc::~Noc()
