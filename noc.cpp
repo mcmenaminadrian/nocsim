@@ -32,6 +32,7 @@ Noc::Noc(const long columns, const long rows, const long pageShift):
 			tiles[i + 1][j]->addConnection(i, j);
 		}
 	}
+	cout << "Hello" << endl;
 }
 
 Noc::~Noc()
@@ -59,7 +60,7 @@ Tile* Noc::tileAt(long i)
 	return tiles[columnAccessed][rowAccessed];
 }
 
-long Noc::executeInstructions(string& instructionFile)
+long Noc::executeInstructions()
 {
-	return tileAt(0)->execute(instructionFile);
+	return tileAt(0)->execute();
 }

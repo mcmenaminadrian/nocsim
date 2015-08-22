@@ -106,7 +106,6 @@ int main()
 	
 		}
 	}
-	//goto ende;
 	// now eliminate upper half
 	if (nonZero == false) {
 		for (int i = lines.size() - 1; i > 0; i--) {
@@ -164,7 +163,6 @@ int main()
 
 		}
 	}
-ende:
 	cout << "DIAGONAL FORM" << endl;
 	for (int i = 0; i < lines.size(); i++) {
 		for (int j = 0; j < lines.size(); j++) {

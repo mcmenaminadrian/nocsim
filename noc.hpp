@@ -17,6 +17,6 @@ public:
 	~Noc();
 	bool attach(Tree& memoryTree, const long leaf);
 	Tile* tileAt(long i);
-	long executeInstructions(std::string& instructionFile);
+	long executeInstructions();
 };
 #endif

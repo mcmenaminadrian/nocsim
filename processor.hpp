@@ -40,6 +40,8 @@ public:
 	void br_(const long imm);
 	void mul_(const long rA, const long rB, const long rC);
 	void muli_(const long rA, const long rB, const long imm);
+
+	long execute();
 };
 
 #endif

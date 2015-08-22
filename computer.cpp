@@ -16,7 +16,6 @@ void usage() {
 	cout << "nocSIM: simulate a large NOC array" << endl;
 	cout << "Copyright Adrian McMenamin, 2015" << endl;
 	cout << "---------" << endl;
-	cout << "-i    Path to instruction file (REQUIRED)" << endl;
 	cout << "-b    Memory blocks: default 4" << endl;
 	cout << "-s    Memory block size: default 1GB" << endl;
 	cout << "-r    Rows of CPUs in NoC (default 32)" << endl;
@@ -34,8 +33,6 @@ int main(int argc, char *argv[])
 	long columns = 32;
 	long pageShift = 10;
 	vector<Tree *> trees;
-	bool getInstructions = false;
-	string instructionFile;
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-?") == 0) {
@@ -62,18 +59,8 @@ int main(int argc, char *argv[])
 			pageShift = atol(argv[++i]);
 			continue;
 		}
-		if (strcmp(argv[i], "-i") == 0) {
-			instructionFile = argv[++i];
-			getInstructions = true;
-		}
 		
 		//unrecognised option
-		usage();
-		exit(EXIT_FAILURE);
-	}
-
-	if (!getInstructions) {
-		cout << "YOU MUST SPECIFY AN INSTRUCTION FILE..." << endl;
 		usage();
 		exit(EXIT_FAILURE);
 	}
@@ -89,18 +76,17 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < memoryBlocks; i++) {
 		globalMemory.push_back(Memory(i * blockSize, blockSize));
 	}
-
 	Noc networkTiles(columns, rows, pageShift);
-	
+	cout << "This far" << endl;
 	//Now build tree recursively down from memories to tiles
 	for (int i = 0; i < memoryBlocks; i++)
 	{
 		trees.push_back(new Tree(globalMemory[i], networkTiles, columns,
 			rows));
 	}
-
+	cout << "HERE!" << endl;
 	//Let's Go!
-	networkTiles.executeInstructions(instructionFile);
+	networkTiles.executeInstructions();
 
 clean_up:
 	for (int i = 0; i < memoryBlocks; i++) {

@@ -26,7 +26,7 @@ char Memory::readByte(const long address)
 	}
 	catch (const out_of_range& err)
 	{
-		contents.at(address) = 0;
+		contents[address] = 0;
 	}
 
 	return retVal;
@@ -48,7 +48,7 @@ long Memory::readLong(const long address)
 		}
 		catch (const out_of_range& err)
 		{
-			contents.at(address) = 0;
+			contents[address] = 0;
 		}
 	}
 	return retVal;
@@ -61,7 +61,7 @@ void Memory::writeByte(const long address, const char value)
 		throw "Memory class range error";
 	}
 
-	contents.at(address) = value;
+	contents[address] = value;
 }
 
 void Memory::writeLong(const long address, const long value)
@@ -73,7 +73,9 @@ void Memory::writeLong(const long address, const long value)
 
 	for (int i = 0; i < 3; i++)
 	{
-		contents.at(address + i) = (value & (0xFF << (i * 8)));
+		cout << "Address: " << address << " i: " << i << endl;
+		cout << contents[0] << endl;
+		contents[address + i] = (value & (0xFF << (i * 8)));
 	}
 }
 

@@ -57,6 +57,8 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	long memoryOffset = 0;
 	//write out page table size - page tables begin on page 1
 	localMemory->writeLong(memoryOffset, requiredPTEPages);
+	cout << "HERERERE" << endl;
+
 	//how many pages needed for bitmaps?
 	unsigned long bitmapSize = ((1 << pageShift) / (BITMAP_BYTES)) / 8;
 	unsigned long totalBitmapSpace = bitmapSize * pagesAvailable;
@@ -64,6 +66,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	if ((requiredBitmapPages << pageShift) != totalBitmapSpace) {
 		requiredBitmapPages++;
 	}
+	cout << "Got here" << endl;
 	memoryOffset += sizeof( long );
 	localMemory->writeLong(memoryOffset, requiredBitmapPages);
 	memoryOffset = 1 << pageShift;
@@ -74,6 +77,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 			localMemory->writeByte(memoryLocalOffset + j, 0);
 		}
 	}
+	cout << "This far" << endl;
 	//now mark page mappings as valid and fixed
 	for (int i = 0; i == requiredPTESize + requiredBitmapPages; i++) {
 		localMemory->writeLong(PHYSOFFSET + i * (1 << pageShift),
@@ -91,6 +95,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	mask = 0xFFFFFFFFFFFFFFFF;
 	mask = mask >> pageShift;
 	mask = mask << pageShift;
+	cout << "Mapped memory" << endl;
 }
 
 pair<bool, long> Processor::mapped(const unsigned long address) const
@@ -270,4 +275,9 @@ void Processor::muli_(const long regA, const long regB, const long multiplier)
 {
 	registerFile[regA] = registerFile[regB] * multiplier;
 	pcAdvance();
-} 
+}
+
+long Processor::execute()
+{
+	return 0;
+}

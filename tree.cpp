@@ -59,7 +59,6 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	nodesTree.push_back(vector<Mux *>(1));
 	nodesTree[levels][0] = new Mux(&globalMemory);
 
-
 	//join the nodes internally
 	for (int i = 0; i < levels; i++)
 	{
