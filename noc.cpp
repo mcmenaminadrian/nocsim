@@ -1,4 +1,7 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <utility>
 #include <vector>
 #include <map>
 #include <string>
@@ -59,7 +62,39 @@ Tile* Noc::tileAt(long i)
 	return tiles[columnAccessed][rowAccessed];
 }
 
+void Noc::readInVariables(const string& path)
+{
+	ifstream inputFile(path);
+	//first line is the answer
+	string rawAnswer;
+	getline(inputFile, rawAnswer);
+	istringstream stringy(rawAnswer);
+	string number;
+	while(getline(stringy, number, ',')) {
+		answers.push_back(atol(number.c_str()));
+	}
+
+	//now read in the system
+	while(getline(inputFile, rawAnswer)) {
+		istringstream stringy(rawAnswer);
+		vector<pair<long, long> > innerLine;
+		while (getline(stringy, number, ',')) {
+			pair<long, long>
+				addPair(atol(number.c_str()), 1);
+			innerLine.push_back(addPair);
+		}
+		lines.push_back(innerLine);
+	}
+}
+
+void Noc::writeSystemToMemory()
+{
+	//write variables out to memory
+}
+
 long Noc::executeInstructions()
 {
+	readInVariables();
+	writeSystemToMemory();
 	return tileAt(0)->execute();
 }

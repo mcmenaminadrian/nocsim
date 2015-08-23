@@ -9,6 +9,8 @@ class Tile;
 class Processor {
 private:
 	std::vector<unsigned long> registerFile;
+	std::vector<long> answers;
+	std::vector<std::vector<std::pair<long, long> > > lines;
 	long programCounter;
 	Tile *masterTile;
 	enum ProcessorMode { REAL, VIRTUAL };

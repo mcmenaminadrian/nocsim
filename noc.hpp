@@ -11,6 +11,12 @@ private:
 	const long columnCount;
 	const long rowCount;
 	std::vector<std::vector<Tile * > > tiles;
+	std::vector<long> answers;
+	std::vector<std::vector<std::pair<long, long> > > lines;
+	void writeSystemToMemory();
+	void readInVariables(const std::string&
+		path = std::string("./variables.csv"));
+
 
 public:
 	Noc(const long columns, const long rows, const long pageShift);
