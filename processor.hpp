@@ -17,6 +17,9 @@ private:
 	long pageShift;
 	unsigned long mask;
 
+	void readInVariables(const std::string&
+		path = std::string("./variables.csv"));
+
 public:
 	Processor(Tile* parent);
 	void load(const long regNo, const unsigned long value);
