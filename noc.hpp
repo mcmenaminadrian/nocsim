@@ -10,6 +10,7 @@ class Noc {
 private:
 	const long columnCount;
 	const long rowCount;
+	const long blockSize;
 	std::vector<std::vector<Tile * > > tiles;
 	std::vector<long> answers;
 	std::vector<std::vector<std::pair<long, long> > > lines;
@@ -19,7 +20,11 @@ private:
 
 
 public:
-	Noc(const long columns, const long rows, const long pageShift);
+	std::vector<Memory> globalMemory;
+	const long memoryBlocks;
+	std::vector<Tree *> trees; 
+	Noc(const long columns, const long rows, const long pageShift,
+		const long memBlocks, const long bSize);
 	~Noc();
 	bool attach(Tree& memoryTree, const long leaf);
 	Tile* tileAt(long i);

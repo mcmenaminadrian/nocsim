@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
 	long rows = 32;
 	long columns = 32;
 	long pageShift = 10;
-	vector<Tree *> trees;
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-?") == 0) {
@@ -71,24 +70,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}  
 
-	vector<Memory> globalMemory;
-
-	for (int i = 0; i < memoryBlocks; i++) {
-		globalMemory.push_back(Memory(i * blockSize, blockSize));
-	}
-	Noc networkTiles(columns, rows, pageShift);
-	//Now build tree recursively down from memories to tiles
-	for (int i = 0; i < memoryBlocks; i++)
-	{
-		trees.push_back(new Tree(globalMemory[i], networkTiles, columns,
-			rows));
-	}
+	Noc networkTiles(columns, rows, pageShift, memoryBlocks, blockSize);
 	//Let's Go!
 	networkTiles.executeInstructions();
-
-clean_up:
-	for (int i = 0; i < memoryBlocks; i++) {
-		delete trees[i];
-	}
-
 }

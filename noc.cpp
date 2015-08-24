@@ -13,8 +13,9 @@
 
 using namespace std;
 
-Noc::Noc(const long columns, const long rows, const long pageShift):
-	columnCount(columns), rowCount(rows)
+Noc::Noc(const long columns, const long rows, const long pageShift,
+	const long blocks, const long bSize): columnCount(columns),
+	rowCount(rows), memoryBlocks(blocks), blockSize(bSize)
 {
 	for (int i = 0; i < columns; i++) {
 		tiles.push_back(vector<Tile *>(rows));
@@ -35,6 +36,17 @@ Noc::Noc(const long columns, const long rows, const long pageShift):
 			tiles[i + 1][j]->addConnection(i, j);
 		}
 	}
+
+	long blockSize = 1024 * 1024 * 1024;
+	for (int i = 0; i < memoryBlocks; i++) {
+		globalMemory.push_back(Memory(i * blockSize, blockSize));
+	}
+
+	for (int i = 0; i < memoryBlocks; i++)
+	{
+		trees.push_back(new Tree(globalMemory[i], *this, columns,
+			rows));
+	}
 }
 
 Noc::~Noc()
@@ -45,6 +57,11 @@ Noc::~Noc()
 			delete toGo;
 		}
 	}
+
+	for (int i = 0; i < memoryBlocks; i++) {
+		delete trees[i];
+	}
+
 }
 
 bool Noc::attach(Tree& memoryTree, const long leafTile)
@@ -90,6 +107,15 @@ void Noc::readInVariables(const string& path)
 void Noc::writeSystemToMemory()
 {
 	//write variables out to memory
+	//arbitrarily choose address 0x1000 as start
+	long address = 0x1000;
+	for (int i = 0; i < lines.size(); i++) {
+		for (int j = 0; j <= lines.size(); j++) { 
+			globalMemory[0].writeLong(address,
+				(lines[i][j]).first);
+			address += sizeof(long);
+		}
+	}
 }
 
 long Noc::executeInstructions()
