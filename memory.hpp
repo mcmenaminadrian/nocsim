@@ -10,7 +10,7 @@ class Memory {
 private:
 	const unsigned long start;
 	const unsigned long memorySize;
-	std::map<long, char> contents;
+	std::map<long, uint8_t> contents;
 	Mux* rootMux;
 
 public:

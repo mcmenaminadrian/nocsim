@@ -13,7 +13,7 @@ private:
 	const long blockSize;
 	std::vector<std::vector<Tile * > > tiles;
 	std::vector<long> answers;
-	std::vector<std::vector<std::pair<long, long> > > lines;
+	std::vector<std::vector<long> > lines;
 	void writeSystemToMemory();
 	void readInVariables(const std::string&
 		path = std::string("./variables.csv"));

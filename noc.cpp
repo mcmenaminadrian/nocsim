@@ -94,11 +94,9 @@ void Noc::readInVariables(const string& path)
 	//now read in the system
 	while(getline(inputFile, rawAnswer)) {
 		istringstream stringy(rawAnswer);
-		vector<pair<long, long> > innerLine;
+		vector<long> innerLine;
 		while (getline(stringy, number, ',')) {
-			pair<long, long>
-				addPair(atol(number.c_str()), 1);
-			innerLine.push_back(addPair);
+			innerLine.push_back(atol(number.c_str()));
 		}
 		lines.push_back(innerLine);
 	}
@@ -112,11 +110,13 @@ void Noc::writeSystemToMemory()
 	for (int i = 0; i < lines.size(); i++) {
 		for (int j = 0; j <= lines.size(); j++) { 
 			globalMemory[0].writeLong(address,
-				(lines[i][j]).first);
+				(lines[i][j]));
+			cout << lines[i][j] << ":" << globalMemory[0].readLong(address) << ",";
 			address += sizeof(long);
 		}
 	}
-}
+	cout << endl;
+}	
 
 long Noc::executeInstructions()
 {

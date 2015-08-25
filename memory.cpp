@@ -36,21 +36,22 @@ long Memory::readLong(const long address)
 {
 	long retVal = 0;
 
-	if (address < start || address + 3 > start + memorySize) {
+	if (address < start || address + sizeof(long) > start + memorySize) {
 		cout << "Memory::readLong out of range" << endl;
 		throw "Memory class range error";
 	}
 
-	for (int i = 0; i < 4; i++)
-	{
+	for (int i = 0; i < sizeof(long); i++)
+	{	
 		try {
-			retVal += contents.at(address + i) << (i * 8);
+			memcpy(&retVal + i, (char *)(contents.at(address + i) << (i * 8)), 1);
 		}
 		catch (const out_of_range& err)
 		{
 			contents[address] = 0;
 		}
 	}
+
 	return retVal;
 }
 
@@ -66,12 +67,12 @@ void Memory::writeByte(const long address, const char value)
 
 void Memory::writeLong(const long address, const long value)
 {
-	if (address < start || address + 3 > start + memorySize) {
+	if (address < start || address + sizeof(long) > start + memorySize) {
 		cout << "Memory::readLong out of range" << endl;
 		throw "Memory class range error";
 	}
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < sizeof(long); i++)
 	{
 		contents[address + i] = (value & (0xFF << (i * 8)));
 	}
