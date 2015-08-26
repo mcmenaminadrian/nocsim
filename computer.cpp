@@ -2,6 +2,8 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <cstring>
+#include <cstdlib>
 #include "mux.hpp"
 #include "memory.hpp"
 #include "tree.hpp"
@@ -21,7 +23,6 @@ void usage() {
 	cout << "-r    Rows of CPUs in NoC (default 32)" << endl;
 	cout << "-c    Columns of CPUs in NoC (default 32)" << endl;
 	cout << "-p    Page size in power of 2 (default 10)" << endl;
-
 	cout << "-?    Print this message and exit" << endl;
 }
 
