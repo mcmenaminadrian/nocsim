@@ -2,6 +2,8 @@
 #include <map>
 #include <vector>
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include "tree.hpp"
 #include "memory.hpp"
 #include "mux.hpp"
@@ -41,17 +43,19 @@ long Memory::readLong(const long address)
 		throw "Memory class range error";
 	}
 
+	uint8_t in[sizeof(long)];
+
 	for (int i = 0; i < sizeof(long); i++)
 	{	
 		try {
-			memcpy(&retVal + i, (char *)(contents.at(address + i) << (i * 8)), 1);
+			in[i] = (uint8_t)contents.at(address + i);
 		}
 		catch (const out_of_range& err)
 		{
 			contents[address] = 0;
 		}
 	}
-
+	memcpy(&retVal, in, sizeof(long));
 	return retVal;
 }
 
@@ -72,9 +76,10 @@ void Memory::writeLong(const long address, const long value)
 		throw "Memory class range error";
 	}
 
+	uint8_t *valRep = (uint8_t *) &value;
 	for (int i = 0; i < sizeof(long); i++)
 	{
-		contents[address + i] = (value & (0xFF << (i * 8)));
+		contents[address + i] = *(valRep + i);
 	}
 }
 
