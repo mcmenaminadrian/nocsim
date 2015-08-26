@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <cstdlib>
 #include "memory.hpp"
 #include "tile.hpp"
 #include "noc.hpp"
