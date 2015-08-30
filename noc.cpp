@@ -80,7 +80,7 @@ Tile* Noc::tileAt(long i)
 	return tiles[columnAccessed][rowAccessed];
 }
 
-void Noc::readInVariables(const string& path)
+long Noc::readInVariables(const string& path)
 {
 	ifstream inputFile(path);
 	//first line is the answer
@@ -92,8 +92,10 @@ void Noc::readInVariables(const string& path)
 		answers.push_back(atol(number.c_str()));
 	}
 
+	long lineCnt = 0;
 	//now read in the system
 	while(getline(inputFile, rawAnswer)) {
+		lineCnt++;
 		istringstream stringy(rawAnswer);
 		vector<long> innerLine;
 		while (getline(stringy, number, ',')) {
@@ -101,27 +103,40 @@ void Noc::readInVariables(const string& path)
 		}
 		lines.push_back(innerLine);
 	}
+	return lineCnt;
 }
 
 void Noc::writeSystemToMemory()
 {
-	//write variables out to memory
+	//write variables out to memory as AP integers
 	//arbitrarily choose address 0x1000 as start
 	long address = 0x1000;
 	for (int i = 0; i < lines.size(); i++) {
-		for (int j = 0; j <= lines.size(); j++) { 
-			globalMemory[0].writeLong(address,
-				(lines[i][j]));
-			cout << lines[i][j] << ":" << globalMemory[0].readLong(address) << ",";
+		for (int j = 0; j <= lines.size(); j++) {
+			long sign = sgn(lines[i][j]);
+			if (sign < 1) {
+				globalMemory[0].writeLong(address, 0x01);
+			} else {
+				globalMemory[0].writeLong(address, 0);
+			}
+			address += sizeof(long);
+			globalMemory[0].writeLong(address, APNUMBERSIZE);
+			address += sizeof(long);
+			globalMemory[0].writeLong(address,abs(lines[i][j]));
+			for (int k = 0; k < APNUMBERSIZE - 3; k++) {
+				address += sizeof(long);
+				globalMemory[0].writeLong(address, 0);
+			}
 			address += sizeof(long);
 		}
 	}
-	cout << endl;
 }	
 
 long Noc::executeInstructions()
 {
-	readInVariables();
+	long lines = readInVariables();
 	writeSystemToMemory();
-	return tileAt(0)->execute();
+	for (int i = 0; i < columnCount * rowCount; i++) { 
+		return tileAt(i)->execute(lines);
+	}
 }

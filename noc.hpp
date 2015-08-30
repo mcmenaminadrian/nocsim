@@ -7,6 +7,8 @@ class Tree;
 
 class Noc {
 
+#define APNUMBERSIZE 8
+
 private:
 	const long columnCount;
 	const long rowCount;
@@ -15,7 +17,7 @@ private:
 	std::vector<long> answers;
 	std::vector<std::vector<long> > lines;
 	void writeSystemToMemory();
-	void readInVariables(const std::string&
+	long readInVariables(const std::string&
 		path = std::string("./variables.csv"));
 
 
@@ -30,4 +32,9 @@ public:
 	Tile* tileAt(long i);
 	long executeInstructions();
 };
+
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
 #endif

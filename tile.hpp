@@ -23,7 +23,7 @@ public:
 
 	void addTreeLeaf(Mux* leaf);
 	void addConnection(const long col, const long row);
-	long execute();
+	long execute(const long lineSize);
 };
 
 #endif

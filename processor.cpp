@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <thread>
 #include <boost/proto/core.hpp>
 #include "mux.hpp"
 #include "tile.hpp"
@@ -274,8 +275,14 @@ void Processor::muli_(const long regA, const long regB, const long multiplier)
 	pcAdvance();
 }
 
-
-long Processor::execute()
+void Processor::letsRoll(const long lineSz)
 {
+	//execute
+}
+
+long Processor::execute(const long lineSz)
+{
+	//now we spawn threads
+	thread t(letsRoll, lineSz);
 	return 0;
 }

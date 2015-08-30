@@ -41,7 +41,8 @@ public:
 	void mul_(const long rA, const long rB, const long rC);
 	void muli_(const long rA, const long rB, const long imm);
 
-	long execute();
+	long execute(const long lineSz);
+	long letsRoll(const long lineSz);
 };
 
 #endif

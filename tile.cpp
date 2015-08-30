@@ -36,7 +36,7 @@ void Tile::addTreeLeaf(Mux *leaf)
 	treeLeaves.push_back(leaf);
 }
 
-long Tile::execute()
+long Tile::execute(const long lineSize)
 {
-	return tileProcessor->execute();
+	return tileProcessor->execute(lineSize);
 }
