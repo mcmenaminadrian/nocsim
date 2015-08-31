@@ -140,9 +140,6 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 
 void Processor::load(const long regNo, const unsigned long value)
 {
-	if (regNo < 0 || regNo >= REGISTER_FILE_SIZE) {
-		throw "Bad register number";
-	}
 	long result = 0;
 	if (mode == REAL) {
 		//fetch physical address
@@ -159,9 +156,50 @@ void Processor::load(const long regNo, const unsigned long value)
 		
 		result = localMemory->readLong(mapping.second); 
 	}
-
-	registerFile[regNo] = result;
+	setRegister(regNo, result);
 }
+
+void Processor::setRegister(const unsigned long regNumber,
+	const unsigned long value)
+{
+	//R0 always a zero
+	if (regNumber == 0) {
+		return;
+	} else if (regNumber > REGISTER_FILE_SIZE - 1) {
+		throw "Bad register number";
+	}
+	else {
+		registerFile[regNumber] = value;
+	}
+}
+
+unsigned long Processor::getRegister(const unsigned long regNumber) const
+{
+	if (regNumber == 0) {
+		return 0;
+	}
+	else if (regNumber > REGISTER_FILE_SIZE - 1) {
+		throw "Bad register number";
+	}
+	else {
+		return registerFile[regNumber];
+	}
+}
+
+unsigned long Processor::multiplyWithCarry(const unsigned long A,
+	const unsigned long B)
+{
+	carryBit = false;
+	if (A == 0 || B == 0) {
+		return 0;
+	} else {
+		if (A > ULLONG_MAX / B) {
+			carryBit = true;
+		}
+		return A * B;
+	}
+}
+		
 
 
 //limited RISC instruction set
@@ -198,56 +236,49 @@ void Processor::fetchAddress(long address)
 
 void Processor::add_(const long regA, const long regB, const long regC)
 {
-	
-	registerFile[regA] = registerFile[regB] + registerFile[regC];
+	setRegister(regA, getRegister(regB) + getRegister(regC));
 	pcAdvance();
 }
 
 void Processor::addi_(const long regA, const long regB, const long address)
 {
-	fetchAddress(address);
-	registerFile[regA] = registerFile[regB] + *(long *)(address);
+	setRegister(regA, getRegister(regB) + getAddress(address));
 	pcAdvance();
 }
 
 void Processor::and_(const long regA, const long regB, const long regC)
 {
-	registerFile[regA] = registerFile[regB] & registerFile[regC];
+	setRegister(regA, getRegister(regB) & getRegister(regC));
 	pcAdvance();
 }
 
 void Processor::sw_(const long regA, const long regB, const long regC)
 {
-	fetchAddress(registerFile[regB] + registerFile[regC]);
-	*((long *)(registerFile[regB] + registerFile[regC])) = registerFile[regA];
+	writeAddress(getRegister(regB) + getRegister(regC)), getRegister(regA));
 	pcAdvance();
 }
 
 void Processor::swi_(const long regA, const long regB, const long address)
 {
-	fetchAddress(registerFile[regB] + address);
-	*((long *)(registerFile[regB] + address)) = registerFile[regA];
+	writeAddress(getRegister(regB) + address, getRegister(regA));
 	pcAdvance();
 }
 
 void Processor::lw_(const long regA, const long regB, const long regC)
 {
-	fetchAddress(registerFile[regB] + registerFile[regC]);
-	registerFile[regA] =
-		*((long *)(registerFile[regB] + registerFile[regC]));
+	setRegister(regA, getAddress(getRegister(regB) + getRegister(regC)));
 	pcAdvance();
 }
 
 void Processor::lwi_(const long regA, const long regB, const long address)
 {
-	fetchAddress(registerFile[regB + address]);
-	registerFile[regA] = *((long *)(registerFile[regB] + address));
+	setRegister(regA, getAddress(getRegister(regB) + address)); 
 	pcAdvance();
 }
 
 void Processor::beq_(const long regA, const long regB, const long address)
 {
-	if (registerFile[regA] == registerFile[regB]) {
+	if (getRegister(regA) == getRegister(regB) {
 		setPCNull();
 		pcAdvance(address);
 		return;
@@ -265,24 +296,27 @@ void Processor::br_(const long address)
 
 void Processor::mul_(const long regA, const long regB, const long regC)
 {
-	registerFile[regA] = registerFile[regB] * registerFile[regC];
+	setRegister(regA, multiplyWithCarry(getRegister(regB), getRegister(regC)));
 	pcAdvance();
 }
 
 void Processor::muli_(const long regA, const long regB, const long multiplier)
 {
-	registerFile[regA] = registerFile[regB] * multiplier;
+	setRegister(regA, multiplyWithCarry(regB, multiplier));
 	pcAdvance();
 }
 
-void Processor::letsRoll(const long lineSz)
+long Processor::letsRoll(const long lineSz)
 {
 	//execute
+	cout << this << ":::" << lineSz << endl;
+	return 0;
 }
 
 long Processor::execute(const long lineSz)
 {
 	//now we spawn threads
-	thread t(letsRoll, lineSz);
+	thread t(&Processor::letsRoll, this, lineSz);
+	t.join();
 	return 0;
 }

@@ -136,7 +136,8 @@ long Noc::executeInstructions()
 {
 	long lines = readInVariables();
 	writeSystemToMemory();
-	for (int i = 0; i < columnCount * rowCount; i++) { 
-		return tileAt(i)->execute(lines);
+	for (int i = 0; i < columnCount * rowCount; i++) {
+		tileAt(i)->execute(lines);
 	}
+	return 0;
 }

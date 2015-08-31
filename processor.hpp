@@ -9,6 +9,7 @@ class Tile;
 class Processor {
 private:
 	std::vector<unsigned long> registerFile;
+	bool carryBit;
 	long programCounter;
 	Tile *masterTile;
 	enum ProcessorMode { REAL, VIRTUAL };
@@ -16,6 +17,13 @@ private:
 	Memory *localMemory;
 	long pageShift;
 	unsigned long mask;
+	unsigned long getRegister(const unsigned long regNumber) const;
+	void setRegister(const unsigned long regNumber,
+		const unsigned long value);
+	unsigned long getAddress(unsigned long address);
+	void writeAddress(unsigned long address);
+	unsigned long multiplyWithCarry(const unsigned long A,
+		const unsigned long B);
 
 public:
 	Processor(Tile* parent);
@@ -28,7 +36,7 @@ public:
 	std::pair<bool, long> mapped(const unsigned long address) const;
 	void setPCNull();
 	void pcAdvance(const long count);
-	void fetchAddress(long address);
+	void fetchAddress(unsigned long address);
 	void add_(const long rA, const long rB, const long rC);
 	void addi_(const long rA, const long rB, const long imm);
 	void and_(const long rA, const long rB, const long rC);
