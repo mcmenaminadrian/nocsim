@@ -45,40 +45,36 @@ void Processor::switchModeVirtual()
 	mode = VIRTUAL;
 }
 
-void Processor::createMemoryMap(Memory *local, long pShift)
+void Processor::zeroOutTLBs(const unsigned long& reqPTEPages)
 {
-	localMemory = local;
-	pageShift = pShift;
-	unsigned long memoryAvailable = localMemory->getSize();
-	unsigned long pagesAvailable = memoryAvailable >> pageShift;
-	unsigned long requiredPTESize = pagesAvailable * PAGETABLEENTRY;
-	long requiredPTEPages = requiredPTESize >> pageShift;
-	if ((requiredPTEPages << pageShift) != requiredPTESize) {
-		requiredPTEPages++;
+	for (int i = 0; i < reqPTEPages; i++) {
+		tlbs.push_back(pair<unsigned long, unsigned long>(0, 0));
 	}
-	long memoryOffset = 0;
-	//write out page table size - page tables begin on page 1
-	localMemory->writeLong(memoryOffset, requiredPTEPages);
+}
 
-	//how many pages needed for bitmaps?
-	unsigned long bitmapSize = ((1 << pageShift) / (BITMAP_BYTES)) / 8;
-	unsigned long totalBitmapSpace = bitmapSize * pagesAvailable;
-	unsigned long requiredBitmapPages = totalBitmapSpace >> pageShift;
-	if ((requiredBitmapPages << pageShift) != totalBitmapSpace) {
-		requiredBitmapPages++;
-	}
-	memoryOffset += sizeof( long );
-	localMemory->writeLong(memoryOffset, requiredBitmapPages);
-	memoryOffset = 1 << pageShift;
-	for (int i = 0; i < requiredPTEPages; i++) {
-		long memoryLocalOffset = i * PAGETABLEENTRY + memoryOffset;
+void Processor::writeOutPageAndBitmapLengths(const unsigned long& reqPTEPages,
+	const unsigned long& reqBitmapPages)
+{
+	localMemory->writeLong(0, reqPTEPages);
+	localMemory->writeLong(sizeof(long), reqBitmapPages);
+}
+
+void Processor::writeOutBasicPageEntries(const unsigned long& reqPTEPages)
+{
+	const unsigned long tablesOffset = 1 << pageShift;
+	for (int i = 0; i < reqPTEPages; i++) {
+		long memoryLocalOffset = i * PAGETABLEENTRY + tablesOffset;
 		localMemory->writeLong(memoryLocalOffset + FRAMEOFFSET, i);
 		for (int j = FLAGOFFSET; j < ENDOFFSET; j++) {
 			localMemory->writeByte(memoryLocalOffset + j, 0);
 		}
 	}
-	//now mark page mappings as valid and fixed
-	for (int i = 0; i == requiredPTESize + requiredBitmapPages; i++) {
+}
+
+void Processor::markUpBasicPageEntries(const unsigned long& reqPTESize,
+	const unsigned long& reqBitmapPages)
+{
+	for (int i = 0; i == reqPTESize + reqBitmapPages; i++) {
 		localMemory->writeLong(PHYSOFFSET + i * (1 << pageShift),
 			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
 		localMemory->writeLong(VIRTOFFSET + i * (1 << pageShift),
@@ -91,6 +87,33 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 		localMemory->writeWord32(FLAGOFFSET + i * (1 << pageShift),
 			PAGETABLESLOCAL + i * PAGETABLEENTRY);
 	}
+}
+
+void Processor::createMemoryMap(Memory *local, long pShift)
+{
+	localMemory = local;
+	pageShift = pShift;
+	unsigned long memoryAvailable = localMemory->getSize();
+	unsigned long pagesAvailable = memoryAvailable >> pageShift;
+	unsigned long requiredPTESize = pagesAvailable * PAGETABLEENTRY;
+	long requiredPTEPages = requiredPTESize >> pageShift;
+	if ((requiredPTEPages << pageShift) != requiredPTESize) {
+		requiredPTEPages++;
+	}
+
+	zeroOutTLBs(requiredPTEPages);
+
+	//how many pages needed for bitmaps?
+	unsigned long bitmapSize = ((1 << pageShift) / (BITMAP_BYTES)) / 8;
+	unsigned long totalBitmapSpace = bitmapSize * pagesAvailable;
+	unsigned long requiredBitmapPages = totalBitmapSpace >> pageShift;
+	if ((requiredBitmapPages << pageShift) != totalBitmapSpace) {
+		requiredBitmapPages++;
+	}
+	writeOutPageAndBitmapLengths(requiredPTEPages, requiredBitmapPages);
+	writeOutBasicPageEntries(requiredPTEPages);
+	markUpBasicPageEntries(requiredPTESize, requiredBitmapPages);
+
 	mask = 0xFFFFFFFFFFFFFFFF;
 	mask = mask >> pageShift;
 	mask = mask << pageShift;
@@ -308,7 +331,7 @@ void Processor::muli_(const long regA, const long regB, const long multiplier)
 
 long Processor::letsRoll(const long lineSz)
 {
-	//execute
+	//set up local memory maps
 	cout << this << ":::" << lineSz << endl;
 	return 0;
 }
@@ -317,6 +340,6 @@ long Processor::execute(const long lineSz)
 {
 	//now we spawn threads
 	thread t(&Processor::letsRoll, this, lineSz);
-	t.join();
+	t.detach();
 	return 0;
 }

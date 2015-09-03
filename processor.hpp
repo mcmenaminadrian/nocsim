@@ -9,6 +9,7 @@ class Tile;
 class Processor {
 private:
 	std::vector<unsigned long> registerFile;
+	std::vector<std::pair<unsigned long, unsigned long> > tlbs;
 	bool carryBit;
 	long programCounter;
 	Tile *masterTile;
@@ -24,6 +25,13 @@ private:
 	void writeAddress(unsigned long address);
 	unsigned long multiplyWithCarry(const unsigned long A,
 		const unsigned long B);
+	void markUpBasicPageEntries(const unsigned long& reqPTEPages,
+		const unsigned long& reqBitmapPages);
+	void writeOutBasicPageEntries(const unsigned long& reqPTEPages);
+	void writeOutPageAndBitmapLengths(const unsigned long& reqPTESize,
+		const unsigned long& reqBitmapPages);
+	void zeroOutTLBs(const unsigned long& reqPTEPages);
+
 
 public:
 	Processor(Tile* parent);
