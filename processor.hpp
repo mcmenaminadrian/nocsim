@@ -22,7 +22,6 @@ private:
 	void setRegister(const unsigned long regNumber,
 		const unsigned long value);
 	unsigned long getAddress(unsigned long address);
-	void writeAddress(unsigned long address);
 	unsigned long multiplyWithCarry(const unsigned long A,
 		const unsigned long B);
 	void markUpBasicPageEntries(const unsigned long& reqPTEPages,
@@ -31,6 +30,10 @@ private:
 	void writeOutPageAndBitmapLengths(const unsigned long& reqPTESize,
 		const unsigned long& reqBitmapPages);
 	void zeroOutTLBs(const unsigned long& reqPTEPages);
+	void writeAddress(const unsigned long& addr,
+		const unsigned long& value);
+	void fetchAddress(const unsigned long& address);
+
 
 
 public:
@@ -44,18 +47,27 @@ public:
 	std::pair<bool, long> mapped(const unsigned long address) const;
 	void setPCNull();
 	void pcAdvance(const long count);
-	void fetchAddress(unsigned long address);
-	void add_(const long rA, const long rB, const long rC);
-	void addi_(const long rA, const long rB, const long imm);
-	void and_(const long rA, const long rB, const long rC);
-	void sw_(const long rA, const long rB, const long rC);
-	void swi_(const long rA, const long rB, const long imm);
-	void lw_(const long rA, const long rB, const long rC);
-	void lwi_(const long rA, const long rB, const long imm);
-	void beq_(const long rA, const long rB, const long imm);
-	void br_(const long imm);
-	void mul_(const long rA, const long rB, const long rC);
-	void muli_(const long rA, const long rB, const long imm);
+	void add_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& rC);
+	void addi_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& imm);
+	void and_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& rC);
+	void sw_(const unsigned long& rA, const unsigned  long& rB,
+		const unsigned  long& rC);
+	void swi_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& imm);
+	void lw_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& rC);
+	void lwi_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& imm);
+	void beq_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& imm);
+	void br_(const unsigned long& imm);
+	void mul_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& rC);
+	void muli_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& imm);
 
 	long execute(const long lineSz);
 	long letsRoll(const long lineSz);

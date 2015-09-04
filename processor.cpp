@@ -159,7 +159,10 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 	return pair<bool, long>(false, 0);
 }	
 		
-			
+void Processor::writeAddress(const unsigned long& address,
+	const unsigned long& value)
+{
+}			
 
 void Processor::load(const long regNo, const unsigned long value)
 {
@@ -251,57 +254,65 @@ void Processor::pcAdvance(const long count = 4)
 	fetchAddress(programCounter);
 }
 
-void Processor::fetchAddress(long address)
+void Processor::fetchAddress(const unsigned long& address)
 {
 	//implement paging logic in here
 
 }
 
-void Processor::add_(const long regA, const long regB, const long regC)
+void Processor::add_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& regC)
 {
 	setRegister(regA, getRegister(regB) + getRegister(regC));
 	pcAdvance();
 }
 
-void Processor::addi_(const long regA, const long regB, const long address)
+void Processor::addi_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& address)
 {
 	setRegister(regA, getRegister(regB) + getAddress(address));
 	pcAdvance();
 }
 
-void Processor::and_(const long regA, const long regB, const long regC)
+void Processor::and_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& regC)
 {
 	setRegister(regA, getRegister(regB) & getRegister(regC));
 	pcAdvance();
 }
 
-void Processor::sw_(const long regA, const long regB, const long regC)
+void Processor::sw_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& regC)
 {
-	writeAddress(getRegister(regB) + getRegister(regC)), getRegister(regA));
+	writeAddress(getRegister(regB) + getRegister(regC), getRegister(regA));
 	pcAdvance();
 }
 
-void Processor::swi_(const long regA, const long regB, const long address)
+void Processor::swi_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& address)
 {
 	writeAddress(getRegister(regB) + address, getRegister(regA));
 	pcAdvance();
 }
 
-void Processor::lw_(const long regA, const long regB, const long regC)
+void Processor::lw_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& regC)
 {
 	setRegister(regA, getAddress(getRegister(regB) + getRegister(regC)));
 	pcAdvance();
 }
 
-void Processor::lwi_(const long regA, const long regB, const long address)
+void Processor::lwi_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& address)
 {
 	setRegister(regA, getAddress(getRegister(regB) + address)); 
 	pcAdvance();
 }
 
-void Processor::beq_(const long regA, const long regB, const long address)
+void Processor::beq_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& address)
 {
-	if (getRegister(regA) == getRegister(regB) {
+	if (getRegister(regA) == getRegister(regB)) {
 		setPCNull();
 		pcAdvance(address);
 		return;
@@ -311,19 +322,21 @@ void Processor::beq_(const long regA, const long regB, const long address)
 	}
 }
 
-void Processor::br_(const long address)
+void Processor::br_(const unsigned long& address)
 {
 	setPCNull();
 	pcAdvance(address);
 }
 
-void Processor::mul_(const long regA, const long regB, const long regC)
+void Processor::mul_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& regC)
 {
 	setRegister(regA, multiplyWithCarry(getRegister(regB), getRegister(regC)));
 	pcAdvance();
 }
 
-void Processor::muli_(const long regA, const long regB, const long multiplier)
+void Processor::muli_(const unsigned long& regA, const unsigned long& regB,
+	const unsigned long& multiplier)
 {
 	setRegister(regA, multiplyWithCarry(regB, multiplier));
 	pcAdvance();
