@@ -162,7 +162,13 @@ pair<bool, long> Processor::mapped(const unsigned long address) const
 void Processor::writeAddress(const unsigned long& address,
 	const unsigned long& value)
 {
-}			
+}
+
+unsigned long Processor::getLongAddress(const unsigned long& address)
+{
+
+	return 0;
+}		
 
 void Processor::load(const long regNo, const unsigned long value)
 {
@@ -257,7 +263,6 @@ void Processor::pcAdvance(const long count = 4)
 void Processor::fetchAddress(const unsigned long& address)
 {
 	//implement paging logic in here
-
 }
 
 void Processor::add_(const unsigned long& regA, const unsigned long& regB,
@@ -270,7 +275,7 @@ void Processor::add_(const unsigned long& regA, const unsigned long& regB,
 void Processor::addi_(const unsigned long& regA, const unsigned long& regB,
 	const unsigned long& address)
 {
-	setRegister(regA, getRegister(regB) + getAddress(address));
+	setRegister(regA, getRegister(regB) + getLongAddress(address));
 	pcAdvance();
 }
 
@@ -298,14 +303,14 @@ void Processor::swi_(const unsigned long& regA, const unsigned long& regB,
 void Processor::lw_(const unsigned long& regA, const unsigned long& regB,
 	const unsigned long& regC)
 {
-	setRegister(regA, getAddress(getRegister(regB) + getRegister(regC)));
+	setRegister(regA, getLongAddress(getRegister(regB) + getRegister(regC)));
 	pcAdvance();
 }
 
 void Processor::lwi_(const unsigned long& regA, const unsigned long& regB,
 	const unsigned long& address)
 {
-	setRegister(regA, getAddress(getRegister(regB) + address)); 
+	setRegister(regA, getLongAddress(getRegister(regB) + address)); 
 	pcAdvance();
 }
 

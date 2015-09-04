@@ -33,6 +33,7 @@ private:
 	void writeAddress(const unsigned long& addr,
 		const unsigned long& value);
 	void fetchAddress(const unsigned long& address);
+	unsigned long getLongAddress(const unsigned long& address);
 
 
 
