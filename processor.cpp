@@ -133,7 +133,7 @@ bool Processor::isBitmapValid(const unsigned long& address,
 	unsigned long totalPages = localMemory->readLong(0);
 	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
 	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
-	unsigned long bitToCheck = ((address & pageMask) / BITMAP_BYTES);
+	unsigned long bitToCheck = ((address & bitMask) / BITMAP_BYTES);
 	unsigned long bitToCheckOffset = bitToCheck / 8;
 	bitToCheck %= 8;
 	return (localMemory->readByte(bitmapOffset +
@@ -141,12 +141,35 @@ bool Processor::isBitmapValid(const unsigned long& address,
 }
 
 const unsigned long Processor::generateLocalAddress(const unsigned long& frame,
-	const unsigned long& address)
+	const unsigned long& address) const
 {
 	unsigned long offset = address & bitMask;
 	return (frame << pageShift) + offset;
 }
-	
+
+const unsigned long Processor::triggerSmallFault(
+	const pair<unsigned long, unsigned long>& tlbEntry,
+	const unsigned long& address)
+{
+	unsigned long globalAddress = tlbEntry.second;
+	unsigned long totalPages = localMemory->readLong(0);
+	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
+	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
+	unsigned long bitToFetch = ((address & bitMask) / BITMAP_BYTES);
+	unsigned long bitToFetchOffset = bitToFetch / 8;
+	bitToFetch %= 8;
+	transferGlobalToLocal(globalAddress, tlbEntry.first,
+		(bitToFetchOffset * 8 + bitToFetch) * BITMAP_BYTES,
+		BITMAP_BYTES);
+	uint8_t bitmap = localMemory->readByte(bitmapOffset +
+		tlbEntry.second * bitmapSize + bitToFetchOffset);
+	bitmap |= (1 << bitToFetchOffset);
+	localMemory->writeByte((bitmapOffset +
+		tlbEntry.second * bitmapSize + bitToFetchOffset),
+		bitmap);
+
+	return generateLocalAddress(tlbEntry.first, address);
+}	
 
 //when this returns, address guarenteed to be present at returned local address
 const unsigned long Processor::fetchAddress(const unsigned long& address)
@@ -161,7 +184,7 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 				}
 				//entry in TLB - check bitmap
 				if (!isBitmapValid(address, x.second)) {
-					return triggerSmallFault(address);
+					return triggerSmallFault(x, address);
 				}
 				return generateLocalAddress(address, x.second);
 			}

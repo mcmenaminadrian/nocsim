@@ -39,13 +39,13 @@ private:
 		const unsigned long& fame) const;
 	bool isPageValid(const unsigned long& frameNo) const;
 	const unsigned long generateLocalAddress(const unsigned long& frame,
+		const unsigned long& address) const;
+	const unsigned long triggerSmallFault(
+		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& address);
-
 
 public:
 	Processor(Tile* parent);
-	void load(const long regNo, const unsigned long value);
-	long read(const unsigned long regNo);
 	void loadMem(const long regNo, const unsigned long memAddr);
 	void switchModeReal();
 	void switchModeVirtual();
