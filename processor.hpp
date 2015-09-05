@@ -17,7 +17,8 @@ private:
 	ProcessorMode mode;
 	Memory *localMemory;
 	long pageShift;
-	unsigned long mask;
+	unsigned long pageMask;
+	unsigned long bitMask;
 	unsigned long getRegister(const unsigned long regNumber) const;
 	void setRegister(const unsigned long regNumber,
 		const unsigned long value);
@@ -32,9 +33,13 @@ private:
 	void zeroOutTLBs(const unsigned long& reqPTEPages);
 	void writeAddress(const unsigned long& addr,
 		const unsigned long& value);
-	void fetchAddress(const unsigned long& address);
+	const unsigned long fetchAddress(const unsigned long& address);
 	unsigned long getLongAddress(const unsigned long& address);
-
+	bool isBitmapValid(const unsigned long& address,
+		const unsigned long& fame) const;
+	bool isPageValid(const unsigned long& frameNo) const;
+	const unsigned long generateLocalAddress(const unsigned long& frame,
+		const unsigned long& address);
 
 
 public:
@@ -45,7 +50,6 @@ public:
 	void switchModeReal();
 	void switchModeVirtual();
 	void createMemoryMap(Memory *local, long pShift);
-	std::pair<bool, long> mapped(const unsigned long address) const;
 	void setPCNull();
 	void pcAdvance(const long count);
 	void add_(const unsigned long& rA, const unsigned long& rB,

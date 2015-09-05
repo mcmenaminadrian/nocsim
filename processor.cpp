@@ -114,50 +114,65 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	writeOutBasicPageEntries(requiredPTEPages);
 	markUpBasicPageEntries(requiredPTESize, requiredBitmapPages);
 
-	mask = 0xFFFFFFFFFFFFFFFF;
-	mask = mask >> pageShift;
-	mask = mask << pageShift;
+	pageMask = 0xFFFFFFFFFFFFFFFF;
+	pageMask = pageMask >> pageShift;
+	pageMask = pageMask << pageShift;
+	bitMask = ~ pageMask;
 }
 
-pair<bool, long> Processor::mapped(const unsigned long address) const
+bool Processor::isPageValid(const unsigned long& frameNo) const
 {
-	if (mode != VIRTUAL) {
-		throw "testing virtual mapping in REAL mode";
-	}
-	long totalPages = localMemory->readLong(0);
-	long pageSize = 1 << pageShift;
-	for (int i = 0; i < totalPages; i++) {
-		if ((address >> pageShift) ==
-			localMemory->readLong(pageSize +
-			i * PAGETABLEENTRY + VIRTOFFSET) && 
-			(localMemory->readWord32(i * PAGETABLEENTRY + FLAGOFFSET +
-			pageSize) & 0x01)) {
-			//no need for a hard fault - but is segement mapped
-			unsigned long bitmapSize = (1 << pageShift) /
-				(BITMAP_BYTES * 8);
-			unsigned long bitmapOffset = (1 + totalPages) *
-				(1 << pageShift);
-			unsigned long bitToCheck = ((address & mask) /
-				BITMAP_BYTES);
-			unsigned long bitToCheckOffset = bitToCheck / 8;
-			bitToCheck %= 8;
-			if (!(localMemory->readByte(bitmapOffset +
-				i * bitmapSize + bitToCheckOffset) &
-				(1 << bitToCheck))) {
-				//small fault required
+	unsigned long flags = localMemory->readWord32((1 << pageShift)
+		+ frameNo * PAGETABLEENTRY + FLAGOFFSET);
+	return (flags & 0x01);
+}
+
+bool Processor::isBitmapValid(const unsigned long& address,
+	const unsigned long& frameNo) const
+{
+	unsigned long totalPages = localMemory->readLong(0);
+	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
+	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
+	unsigned long bitToCheck = ((address & pageMask) / BITMAP_BYTES);
+	unsigned long bitToCheckOffset = bitToCheck / 8;
+	bitToCheck %= 8;
+	return (localMemory->readByte(bitmapOffset +
+		frameNo * bitmapSize + bitToCheckOffset) & (1 << bitToCheck));
+}
+
+const unsigned long Processor::generateLocalAddress(const unsigned long& frame,
+	const unsigned long& address)
+{
+	unsigned long offset = address & bitMask;
+	return (frame << pageShift) + offset;
+}
+	
+
+//when this returns, address guarenteed to be present at returned local address
+const unsigned long Processor::fetchAddress(const unsigned long& address)
+{
+	//implement paging logic
+	if (mode == VIRTUAL) {
+		for (auto x: tlbs) {
+			if ((address & pageMask) == (x.first & pageMask)) {
+				//confirm page is in local store and is valid
+				if (!isPageValid(x.second)){
+					return triggerHardFault(address);
+				}
+				//entry in TLB - check bitmap
+				if (!isBitmapValid(address, x.second)) {
+					return triggerSmallFault(address);
+				}
+				return generateLocalAddress(address, x.second);
 			}
-			
-			pair<bool, long> result;
-			result.first = true;
-			result.second = 
-				localMemory->readLong(
-				((i * PAGETABLEENTRY + PHYSOFFSET)
-				<< pageShift) - PAGETABLESLOCAL);
-			return result;
 		}
+		return triggerHardFault(address);
+	} else {
+		//what do we do if it's physical address?
+		return 0;
 	}
-	return pair<bool, long>(false, 0);
-}	
+}
+
 		
 void Processor::writeAddress(const unsigned long& address,
 	const unsigned long& value)
@@ -166,30 +181,8 @@ void Processor::writeAddress(const unsigned long& address,
 
 unsigned long Processor::getLongAddress(const unsigned long& address)
 {
-
-	return 0;
+	return localMemory->readLong(fetchAddress(address));
 }		
-
-void Processor::load(const long regNo, const unsigned long value)
-{
-	long result = 0;
-	if (mode == REAL) {
-		//fetch physical address
-		//always runs
-	}
-	else if (mode == VIRTUAL) {
-		pair<bool, long> mapping = mapped(value);
-		if (!mapping.first) {
-			//simulate fault
-			//get mapping
-			//update pages etc
-		}
-		//now fetch virtual address
-		
-		result = localMemory->readLong(mapping.second); 
-	}
-	setRegister(regNo, result);
-}
 
 void Processor::setRegister(const unsigned long regNumber,
 	const unsigned long value)
@@ -254,16 +247,12 @@ void Processor::setPCNull()
 	programCounter = 0;
 }
 
-void Processor::pcAdvance(const long count = 4)
+void Processor::pcAdvance(const long count = sizeof(long))
 {
 	programCounter += count;
 	fetchAddress(programCounter);
 }
 
-void Processor::fetchAddress(const unsigned long& address)
-{
-	//implement paging logic in here
-}
 
 void Processor::add_(const unsigned long& regA, const unsigned long& regB,
 	const unsigned long& regC)
