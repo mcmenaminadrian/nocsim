@@ -1,7 +1,7 @@
 BOOST_PROTO=/opt/local/include
 AD_LIB=/opt/local/lib
 CCFLAGS=-I$(BOOST_PROTO) -L$(AD_LIB)
-CXXFLAGS=-std=c++11
+CXXFLAGS=-std=c++11 -stdlib=libc++
 
 CC=g++
 
@@ -50,3 +50,7 @@ gjsolver.o: gjsolver.cpp
 
 lineargen.o: lineargen.cpp
 	$(CC) $(CXXFLAGS) -O2 -o lineargen.o -c -Wall lineargen.cpp
+
+paging.o: paging.cpp paging.hpp
+	$(CC) $(CXXFLAGS) -O2 -o paging,o -c -Wall paging.cpp
+	

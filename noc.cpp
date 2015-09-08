@@ -11,6 +11,7 @@
 #include "noc.hpp"
 #include "tree.hpp"
 #include "processor.hpp"
+#include "paging.hpp"
 
 using namespace std;
 
@@ -132,8 +133,25 @@ void Noc::writeSystemToMemory()
 	}
 }	
 
+//memory regions - pair: 1st is number, 2nd is flag
+//on flag - bit 1 is valid
+
 long Noc::executeInstructions()
 {
+	//set up global memory map
+	//Regions
+	RegionList startRegions;
+	startRegions.addRegion(0);
+	startRegions.addRegion(4096);
+	//basic page table
+	PageTable<uint16_t, 12> SuperDirectory(0);
+	PageTable<uint16_t, 12> Directory(0);
+	PageTable<uint16_t, 12> SuperTable(0);
+	PageTable<uint32_t, 18> Table(0);
+
+	
+	
+
 	long lines = readInVariables();
 	writeSystemToMemory();
 	for (int i = 0; i < columnCount * rowCount; i++) {
