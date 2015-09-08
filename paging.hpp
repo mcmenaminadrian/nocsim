@@ -27,14 +27,14 @@ class PageTable {
 	T mask;
 	
 	public:
-	PageTable(T& baseAddress);
+	PageTable(T baseAddress);
 	uint8_t getPageFlags(const T& page) const;
 	void setPageFlags(const T& page, uint8_t flags);
 	
 };
 
 template<typename T, int I>
-PageTable<T, I>::PageTable(T& baseAddress): mask{0}
+PageTable<T, I>::PageTable(T baseAddress): mask{0}
 {
 	if ((baseAddress >> I) != 0) {
 		std::cout << "Bad address size for page table." << std::endl;
