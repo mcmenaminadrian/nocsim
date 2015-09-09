@@ -136,6 +136,17 @@ void Noc::writeSystemToMemory()
 //memory regions - pair: 1st is number, 2nd is flag
 //on flag - bit 1 is valid
 
+PageTable* Noc::createBasicPageTables()
+{
+	//create a bottom of the heirarchy table
+	PageTable SuperDirectory(12);
+	//feed it into memory
+	//Directory now
+	PageTable Directory(12);
+	//feed into memory
+	//fix Super Directory entry 0 to point to it
+}
+
 long Noc::executeInstructions()
 {
 	//set up global memory map
@@ -143,11 +154,8 @@ long Noc::executeInstructions()
 	RegionList startRegions;
 	startRegions.addRegion(0);
 	startRegions.addRegion(4096);
-	//basic page table
-	PageTable<uint16_t, 12> SuperDirectory(0);
-	PageTable<uint16_t, 12> Directory(0);
-	PageTable<uint16_t, 12> SuperTable(0);
-	PageTable<uint32_t, 18> Table(0);
+
+	ptrBasePageTables = createBasicPageTables();
 
 	
 	

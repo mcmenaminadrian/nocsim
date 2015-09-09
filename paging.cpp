@@ -42,4 +42,29 @@ bool RegionList::addRegionForAddress(const unsigned long& address)
 	return addRegion(region);
 }
 
+PageTable::PageTable(int bitLength)
+{
+	length = bitLength;
+	for (int i = 0; i < (1 << length); i++) {
+		entries[i] = std::pair<unsigned long*, uint8_t>(nullptr, 0);
+	}
+}
+
+uint8_t PageTable<T, I>::getPageFlags(const long& index) const
+{
+	if (index > entries.size()) {
+		std::cout << "Out of range in page table" << std::endl;
+		throw "Failed";
+	}
+	return entries[index].second;
+}
+
+void PageTable::setPageFlags(const long& index, uint8_t flags)
+{
+	if (index > entries.size()) {
+		std::cout << "Out of range in page table" << std::endl;
+		throw "Failed";
+	}
+	entries[index].second = flags;
+}
 
