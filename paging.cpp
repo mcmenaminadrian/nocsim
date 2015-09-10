@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <pair>
+#include "memory.hpp"
 #include "paging.hpp"
 
 using namespace std;
@@ -68,3 +69,16 @@ void PageTable::setPageFlags(const long& index, uint8_t flags)
 	entries[index].second = flags;
 }
 
+unsigned long PageTable::streamToMemory(Memory& mem, unsigned long address)
+{
+	unsigned long length = 0;
+	for (auto x: entries) {
+		mem.writeLong(address, x.first);
+		address += sizeof(long);
+		length += sizeof(long);
+		mem.writeByte(address, x.second);
+		address += sizeof(uint8_t);
+		length += sizeof(uint8_t);
+	}
+	return length;
+}

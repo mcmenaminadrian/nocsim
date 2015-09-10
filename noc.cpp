@@ -138,13 +138,46 @@ void Noc::writeSystemToMemory()
 
 PageTable* Noc::createBasicPageTables()
 {
+	unsigned long startOfPageTables = 2048;
 	//create a bottom of the heirarchy table
-	PageTable SuperDirectory(12);
-	//feed it into memory
-	//Directory now
-	PageTable Directory(12);
-	//feed into memory
-	//fix Super Directory entry 0 to point to it
+	PageTable superDirectory(12);
+	unsigned long runLength =
+		superDirectory.streamToMemory(globalMemory[0],
+		startOfPageTables);
+	globalMemory[0].writeLong(startOfPageTables,
+		startOfPageTables + runLength);
+	//mark address as valid
+	globalMemory[0].writeByte(startOfPagesTables + sizeof(long),
+		1);
+	PageTable directory(12);
+	unsigned long directoryLength = 
+		directory.streamToMemory(globalMemory[0],
+		startOfPageTables + runLength);
+	globalMemory[0].writeLong(startofPageTables + runLength,
+		startOfPageTables + runLength + directoryLength);
+	globalMemory[0].writeByte(
+		startOfPageTables + runLength + sizeof(long), 1);
+	runLength += directoryLength;
+	PageTable superTable(12);
+	directoryLength = 
+		superTable.streamToMemory(globalMemory[0],
+		startOfPageTables + runLength);
+	globalMemory[0].writeLong(startofPageTables + runLength,
+		startOfPageTables + runLength + directoryLength);
+	globalMemory[0].writeByte(
+		startOfPageTables + runLength + sizeof(long), 1);
+	runLength += directoryLength;
+	PageTable table(18);
+	directoryLength = 
+		table.streamToMemory(globalMemory[0],
+		startOfPageTables + runLength);
+	globalMemory[0].writeLong(startofPageTables + runLength,
+		startOfPageTables + runLength + directoryLength);
+	globalMemory[0].writeByte(
+		startOfPageTables + runLength + sizeof(long), 1);
+	runLength += directoryLength;
+
+	return (long *)startOfPageTables;
 }
 
 long Noc::executeInstructions()

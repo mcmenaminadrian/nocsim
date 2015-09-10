@@ -28,6 +28,7 @@ class PageTable {
 	PageTable(int bitLength);
 	uint8_t getPageFlags(const T& page) const;
 	void setPageFlags(const T& page, uint8_t flags);
+	unsigned long streamToMemory(Memory& mem, unsigned long start);
 	
 };
 
