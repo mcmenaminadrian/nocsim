@@ -3,7 +3,7 @@
 
 class Tile;
 class Tree;
-
+class PageTable;
 
 class Noc {
 
@@ -19,8 +19,8 @@ private:
 	void writeSystemToMemory();
 	long readInVariables(const std::string&
 		path = std::string("./variables.csv"));
-	PageTable *createBasicPageTables();
-	PageTable *ptrBasePageTables;
+	unsigned long createBasicPageTables();
+	unsigned long ptrBasePageTables;
 
 
 public:
@@ -33,7 +33,7 @@ public:
 	bool attach(Tree& memoryTree, const long leaf);
 	Tile* tileAt(long i);
 	long executeInstructions();
-	PageTable *getBasePageTables(){ return ptrBasePageTables; }
+	unsigned long getBasePageTables(){ return ptrBasePageTables; }
 };
 
 #endif
