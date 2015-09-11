@@ -144,6 +144,7 @@ unsigned long Noc::createBasicPageTables()
 	unsigned long runLength =
 		superDirectory.streamToMemory(globalMemory[0],
 		startOfPageTables);
+
 	globalMemory[0].writeLong(startOfPageTables,
 		startOfPageTables + runLength);
 	//mark address as valid
@@ -175,14 +176,33 @@ unsigned long Noc::createBasicPageTables()
 //		startOfPageTables + runLength + directoryLength);
 //	globalMemory[0].writeByte(
 //		startOfPageTables + runLength + sizeof(long), 1);
+	unsigned long bottomOfPageTable = runLength;
 	runLength += directoryLength;
 
 	unsigned long pagesUsedForTables = runLength/1024;
 	if (runLength%1024) {
 		pagesUsedForTables++;
 	}
-	cout << "Pages used for tables are " << pagesUsedForTables << endl;
-
+	
+	for (int i = 0; i < pagesUsedForTables + 2; i++) {
+		globalMemory[0].writeLong(
+			startOfPageTables + bottomOfPageTable,
+			i * 1024);
+		globalMemory[0].writeByte(
+			startOfPageTables + bottomOfPageTable + sizeof(long),
+			0x03);
+	}
+	//mark out 100k more
+	for (int i = pagesUsedForTables + 3; i < (pagesUsedForTables + 103),
+		 i++) {
+			globalMemory[0].writeLong(
+			startOfPageTables + bottomOfPageTable,
+			i * 1024 + 100);
+		globalMemory[0].writeByte(
+			startOfPageTables + bottomOfPageTable + sizeof(long),
+			0x01);
+	}	
+	
 	return startOfPageTables;
 }
 

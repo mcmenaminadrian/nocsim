@@ -362,7 +362,6 @@ void Processor::muli_(const unsigned long& regA, const unsigned long& regB,
 long Processor::letsRoll(const long lineSz)
 {
 	//set up local memory maps
-	cout << this << ":::" << lineSz << endl;
 	return 0;
 }
 
