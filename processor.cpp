@@ -158,9 +158,9 @@ const unsigned long Processor::triggerSmallFault(
 	unsigned long bitToFetch = ((address & bitMask) / BITMAP_BYTES);
 	unsigned long bitToFetchOffset = bitToFetch / 8;
 	bitToFetch %= 8;
-	transferGlobalToLocal(globalAddress, tlbEntry.first,
-		(bitToFetchOffset * 8 + bitToFetch) * BITMAP_BYTES,
-		BITMAP_BYTES);
+	//transferGlobalToLocal(globalAddress, tlbEntry.first,
+	//	(bitToFetchOffset * 8 + bitToFetch) * BITMAP_BYTES,
+	//	BITMAP_BYTES);
 	uint8_t bitmap = localMemory->readByte(bitmapOffset +
 		tlbEntry.second * bitmapSize + bitToFetchOffset);
 	bitmap |= (1 << bitToFetchOffset);
@@ -180,7 +180,7 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 			if ((address & pageMask) == (x.first & pageMask)) {
 				//confirm page is in local store and is valid
 				if (!isPageValid(x.second)){
-					return triggerHardFault(address);
+					return 0/*triggerHardFault(address)*/;
 				}
 				//entry in TLB - check bitmap
 				if (!isBitmapValid(address, x.second)) {
@@ -189,7 +189,7 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 				return generateLocalAddress(address, x.second);
 			}
 		}
-		return triggerHardFault(address);
+		return 0/*triggerHardFault(address)*/;
 	} else {
 		//what do we do if it's physical address?
 		return 0;

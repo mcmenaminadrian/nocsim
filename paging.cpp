@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <pair>
+#include <utility>
+#include <map>
 #include "memory.hpp"
 #include "paging.hpp"
 
@@ -24,6 +25,7 @@ bool RegionList::addRegion(const unsigned long& number)
 		return false;
 	}
 	regions.push_back(number);
+	return true;
 }
 
 bool RegionList::isAddressValid(const unsigned long& address) const
@@ -47,11 +49,11 @@ PageTable::PageTable(int bitLength)
 {
 	length = bitLength;
 	for (int i = 0; i < (1 << length); i++) {
-		entries[i] = std::pair<unsigned long*, uint8_t>(nullptr, 0);
+		entries[i] = std::pair<unsigned long, uint8_t>(0, 0);
 	}
 }
 
-uint8_t PageTable<T, I>::getPageFlags(const long& index) const
+uint8_t PageTable::getPageFlags(const long& index) const
 {
 	if (index > entries.size()) {
 		std::cout << "Out of range in page table" << std::endl;

@@ -171,11 +171,17 @@ unsigned long Noc::createBasicPageTables()
 	directoryLength = 
 		table.streamToMemory(globalMemory[0],
 		startOfPageTables + runLength);
-	globalMemory[0].writeLong(startOfPageTables + runLength,
-		startOfPageTables + runLength + directoryLength);
-	globalMemory[0].writeByte(
-		startOfPageTables + runLength + sizeof(long), 1);
+//	globalMemory[0].writeLong(startOfPageTables + runLength,
+//		startOfPageTables + runLength + directoryLength);
+//	globalMemory[0].writeByte(
+//		startOfPageTables + runLength + sizeof(long), 1);
 	runLength += directoryLength;
+
+	unsigned long pagesUsedForTables = runLength/1024;
+	if (runLength%1024) {
+		pagesUsedForTables++;
+	}
+	cout << "Pages used for tables are " << pagesUsedForTables << endl;
 
 	return startOfPageTables;
 }

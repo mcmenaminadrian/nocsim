@@ -21,7 +21,7 @@ class RegionList {
 
 class PageTable {
 	private:
-	std::vector<std::pair<unsigned long*, uint8_t>> entries;
+	std::vector<std::pair<unsigned long, uint8_t>> entries;
 	int length;
 	
 	public:
