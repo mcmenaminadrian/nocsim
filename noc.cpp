@@ -193,7 +193,7 @@ unsigned long Noc::createBasicPageTables()
 			0x03);
 	}
 	//mark out 100k more
-	for (int i = pagesUsedForTables + 3; i < (pagesUsedForTables + 103),
+	for (int i = pagesUsedForTables + 3; i < (pagesUsedForTables + 103);
 		 i++) {
 			globalMemory[0].writeLong(
 			startOfPageTables + bottomOfPageTable,
