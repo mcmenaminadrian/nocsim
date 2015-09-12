@@ -107,11 +107,39 @@ long Noc::readInVariables(const string& path)
 	return lineCnt;
 }
 
+unsigned long Noc::scanLevelFourTable(unsigned long offsetAddr)
+{
+	//scan through pages looking for first available, non-fixed
+	for (int i = 0; i < (1 << 18); i++) {
+		uint8_t pageStatus = globalMemory[0].
+			readByte(offsetAddr + sizeof(long));
+		if (pageStatus == 0) {
+			goto fail;
+		} else if (pageStatus == 0x01) {
+			return offsetAddr;
+		}
+		offsetAddr += (sizeof(long) + 1);
+	}
+fail:
+	cerr << "Run out of pages" << endl;
+	throw "Error";
+}
+
 void Noc::writeSystemToMemory()
 {
 	//write variables out to memory as AP integers
-	//arbitrarily choose address 0x1000 as start
-	long address = 0x1000;
+	//begin by looking through pages for first non-fixed pages
+	unsigned long levelTwoTableAddr =
+		globalMemory[0].readLong(ptrBasePageTables);
+	unsigned long levelThreeTableAddr =
+		globalMemory[0].readLong(levelTwoTableAddr);
+	unsigned long levelFourTableAddr = globalMemory[0].
+		readLong(levelThreeTableAddr);
+	unsigned long firstFreePageAddr =
+		scanLevelFourTable(levelFourTableAddr);
+	cout << "Found address at " << firstFreePageAddr << endl;
+	unsigned long address = firstFreePageAddr;
+	int bytesWritten = 0;
 	for (int i = 0; i < lines.size(); i++) {
 		for (int j = 0; j <= lines.size(); j++) {
 			long sign = sgn(lines[i][j]);
@@ -121,16 +149,21 @@ void Noc::writeSystemToMemory()
 				globalMemory[0].writeLong(address, 0);
 			}
 			address += sizeof(long);
+			bytesWritten += sizeof(long);
 			globalMemory[0].writeLong(address, APNUMBERSIZE);
 			address += sizeof(long);
+			bytesWritten += sizeof(long);
 			globalMemory[0].writeLong(address,abs(lines[i][j]));
 			for (int k = 0; k < APNUMBERSIZE - 3; k++) {
 				address += sizeof(long);
+				bytesWritten += sizeof(long);
 				globalMemory[0].writeLong(address, 0);
 			}
 			address += sizeof(long);
+			bytesWritten += sizeof(long);
 		}
 	}
+	cout << "Wrote " << bytesWritten << endl;
 }	
 
 //memory regions - pair: 1st is number, 2nd is flag
@@ -172,10 +205,6 @@ unsigned long Noc::createBasicPageTables()
 	directoryLength = 
 		table.streamToMemory(globalMemory[0],
 		startOfPageTables + runLength);
-//	globalMemory[0].writeLong(startOfPageTables + runLength,
-//		startOfPageTables + runLength + directoryLength);
-//	globalMemory[0].writeByte(
-//		startOfPageTables + runLength + sizeof(long), 1);
 	unsigned long bottomOfPageTable = runLength;
 	runLength += directoryLength;
 
@@ -192,8 +221,8 @@ unsigned long Noc::createBasicPageTables()
 			startOfPageTables + bottomOfPageTable + sizeof(long),
 			0x03);
 	}
-	//mark out 100k more
-	for (int i = pagesUsedForTables + 3; i < (pagesUsedForTables + 103);
+	//mark out 5MB more
+	for (int i = pagesUsedForTables + 3; i < (pagesUsedForTables + 5003);
 		 i++) {
 			globalMemory[0].writeLong(
 			startOfPageTables + bottomOfPageTable,

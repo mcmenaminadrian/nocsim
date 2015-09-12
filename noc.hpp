@@ -13,6 +13,7 @@ private:
 	const long columnCount;
 	const long rowCount;
 	const long blockSize;
+	unsigned long ptrBasePageTables;
 	std::vector<std::vector<Tile * > > tiles;
 	std::vector<long> answers;
 	std::vector<std::vector<long> > lines;
@@ -20,7 +21,7 @@ private:
 	long readInVariables(const std::string&
 		path = std::string("./variables.csv"));
 	unsigned long createBasicPageTables();
-	unsigned long ptrBasePageTables;
+	unsigned long scanLevelFourTable(unsigned long addr);
 
 
 public:
