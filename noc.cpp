@@ -144,7 +144,7 @@ void Noc::cleanRestOfPageTable(unsigned long address)
 		(((address & 0xFFFFC00) >> 10) + 1) * entrySize;
 	while (true) {
 		uint8_t status = globalMemory[0].
-			readLong(levelFourTableAddr + entryOffset +
+			readByte(levelFourTableAddr + entryOffset +
 			sizeof(long));
 		if (status != 0) {
 			globalMemory[0].writeByte(
@@ -171,7 +171,7 @@ void Noc::writeSystemToMemory()
 	unsigned long firstFreePageAddr =
 		scanLevelFourTable(levelFourTableAddr);
 	cout << "Found address at " << firstFreePageAddr << endl;
-	unsigned long address = firstFreePageAddr;
+	unsigned long address = globalMemory[0].readLong(firstFreePageAddr);
 	int bytesWritten = 0;
 	for (int i = 0; i < lines.size(); i++) {
 		for (int j = 0; j <= lines.size(); j++) {
@@ -246,25 +246,27 @@ unsigned long Noc::createBasicPageTables()
 	if (runLength%1024) {
 		pagesUsedForTables++;
 	}
-	
+
+	unsigned long sizeOfEntry = sizeof(long) + 1;	
 	for (int i = 0; i < pagesUsedForTables + 2; i++) {
 		globalMemory[0].writeLong(
-			startOfPageTables + bottomOfPageTable,
-			i * 1024);
+			startOfPageTables + bottomOfPageTable +
+			i * sizeOfEntry, i * 1024);
 		globalMemory[0].writeByte(
-			startOfPageTables + bottomOfPageTable + sizeof(long),
-			0x03);
+			startOfPageTables + bottomOfPageTable + 
+			i * sizeOfEntry + sizeof(long), 0x03);
+	cout << startOfPageTables + bottomOfPageTable + i * sizeOfEntry << ", ";
 	}
+	cout << endl;
 	//mark out 5MB more
-	for (int i = pagesUsedForTables + 3; i < (pagesUsedForTables + 5003);
+	for (int i = pagesUsedForTables + 2; i < (pagesUsedForTables + 5002);
 		 i++) {
 			globalMemory[0].writeLong(
-			startOfPageTables + bottomOfPageTable,
-			i * 1024 + 100);
-		globalMemory[0].writeByte(
-			startOfPageTables + bottomOfPageTable + sizeof(long),
-			0x01);
-	}	
+				startOfPageTables + bottomOfPageTable +
+				i * sizeOfEntry, (i + 100) * 1024);
+		globalMemory[0].writeByte(startOfPageTables + bottomOfPageTable
+		+ i * sizeOfEntry + sizeof(long), 0x01);
+	}
 	
 	return startOfPageTables;
 }
