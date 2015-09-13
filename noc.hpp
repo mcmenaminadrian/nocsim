@@ -22,6 +22,7 @@ private:
 		path = std::string("./variables.csv"));
 	unsigned long createBasicPageTables();
 	unsigned long scanLevelFourTable(unsigned long addr);
+	void cleanRestOfPageTable(unsigned long address);
 
 
 public:

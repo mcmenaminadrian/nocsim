@@ -125,6 +125,39 @@ fail:
 	throw "Error";
 }
 
+//get rid of any unneeded entries
+void Noc::cleanRestOfPageTable(unsigned long address)
+{
+	cout << hex << address << endl;
+	unsigned long entrySize = sizeof(long) + 1;
+	
+	unsigned long levelTwoTableAddr =
+		globalMemory[0].
+		readLong(ptrBasePageTables + (address >> 52) * entrySize);
+	unsigned long levelThreeTableAddr =
+		globalMemory[0].readLong(levelTwoTableAddr + 
+			((address & 0xFFF0000000000) >> 40) * entrySize);
+	unsigned long levelFourTableAddr =
+		globalMemory[0].readLong(levelThreeTableAddr +
+			((address & 0xFFF0000000) >> 28) * entrySize);
+	unsigned long entryOffset =
+		(((address & 0xFFFFC00) >> 10) + 1) * entrySize;
+	while (true) {
+		uint8_t status = globalMemory[0].
+			readLong(levelFourTableAddr + entryOffset +
+			sizeof(long));
+		if (status != 0) {
+			globalMemory[0].writeByte(
+			levelFourTableAddr + entryOffset + sizeof(long), 0);
+			cout << "nixxed at " << entryOffset << endl;
+		} else {
+			cout << dec << "Done" << endl;
+			return;
+		}
+		entryOffset += entrySize;
+	}
+}	
+
 void Noc::writeSystemToMemory()
 {
 	//write variables out to memory as AP integers
@@ -163,6 +196,7 @@ void Noc::writeSystemToMemory()
 			bytesWritten += sizeof(long);
 		}
 	}
+	cleanRestOfPageTable(address);
 	cout << "Wrote " << bytesWritten << endl;
 }	
 
