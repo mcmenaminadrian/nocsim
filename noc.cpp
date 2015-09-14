@@ -128,7 +128,6 @@ fail:
 //get rid of any unneeded entries
 void Noc::cleanRestOfPageTable(unsigned long address)
 {
-	cout << hex << address << endl;
 	unsigned long entrySize = sizeof(long) + 1;
 	
 	unsigned long levelTwoTableAddr =
@@ -149,9 +148,7 @@ void Noc::cleanRestOfPageTable(unsigned long address)
 		if (status != 0) {
 			globalMemory[0].writeByte(
 			levelFourTableAddr + entryOffset + sizeof(long), 0);
-			cout << "nixxed at " << entryOffset << endl;
 		} else {
-			cout << dec << "Done" << endl;
 			return;
 		}
 		entryOffset += entrySize;
@@ -170,7 +167,6 @@ void Noc::writeSystemToMemory()
 		readLong(levelThreeTableAddr);
 	unsigned long firstFreePageAddr =
 		scanLevelFourTable(levelFourTableAddr);
-	cout << "Found address at " << firstFreePageAddr << endl;
 	unsigned long address = globalMemory[0].readLong(firstFreePageAddr);
 	int bytesWritten = 0;
 	for (int i = 0; i < lines.size(); i++) {
@@ -197,7 +193,6 @@ void Noc::writeSystemToMemory()
 		}
 	}
 	cleanRestOfPageTable(address);
-	cout << "Wrote " << bytesWritten << endl;
 }	
 
 //memory regions - pair: 1st is number, 2nd is flag
@@ -255,9 +250,7 @@ unsigned long Noc::createBasicPageTables()
 		globalMemory[0].writeByte(
 			startOfPageTables + bottomOfPageTable + 
 			i * sizeOfEntry + sizeof(long), 0x03);
-	cout << startOfPageTables + bottomOfPageTable + i * sizeOfEntry << ", ";
 	}
-	cout << endl;
 	//mark out 5MB more
 	for (int i = pagesUsedForTables + 2; i < (pagesUsedForTables + 5002);
 		 i++) {
