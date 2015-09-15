@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 #include <thread>
-#include <boost/proto/core.hpp>
 #include "mux.hpp"
 #include "tile.hpp"
 #include "memory.hpp"
@@ -270,13 +269,11 @@ void Processor::setPCNull()
 	programCounter = 0;
 }
 
-void Processor::pcAdvance(const long count = sizeof(long))
+void Processor::pcAdvance(const long count)
 {
 	programCounter += count;
 	fetchAddress(programCounter);
 }
-
-
 
 long Processor::letsRoll(const long lineSz)
 {

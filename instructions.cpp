@@ -1,4 +1,9 @@
-#include "processor.cpp"
+#include <cstdlib>
+#include <vector>
+#include <utility>
+#include <map>
+#include "memory.hpp"
+#include "processor.hpp"
 
 
 
@@ -16,9 +21,7 @@
 //	br	imm		: PC <- imm
 
 
-
-
-add_(Processor& proc, const unsigned long& regA,
+void add_(Processor& proc, const unsigned long& regA,
 	const unsigned long& regB, const unsigned long& regC)
 {
 	proc.setRegister(regA,
@@ -26,15 +29,15 @@ add_(Processor& proc, const unsigned long& regA,
 	proc.pcAdvance();
 }
 
-addi_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
-	const unsigned long& address)
+void addi_(Processor& proc, const unsigned long& regA,
+	const unsigned long& regB, const unsigned long& address)
 {
 	proc.setRegister(regA,
 		proc.getRegister(regB) + proc.getLongAddress(address));
 	proc.pcAdvance();
 }
 
-and_(Processor& proc, const unsigned long& regA,
+void and_(Processor& proc, const unsigned long& regA,
 	const unsigned long& regB, const unsigned long& regC)
 {
 	proc.setRegister(regA,
@@ -42,7 +45,7 @@ and_(Processor& proc, const unsigned long& regA,
 	proc.pcAdvance();
 }
 
-sw_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
+void sw_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
 	const unsigned long& regC)
 {
 	proc.writeAddress(proc.getRegister(regB) + proc.getRegister(regC),
@@ -50,15 +53,15 @@ sw_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
 	proc.pcAdvance();
 }
 
-swi_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
-	const unsigned long& address)
+void swi_(Processor& proc, const unsigned long& regA,
+	const unsigned long& regB, const unsigned long& address)
 {
 	proc.writeAddress(proc.getRegister(regB) + address,
 		proc.getRegister(regA));
 	proc.pcAdvance();
 }
 
-lw_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
+void lw_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
 	const unsigned long& regC)
 {
 	proc.setRegister(regA, proc.getLongAddress(
@@ -66,16 +69,16 @@ lw_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
 	proc.pcAdvance();
 }
 
-lwi_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
-	const unsigned long& address)
+void lwi_(Processor& proc, const unsigned long& regA,
+	const unsigned long& regB, const unsigned long& address)
 {
 	proc.setRegister(regA, proc.getLongAddress(
 		proc.getRegister(regB) + address)); 
 	proc.pcAdvance();
 }
 
-beq_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
-	const unsigned long& address)
+void beq_(Processor& proc, const unsigned long& regA,
+	const unsigned long& regB, const unsigned long& address)
 {
 	if (proc.getRegister(regA) == proc.getRegister(regB)) {
 		proc.setPCNull();
@@ -87,14 +90,14 @@ beq_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
 	}
 }
 
-br_(Processor& proc, const unsigned long& address)
+void br_(Processor& proc, const unsigned long& address)
 {
 	proc.setPCNull();
 	proc.pcAdvance(address);
 }
 
-mul_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
-	const unsigned long& regC)
+void mul_(Processor& proc, const unsigned long& regA,
+	const unsigned long& regB, const unsigned long& regC)
 {
 	proc.setRegister(regA, 
 		proc.multiplyWithCarry(
@@ -102,14 +105,9 @@ mul_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
 	proc.pcAdvance();
 }
 
-muli_(Processor& proc, const unsigned long& regA, const unsigned long& regB,
-	const unsigned long& multiplier)
+void muli_(Processor& proc, const unsigned long& regA,
+	const unsigned long& regB, const unsigned long& multiplier)
 {
 	proc.setRegister(regA, proc.multiplyWithCarry(regB, multiplier));
 	proc.pcAdvance();
 }
-
-
-
-
-

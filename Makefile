@@ -15,7 +15,8 @@ all: nocdevice
 clean:
 	rm -f *.o
 
-nocdevice: computer.o memory.o noc.o tree.o mux.o processor.o tile.o paging.o
+nocdevice: computer.o memory.o noc.o tree.o mux.o processor.o tile.o paging.o \
+	instructions.o
 	$(CC) $(CXXFLAGS) -o nocdevice $(CFLAGS) computer.o memory.o noc.o \
 		tree.o mux.o processor.o tile.o paging.o instructions.o
 
@@ -56,6 +57,6 @@ lineargen.o: lineargen.cpp
 paging.o: paging.cpp paging.hpp
 	$(CC) $(CXXFLAGS)  -o paging.o -c -Wall paging.cpp
 
-instructions.o: processor.hpp, instructions.cpp
+instructions.o: instructions.cpp
 	$(CC) $(CXXFLAGS) -o instructions.o -c -Wall instructions.cpp
 	

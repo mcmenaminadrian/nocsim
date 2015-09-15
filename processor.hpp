@@ -25,10 +25,7 @@ private:
 	void writeOutPageAndBitmapLengths(const unsigned long& reqPTESize,
 		const unsigned long& reqBitmapPages);
 	void zeroOutTLBs(const unsigned long& reqPTEPages);
-	void writeAddress(const unsigned long& addr,
-		const unsigned long& value);
 	const unsigned long fetchAddress(const unsigned long& address);
-	unsigned long getLongAddress(const unsigned long& address);
 	bool isBitmapValid(const unsigned long& address,
 		const unsigned long& fame) const;
 	bool isPageValid(const unsigned long& frameNo) const;
@@ -45,7 +42,7 @@ public:
 	void switchModeVirtual();
 	void createMemoryMap(Memory *local, long pShift);
 	void setPCNull();
-	void pcAdvance(const long count);
+	void pcAdvance(const long count = sizeof(long));
 	long execute(const long lineSz);
 	long letsRoll(const long lineSz);
 	unsigned long getRegister(const unsigned long regNumber) const;
@@ -54,6 +51,9 @@ public:
 	unsigned long getAddress(unsigned long address);
 	unsigned long multiplyWithCarry(const unsigned long A,
 		const unsigned long B);
+	unsigned long getLongAddress(const unsigned long& address);
+	void writeAddress(const unsigned long& addr,
+		const unsigned long& value);
 };
 
 void add_(Processor&, const unsigned long& rA, const unsigned long& rB,
