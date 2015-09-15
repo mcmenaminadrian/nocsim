@@ -280,6 +280,7 @@ long Noc::executeInstructions()
 	long lines = readInVariables();
 	writeSystemToMemory();
 	for (int i = 0; i < columnCount * rowCount; i++) {
+		//spawn a thread per tile
 		tileAt(i)->execute(lines);
 	}
 	return 0;

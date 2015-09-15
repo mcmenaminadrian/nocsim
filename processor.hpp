@@ -19,12 +19,6 @@ private:
 	long pageShift;
 	unsigned long pageMask;
 	unsigned long bitMask;
-	unsigned long getRegister(const unsigned long regNumber) const;
-	void setRegister(const unsigned long regNumber,
-		const unsigned long value);
-	unsigned long getAddress(unsigned long address);
-	unsigned long multiplyWithCarry(const unsigned long A,
-		const unsigned long B);
 	void markUpBasicPageEntries(const unsigned long& reqPTEPages,
 		const unsigned long& reqBitmapPages);
 	void writeOutBasicPageEntries(const unsigned long& reqPTEPages);
@@ -52,30 +46,37 @@ public:
 	void createMemoryMap(Memory *local, long pShift);
 	void setPCNull();
 	void pcAdvance(const long count);
-	void add_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& rC);
-	void addi_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& imm);
-	void and_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& rC);
-	void sw_(const unsigned long& rA, const unsigned  long& rB,
-		const unsigned  long& rC);
-	void swi_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& imm);
-	void lw_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& rC);
-	void lwi_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& imm);
-	void beq_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& imm);
-	void br_(const unsigned long& imm);
-	void mul_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& rC);
-	void muli_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& imm);
-
 	long execute(const long lineSz);
 	long letsRoll(const long lineSz);
+	unsigned long getRegister(const unsigned long regNumber) const;
+	void setRegister(const unsigned long regNumber,
+		const unsigned long value);
+	unsigned long getAddress(unsigned long address);
+	unsigned long multiplyWithCarry(const unsigned long A,
+		const unsigned long B);
 };
+
+void add_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& rC);
+void addi_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& imm);
+void and_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& rC);
+void sw_(Processor&, const unsigned long& rA, const unsigned  long& rB,
+	const unsigned  long& rC);
+void swi_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& imm);
+void lw_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& rC);
+void lwi_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& imm);
+void beq_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& imm);
+void br_(Processor&, const unsigned long& imm);
+void mul_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& rC);
+void muli_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& imm);
+
 
 #endif
