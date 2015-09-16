@@ -62,5 +62,5 @@ instructions.o: instructions.cpp
 	$(CC) $(CXXFLAGS) -o instructions.o -c -Wall instructions.cpp
 
 functor.o: processorFunc.cpp
-	$(CC) $(CXXFLAGS) -o processorFunc.o -c -Wall processorFunc.cpp
+	$(CC) $(CXXFLAGS) -o functor.o -c -Wall processorFunc.cpp
 	

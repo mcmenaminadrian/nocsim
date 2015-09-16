@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <cstdlib>
+#include <thread>
 #include "memory.hpp"
 #include "tile.hpp"
 #include "noc.hpp"
@@ -283,7 +284,7 @@ long Noc::executeInstructions()
 	vector<thread> threads;
 	
 	for (int i = 0; i < columnCount * rowCount; i++) {
-		ProcessorFunctor funky(tileAt(i));
+		ProcessorFunctor funcky(tileAt(i));
 		//spawn a thread per tile
 		threads.push_back(thread(funcky));
 	}
