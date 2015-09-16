@@ -12,6 +12,7 @@
 #include "tree.hpp"
 #include "processor.hpp"
 #include "paging.hpp"
+#include "processorFunc.hpp"
 
 using namespace std;
 
@@ -279,9 +280,15 @@ long Noc::executeInstructions()
 
 	long lines = readInVariables();
 	writeSystemToMemory();
+	vector<thread> threads;
+	
 	for (int i = 0; i < columnCount * rowCount; i++) {
+		ProcessorFunctor funky(tileAt(i));
 		//spawn a thread per tile
-		tileAt(i)->execute(lines);
+		threads.push_back(thread(funcky));
+	}
+	for (int i = 0; i < columnCount * rowCount; i++) {
+		threads[i].join();
 	}
 	return 0;
 }
