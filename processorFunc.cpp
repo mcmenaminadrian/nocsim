@@ -17,6 +17,8 @@ ProcessorFunctor::ProcessorFunctor(Tile *tileIn):
 
 void ProcessorFunctor::operator()()
 {
-	cout << "In operator" << endl;
+	proc->setRegister(3, 25);
+	add_(*proc, 2, 3, 4);
+	cout << proc->getRegister(2) << endl;
 }
 
