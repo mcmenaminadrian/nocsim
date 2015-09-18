@@ -60,6 +60,8 @@ void add_(Processor&, const unsigned long& rA, const unsigned long& rB,
 	const unsigned long& rC);
 void addi_(Processor&, const unsigned long& rA, const unsigned long& rB,
 	const unsigned long& imm);
+void addm_(Processor&, const unsigned long& rA, const unsigned long& rB,
+	const unsigned long& address);
 void and_(Processor&, const unsigned long& rA, const unsigned long& rB,
 	const unsigned long& rC);
 void sw_(Processor&, const unsigned long& rA, const unsigned  long& rB,

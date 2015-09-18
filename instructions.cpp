@@ -30,6 +30,13 @@ void add_(Processor& proc, const unsigned long& regA,
 }
 
 void addi_(Processor& proc, const unsigned long& regA,
+	const unsigned long& regB, const unsigned long& imm)
+{
+	proc.setRegister(regA, proc.getRegister(regB) + imm);
+	proc.pcAdvance();
+}
+
+void addm_(Processor& proc, const unsigned long& regA,
 	const unsigned long& regB, const unsigned long& address)
 {
 	proc.setRegister(regA,

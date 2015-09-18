@@ -20,14 +20,14 @@ ProcessorFunctor::ProcessorFunctor(Tile *tileIn):
 
 void ProcessorFunctor::setUpLocalPageTables()
 {
-	cout << "*" << endl;;
+	unsigned long pagesNeeded = TILE_MEM_SIZE / 1024;
+	addi_(*proc, 1, 0, pagesNeeded);
+	swi_(*proc, 1, 0, 1024);
 }
 
 void ProcessorFunctor::operator()()
 {
 	//set up local page tables
 	setUpLocalPageTables();
-	proc->setRegister(3, 25);
-	add_(*proc, 2, 3, 4);
 }
 
