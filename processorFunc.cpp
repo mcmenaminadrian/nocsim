@@ -10,15 +10,24 @@
 using namespace std;
 
 
+
+
+
 ProcessorFunctor::ProcessorFunctor(Tile *tileIn):
 	tile{tileIn}, proc{tileIn->tileProcessor}
 {
 }
 
+void ProcessorFunctor::setUpLocalPageTables()
+{
+	cout << "*" << endl;;
+}
+
 void ProcessorFunctor::operator()()
 {
+	//set up local page tables
+	setUpLocalPageTables();
 	proc->setRegister(3, 25);
 	add_(*proc, 2, 3, 4);
-	cout << proc->getRegister(2) << endl;
 }
 

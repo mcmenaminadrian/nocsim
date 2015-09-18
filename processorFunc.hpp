@@ -6,6 +6,8 @@ class ProcessorFunctor {
 private:
 	Tile *tile;
 	Processor *proc;
+
+	void setUpLocalPageTables();
 public:
 	ProcessorFunctor(Tile *tileIn);
 	void operator()();
