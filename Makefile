@@ -16,9 +16,9 @@ clean:
 	rm -f *.o
 
 nocdevice: computer.o memory.o noc.o tree.o mux.o processor.o tile.o paging.o \
-	instructions.o functor.o
+	functor.o
 	$(CC) $(CXXFLAGS) -o nocdevice $(CFLAGS) computer.o memory.o noc.o \
-		tree.o mux.o processor.o tile.o paging.o instructions.o \
+		tree.o mux.o processor.o tile.o paging.o \
 		functor.o
 
 computer.o: computer.cpp memory.hpp tree.hpp noc.hpp tile.hpp \
@@ -57,9 +57,6 @@ lineargen.o: lineargen.cpp
 
 paging.o: paging.cpp paging.hpp
 	$(CC) $(CXXFLAGS)  -o paging.o -c -Wall paging.cpp
-
-instructions.o: instructions.cpp
-	$(CC) $(CXXFLAGS) -o instructions.o -c -Wall instructions.cpp
 
 functor.o: processorFunc.cpp
 	$(CC) $(CXXFLAGS) -o functor.o -c -Wall processorFunc.cpp
