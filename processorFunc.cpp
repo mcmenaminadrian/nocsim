@@ -3,6 +3,7 @@
 #include <vector>
 #include <utility>
 #include "mux.hpp"
+#include "noc.hpp"
 #include "tile.hpp"
 #include "processor.hpp"
 #include "processorFunc.hpp"
@@ -119,22 +120,29 @@ void ProcessorFunctor::muli_(const unsigned long& regA,
 
 ///End of instruction set ///
 
+#define SETSIZE 256
+
 ProcessorFunctor::ProcessorFunctor(Tile *tileIn):
 	tile{tileIn}, proc{tileIn->tileProcessor}
 {
 }
 
-void ProcessorFunctor::setUpLocalPageTables()
+
+
+void ProcessorFunctor::loadInitialData(const unsigned long order)
 {
-	//boot up code - not timed
-//	unsigned long pagesNeeded = TILE_MEM_SIZE / 1024;
-//	for (int i = 0; i < pagesNeeded; i++) {
-			
-}
+	addi_(REG1, REG0, order);
+	addi_(REG2, REG0, APNUMBERSIZE);
+	addi_(REG3, REG0, SETSIZE + 1);
+}	
 
 void ProcessorFunctor::operator()()
 {
-	//set up local page tables
-	setUpLocalPageTables();
+	const unsigned long order = tile->getOrder();
+	if (order >= SETSIZE) {
+		return;
+	}
+	//load data
+	loadInitialData(order);
 }
 

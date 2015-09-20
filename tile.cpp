@@ -6,14 +6,15 @@
 #include "mux.hpp"
 #include "memory.hpp"
 #include "processor.hpp"
+#include "noc.hpp"
 #include "tile.hpp"
 
 using namespace std;
 
-Tile::Tile(const long c, const long r, const long pShift):
-	tileLocalMemory(new Memory(0, TILE_MEM_SIZE)),
-	coordinates(pair<long, long>(c, r)),
-	pageShift(pShift)
+Tile::Tile(Noc* n, const long c, const long r, const long pShift):
+	tileLocalMemory{new Memory(0, TILE_MEM_SIZE)},
+	coordinates{pair<long, long>(c, r)},
+	pageShift{pShift}, parentBoard{n}
 {
 	tileProcessor = new Processor(this);
 	tileProcessor->createMemoryMap(tileLocalMemory, pShift);
@@ -40,3 +41,11 @@ long Tile::execute(const long lineSize)
 {
 	return tileProcessor->execute(lineSize);
 }
+
+const unsigned long Tile::getOrder() const
+{
+	long column = coordinates.first;
+	long row = coordinates.second;
+	return (row * parentBoard->getColumnCount()) + column;
+}
+	

@@ -35,7 +35,10 @@ public:
 	bool attach(Tree& memoryTree, const long leaf);
 	Tile* tileAt(long i);
 	long executeInstructions();
-	unsigned long getBasePageTables(){ return ptrBasePageTables; }
+	unsigned long getBasePageTables() const { return ptrBasePageTables; }
+	const long getColumnCount() const { return columnCount;}
+	const long getRowCount() const { return rowCount; }
+
 };
 
 #endif

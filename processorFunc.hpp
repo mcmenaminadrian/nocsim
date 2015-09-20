@@ -31,7 +31,8 @@ private:
 		const unsigned long& imm);
 
 
-	void setUpLocalPageTables();
+	void loadInitialData(const unsigned long order);
+
 public:
 	ProcessorFunctor(Tile *tileIn);
 	void operator()();
