@@ -9,6 +9,13 @@
 
 using namespace std;
 
+//avoid magic numbers
+
+enum reg {REG0, REG1, REG2, REG3, REG4, REG5, REG6, REG7, REG8, REG9,
+	REG10, REG11, REG12, REG13, REG14, REG15, REG16, REG17, REG18, REG19,
+	REG20, REG21, REG22, REG23, REG24, REG25, REG26, REG27, REG28, REG29,
+	REG30, REG31};
+
 //instructions
 
 
@@ -31,7 +38,7 @@ void ProcessorFunctor::addm_(const unsigned long& regA,
 	const unsigned long& regB, const unsigned long& address)
 {
 	proc->setRegister(regA,
-		proc.getRegister(regB) + proc->getLongAddress(address));
+		proc->getRegister(regB) + proc->getLongAddress(address));
 	proc->pcAdvance();
 }
 
@@ -54,7 +61,7 @@ void ProcessorFunctor::sw_(const unsigned long& regA, const unsigned long& regB,
 void ProcessorFunctor::swi_(const unsigned long& regA,
 	const unsigned long& regB, const unsigned long& address)
 {
-	proc->writeAddress(proc.getRegister(regB) + address,
+	proc->writeAddress(proc->getRegister(regB) + address,
 		proc->getRegister(regA));
 	proc->pcAdvance();
 }
@@ -119,9 +126,10 @@ ProcessorFunctor::ProcessorFunctor(Tile *tileIn):
 
 void ProcessorFunctor::setUpLocalPageTables()
 {
-	unsigned long pagesNeeded = TILE_MEM_SIZE / 1024;
-	addi_(*proc, 1, 0, pagesNeeded);
-	swi_(*proc, 1, 0, 1024);
+	//boot up code - not timed
+//	unsigned long pagesNeeded = TILE_MEM_SIZE / 1024;
+//	for (int i = 0; i < pagesNeeded; i++) {
+			
 }
 
 void ProcessorFunctor::operator()()

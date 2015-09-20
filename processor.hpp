@@ -55,30 +55,4 @@ public:
 	void writeAddress(const unsigned long& addr,
 		const unsigned long& value);
 };
-
-void add_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& rC);
-void addi_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& imm);
-void addm_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& address);
-void and_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& rC);
-void sw_(Processor&, const unsigned long& rA, const unsigned  long& rB,
-	const unsigned  long& rC);
-void swi_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& imm);
-void lw_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& rC);
-void lwi_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& imm);
-void beq_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& imm);
-void br_(Processor&, const unsigned long& imm);
-void mul_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& rC);
-void muli_(Processor&, const unsigned long& rA, const unsigned long& rB,
-	const unsigned long& imm);
-
-
 #endif

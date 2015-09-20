@@ -78,10 +78,7 @@ void Processor::markUpBasicPageEntries(const unsigned long& reqPTESize,
 			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
 		localMemory->writeLong(VIRTOFFSET + i * (1 << pageShift),
 			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
-		vector<char> wordIn;
-		for (int j = 0; j < 3; j++) {
-			wordIn.push_back('\0');
-		}
+		vector<char> wordIn{'\0', '\0', '\0'};
 		wordIn.push_back(0x03);
 		localMemory->writeWord32(FLAGOFFSET + i * (1 << pageShift),
 			PAGETABLESLOCAL + i * PAGETABLEENTRY);
@@ -110,7 +107,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 		requiredBitmapPages++;
 	}
 	writeOutPageAndBitmapLengths(requiredPTEPages, requiredBitmapPages);
-	writeOutBasicPageEntries(requiredPTEPages);
+	writeOutBasicPageEntries(pagesAvailable);
 	markUpBasicPageEntries(requiredPTESize, requiredBitmapPages);
 
 	pageMask = 0xFFFFFFFFFFFFFFFF;
