@@ -170,6 +170,7 @@ void Noc::writeSystemToMemory()
 	unsigned long firstFreePageAddr =
 		scanLevelFourTable(levelFourTableAddr);
 	unsigned long address = globalMemory[0].readLong(firstFreePageAddr);
+	globalMemory[0].writeLong(sizeof(long) * 2, address);
 	int bytesWritten = 0;
 	for (int i = 0; i < lines.size(); i++) {
 		for (int j = 0; j <= lines.size(); j++) {

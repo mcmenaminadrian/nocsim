@@ -1,6 +1,8 @@
 #ifndef __FUNCTOR_
 #define __FUNCTOR_
 
+#define OUTPOINT 0x1000
+
 class ProcessorFunctor {
 
 private:
@@ -22,9 +24,9 @@ private:
 		const unsigned long& rC);
 	void lwi_(const unsigned long& rA, const unsigned long& rB,
 		const unsigned long& imm);
-	void beq_(const unsigned long& rA, const unsigned long& rB,
-		const unsigned long& imm);
-	void br_(const unsigned long& imm);
+	bool beq_(const unsigned long& rA, const unsigned long& rB,
+		const unsigned long& addr);
+	void br_(const unsigned long& addr) const;
 	void mul_(const unsigned long& rA, const unsigned long& rB,
 		const unsigned long& rC);
 	void muli_(const unsigned long& rA, const unsigned long& rB,
