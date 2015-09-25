@@ -48,7 +48,7 @@ public:
 	unsigned long getRegister(const unsigned long regNumber) const;
 	void setRegister(const unsigned long regNumber,
 		const unsigned long value);
-	unsigned long getAddress(unsigned long address);
+	uint8_t getAddress(const unsigned long& address);
 	unsigned long multiplyWithCarry(const unsigned long A,
 		const unsigned long B);
 	unsigned long getLongAddress(const unsigned long& address);

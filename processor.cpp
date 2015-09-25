@@ -201,6 +201,11 @@ void Processor::writeAddress(const unsigned long& address,
 unsigned long Processor::getLongAddress(const unsigned long& address)
 {
 	return localMemory->readLong(fetchAddress(address));
+}
+
+uint8_t Processor::getAddress(const unsigned long& address)
+{
+	return localMemory->readByte(fetchAddress(address));
 }		
 
 void Processor::setRegister(const unsigned long regNumber,

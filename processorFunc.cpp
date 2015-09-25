@@ -139,19 +139,19 @@ void ProcessorFunctor::loadInitialData(const unsigned long order)
 	addi_(REG6, REG0, sizeof(long) * 2);
 	add_(REG6, REG6, REG5);
 	//set up loop
-	addi_(REG7, REG0, SETSIZE);
+	addi_(REG7, REG0, SETSIZE + 1);
 	addi_(REG9, REG0, OUTPOINT);
 inner_loop_set:
 	addi_(REG8, REG0, APNUMBERSIZE);
+	addi_(REG7, REG7, -1);
+	if (beq_(REG7, REG0, 0)) {
+		goto loop_done;
+	}
 loop_on:
 	lw_(REG10, REG0, REG6);
 	sw_(REG10, REG0, REG9);
 	addi_(REG9, REG9, sizeof(long));
 	addi_(REG6, REG6, sizeof(long));
-	addi_(REG7, REG7, -1);
-	if (beq_(REG7, REG0, 0)) {
-		goto loop_done;
-	}  
 	addi_(REG8, REG8, -1);
 	if (beq_(REG8, REG0, 0)) {
 		goto inner_loop_set;
@@ -160,8 +160,6 @@ loop_on:
 	goto loop_on;
 loop_done:
 	return;
-	 
-	
 }	
 
 void ProcessorFunctor::operator()()
