@@ -176,23 +176,23 @@ void Noc::writeSystemToMemory()
 		for (int j = 0; j <= lines.size(); j++) {
 			long sign = sgn(lines[i][j]);
 			if (sign < 1) {
-				globalMemory[0].writeLong(address, 0x01);
+				globalMemory[0].writeByte(address, 0x01);
 			} else {
-				globalMemory[0].writeLong(address, 0);
+				globalMemory[0].writeByte(address, 0);
 			}
-			address += sizeof(long);
-			bytesWritten += sizeof(long);
-			globalMemory[0].writeLong(address, APNUMBERSIZE);
-			address += sizeof(long);
-			bytesWritten += sizeof(long);
-			globalMemory[0].writeLong(address,abs(lines[i][j]));
-			for (int k = 0; k < APNUMBERSIZE - 3; k++) {
+			address++;
+			bytesWritten++;
+			globalMemory[0].writeByte(address, APNUMBERSIZE);
+			address++;
+			bytesWritten++;
+			globalMemory[0].writeWord32(address,abs(lines[i][j]));
+			address += 2;
+			bytesWritten += 2;
+			for (int k = 0; k < APNUMBERSIZE - 2; k++) {
+				globalMemory[0].writeLong(address, 0);
 				address += sizeof(long);
 				bytesWritten += sizeof(long);
-				globalMemory[0].writeLong(address, 0);
 			}
-			address += sizeof(long);
-			bytesWritten += sizeof(long);
 		}
 	}
 	cleanRestOfPageTable(address);
