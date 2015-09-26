@@ -43,8 +43,6 @@ public:
 	void createMemoryMap(Memory *local, long pShift);
 	void setPCNull();
 	void pcAdvance(const long count = sizeof(long));
-	long execute(const long lineSz);
-	long letsRoll(const long lineSz);
 	unsigned long getRegister(const unsigned long regNumber) const;
 	void setRegister(const unsigned long regNumber,
 		const unsigned long value);

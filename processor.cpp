@@ -276,17 +276,3 @@ void Processor::pcAdvance(const long count)
 	programCounter += count;
 	fetchAddress(programCounter);
 }
-
-long Processor::letsRoll(const long lineSz)
-{
-	//set up local memory maps
-	return 0;
-}
-
-long Processor::execute(const long lineSz)
-{
-	//now we spawn threads
-	thread t(&Processor::letsRoll, this, lineSz);
-	t.detach();
-	return 0;
-}

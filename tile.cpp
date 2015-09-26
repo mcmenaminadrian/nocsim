@@ -37,11 +37,6 @@ void Tile::addTreeLeaf(Mux *leaf)
 	treeLeaves.push_back(leaf);
 }
 
-long Tile::execute(const long lineSize)
-{
-	return tileProcessor->execute(lineSize);
-}
-
 const unsigned long Tile::getOrder() const
 {
 	long column = coordinates.first;

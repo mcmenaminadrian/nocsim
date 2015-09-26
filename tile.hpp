@@ -24,7 +24,6 @@ public:
 	Processor *tileProcessor;
 	void addTreeLeaf(Mux* leaf);
 	void addConnection(const long col, const long row);
-	long execute(const long lineSize);
 	const unsigned long getOrder() const;
 };
 

@@ -277,9 +277,6 @@ long Noc::executeInstructions()
 
 	ptrBasePageTables = createBasicPageTables();
 
-	
-	
-
 	long lines = readInVariables();
 	writeSystemToMemory();
 	vector<thread> threads;
