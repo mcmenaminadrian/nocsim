@@ -196,6 +196,8 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 void Processor::writeAddress(const unsigned long& address,
 	const unsigned long& value)
 {
+	//TODO: Lots!
+	localMemory->writeLong(fetchAddress(address), value);
 }
 
 unsigned long Processor::getLongAddress(const unsigned long& address)

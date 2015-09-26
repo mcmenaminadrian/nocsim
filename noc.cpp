@@ -280,7 +280,7 @@ long Noc::executeInstructions()
 	long lines = readInVariables();
 	writeSystemToMemory();
 	vector<thread> threads;
-	
+
 	for (int i = 0; i < columnCount * rowCount; i++) {
 		ProcessorFunctor funcky(tileAt(i));
 		//spawn a thread per tile
