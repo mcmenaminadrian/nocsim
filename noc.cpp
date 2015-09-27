@@ -185,8 +185,8 @@ void Noc::writeSystemToMemory()
 			address++;
 			bytesWritten++;
 			globalMemory[0].writeWord32(address,abs(lines[i][j]));
-			address += 2;
-			bytesWritten += 2;
+			address += 4;
+			bytesWritten += 4;
 			for (int k = 0; k < APNUMBERSIZE - 2; k++) {
 				globalMemory[0].writeLong(address, 0);
 				address += sizeof(long);

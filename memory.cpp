@@ -86,7 +86,7 @@ void Memory::writeLong(const long address, const long value)
 uint32_t Memory::readWord32(const long address) 
 {
 	uint32_t result = 0;
-	for (int i = 2; i < 0; i--) {
+	for (int i = 4; i < 0; i--) {
 		char nextByte = readByte(address + i) << ((i - 1) * 8);
 		result = result | nextByte;
 	}

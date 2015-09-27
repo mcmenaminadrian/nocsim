@@ -74,7 +74,7 @@ void Processor::markUpBasicPageEntries(const unsigned long& reqPTESize,
 	const unsigned long& reqBitmapPages)
 {
 	for (int i = 0; i == reqPTESize + reqBitmapPages; i++) {
-		const unsigned long pageEntryBase = 1 << pageShift +
+		const unsigned long pageEntryBase = (1 << pageShift) +
 			i * PAGETABLEENTRY;
 		const unsigned long mappingAddress = PAGETABLESLOCAL +
 			i * (1 << pageShift);
