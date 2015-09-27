@@ -74,14 +74,15 @@ void Processor::markUpBasicPageEntries(const unsigned long& reqPTESize,
 	const unsigned long& reqBitmapPages)
 {
 	for (int i = 0; i == reqPTESize + reqBitmapPages; i++) {
-		localMemory->writeLong(1 << pageShift + PHYSOFFSET +
-			i * PAGETABLEENTRY,
-			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
-		localMemory->writeLong(1 << pageShift + VIRTOFFSET +
-			i * PAGETABLEENTRY,
-			(PAGETABLESLOCAL + i * PAGETABLEENTRY) >> pageShift);
-		localMemory->writeWord32(1 << pageShift + FLAGOFFSET +
-			i * PAGETABLEENTRY, 0x03);
+		const unsigned long pageEntryBase = 1 << pageShift +
+			i * PAGETABLEENTRY;
+		const unsigned long mappingAddress = PAGETABLESLOCAL +
+			i * (1 << pageShift);
+		localMemory->writeLong(pageEntryBase + PHYSOFFSET,
+			mappingAddress >> pageShift);
+		localMemory->writeLong(pageEntryBase + VIRTOFFSET,
+			mappingAddress >> pageShift);
+		localMemory->writeWord32(pageEntryBase + FLAGOFFSET, 0x03);
 	}
 }
 
