@@ -13,7 +13,7 @@ using namespace std;
 
 Tile::Tile(Noc* n, const long c, const long r, const long pShift):
 	tileLocalMemory{new Memory(0, TILE_MEM_SIZE)},
-	coordinates{pair<long, long>(c, r)},
+	coordinates{pair<const long, const long>(c, r)},
 	pageShift{pShift}, parentBoard{n}
 {
 	tileProcessor = new Processor(this);

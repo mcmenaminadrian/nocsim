@@ -41,7 +41,6 @@ Noc::Noc(const long columns, const long rows, const long pageShift,
 		}
 	}
 
-	long blockSize = 1024 * 1024 * 1024;
 	for (int i = 0; i < memoryBlocks; i++) {
 		globalMemory.push_back(Memory(i * blockSize, blockSize));
 	}

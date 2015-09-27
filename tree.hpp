@@ -34,7 +34,7 @@ public:
 class Tree {
 
 private:
-	std::vector<std::vector<Mux *> > nodesTree;
+	std::vector<std::vector<Mux *>> nodesTree;
 	long levels;
 	
 
