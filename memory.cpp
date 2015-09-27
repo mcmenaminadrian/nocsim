@@ -97,7 +97,7 @@ void Memory::writeWord32(const long address, uint32_t data)
 {
 	char mask = 0xFF;
 	for (int i = 0; i < 4; i++) {
-		char byteToWrite = (data >> (4 - (i + 1))) & mask;
+		char byteToWrite = (data >> ((4 - (i + 1)) * 8)) & mask;
 		writeByte(address + i, byteToWrite);
 	}
 }

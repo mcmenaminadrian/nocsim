@@ -45,9 +45,8 @@ bool RegionList::addRegionForAddress(const unsigned long& address)
 	return addRegion(region);
 }
 
-PageTable::PageTable(int bitLength)
+PageTable::PageTable(int bitLength): length{ bitLength }
 {
-	length = bitLength;
 	for (int i = 0; i < (1 << length); i++) {
 		entries.push_back(std::pair<unsigned long, uint8_t>(0, 0));
 	}
@@ -73,14 +72,14 @@ void PageTable::setPageFlags(const long& index, uint8_t flags)
 
 unsigned long PageTable::streamToMemory(Memory& mem, unsigned long address)
 {
-	unsigned long length = 0;
+	unsigned long tLength = 0;
 	for (auto x: entries) {
 		mem.writeLong(address, x.first);
 		address += sizeof(long);
-		length += sizeof(long);
+		tLength += sizeof(long);
 		mem.writeByte(address, x.second);
 		address += sizeof(uint8_t);
-		length += sizeof(uint8_t);
+		tLength += sizeof(uint8_t);
 	}
-	return length;
+	return tLength;
 }
