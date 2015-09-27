@@ -15,7 +15,6 @@ private:
 	std::vector<Mux *> treeLeaves;
 	const std::pair<const long, const long> coordinates;
 	std::vector<std::pair<long, long> > connections;
-	const long pageShift;
 	const Noc *parentBoard;
 
 public:
