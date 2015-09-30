@@ -173,6 +173,7 @@ void Noc::writeSystemToMemory()
 	int bytesWritten = 0;
 	for (int i = 0; i < lines.size(); i++) {
 		for (int j = 0; j <= lines.size(); j++) {
+			//nominator
 			long sign = sgn(lines[i][j]);
 			if (sign < 1) {
 				globalMemory[0].writeByte(address, 0x01);
@@ -192,6 +193,18 @@ void Noc::writeSystemToMemory()
 				address += sizeof(long);
 				bytesWritten += sizeof(long);
 			}
+			//denominator
+			globalMemory[0].writeByte(address , 0);
+			address++;
+			bytesWritten++;
+			globalMemory[0].writeWord32(address, 1);
+			address += 4;
+			bytesWritten += 4;
+			for (int k = 0; k < APNUMBERSIZE - 2; k++) {
+				globalMemory[0].writeLong(address, 0);
+				address += sizeof(long);
+				bytesWritten += sizeof(long);
+			}	
 		}
 	}
 	cleanRestOfPageTable(address);
@@ -253,8 +266,8 @@ unsigned long Noc::createBasicPageTables()
 			startOfPageTables + bottomOfPageTable + 
 			i * sizeOfEntry + sizeof(long), 0x03);
 	}
-	//mark out 5MB more
-	for (int i = pagesUsedForTables + 2; i < (pagesUsedForTables + 5002);
+	//mark out 12MB more
+	for (int i = pagesUsedForTables + 2; i < (pagesUsedForTables + 12002);
 		 i++) {
 			globalMemory[0].writeLong(
 				startOfPageTables + bottomOfPageTable +
