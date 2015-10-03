@@ -3,6 +3,8 @@
 
 #define REGISTER_FILE_SIZE 32
 #define BITMAP_BYTES 16
+#define MESSAGEBITS 128
+#define FLAGBITS 1
 
 class Tile;
 
@@ -34,9 +36,9 @@ private:
 	const unsigned long triggerSmallFault(
 		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& address);
-	std::bitset<128> outbound;
-	std::bitset<128> inbound;
-	std::bitset<8> messageRegisterFlags;
+	std::bitset<MESSAGEBITS> outbound;
+	std::bitset<MESSAGEBITS> inbound;
+	std::bitset<FLAGBITS> messageRegisterFlags;
 
 public:
 	Processor(Tile* parent);
@@ -55,8 +57,9 @@ public:
 	unsigned long getLongAddress(const unsigned long& address);
 	void writeAddress(const unsigned long& addr,
 		const unsigned long& value);
-	void setOutbound(const std::bitset<128>& message);
-	void setInbound(const std::bitset<128>& message);
+	//message passing code
+	void setOutbound(const std::bitset<MESSAGEBITS>& message);
+	void setInbound(const std::bitset<MESSAGEBITS>& message);
 	bool inboundFree() const;
 	bool ouboundFree() const;
 	
