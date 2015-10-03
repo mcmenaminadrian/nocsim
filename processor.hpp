@@ -34,6 +34,9 @@ private:
 	const unsigned long triggerSmallFault(
 		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& address);
+	std::bitset<128> outbound;
+	std::bitset<128> inbound;
+	std::bitset<8> messageRegisterFlags;
 
 public:
 	Processor(Tile* parent);
@@ -52,5 +55,10 @@ public:
 	unsigned long getLongAddress(const unsigned long& address);
 	void writeAddress(const unsigned long& addr,
 		const unsigned long& value);
+	void setOutbound(const std::bitset<128>& message);
+	void setInbound(const std::bitset<128>& message);
+	bool inboundFree() const;
+	bool ouboundFree() const;
+	
 };
 #endif
