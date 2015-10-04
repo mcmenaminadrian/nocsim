@@ -1,3 +1,5 @@
+#include "router.hpp"
+
 #ifndef _PROCESSOR_CLASS_
 #define _PROCESSOR_CLASS_
 
@@ -10,6 +12,7 @@ class Tile;
 
 class Processor {
 private:
+	Router router;
 	std::vector<unsigned long> registerFile;
 	std::vector<std::pair<unsigned long, unsigned long> > tlbs;
 	bool carryBit;
@@ -36,9 +39,6 @@ private:
 	const unsigned long triggerSmallFault(
 		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& address);
-	std::bitset<MESSAGEBITS> outbound;
-	std::bitset<MESSAGEBITS> inbound;
-	std::bitset<FLAGBITS> messageRegisterFlags;
 
 public:
 	Processor(Tile* parent);
@@ -58,10 +58,6 @@ public:
 	void writeAddress(const unsigned long& addr,
 		const unsigned long& value);
 	//message passing code
-	void setOutbound(const std::bitset<MESSAGEBITS>& message);
-	void setInbound(const std::bitset<MESSAGEBITS>& message);
-	bool inboundFree() const;
-	bool ouboundFree() const;
 	
 };
 #endif

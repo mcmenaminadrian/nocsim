@@ -297,6 +297,7 @@ long Noc::executeInstructions()
 		ProcessorFunctor funcky(tileAt(i));
 		//spawn a thread per tile
 		threads.push_back(thread(funcky));
+		
 	}
 	for (int i = 0; i < columnCount * rowCount; i++) {
 		threads[i].join();
