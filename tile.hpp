@@ -25,7 +25,7 @@ public:
 	void addConnection(const long col, const long row);
 	const unsigned long getOrder() const;
 	const long getRow() const {return coordinates.second;}
-	const long getColumn const { return cordinates.first;}
+	const long getColumn() const { return coordinates.first;}
 };
 
 #endif

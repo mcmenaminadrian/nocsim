@@ -29,7 +29,8 @@
 
 using namespace std;
 
-Processor::Processor(Tile *parent): masterTile(parent), mode(REAL)
+Processor::Processor(Tile *parent): masterTile(parent), mode(REAL),
+	router(parent->getColumn(), parent->getRow())
 {
 	registerFile = vector<unsigned long>(REGISTER_FILE_SIZE, 0);
 }

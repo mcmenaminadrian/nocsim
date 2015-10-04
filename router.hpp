@@ -4,8 +4,8 @@
 
 class Router {
 private:
-	const long column;
-	const long row;
+	long column;
+	long row;
 
 public:
 	Router(const long c, const long r): column(c), row(r) {}   
