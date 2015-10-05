@@ -5,8 +5,6 @@
 
 #define REGISTER_FILE_SIZE 32
 #define BITMAP_BYTES 16
-#define MESSAGEBITS 128
-#define FLAGBITS 1
 
 class Tile;
 

@@ -5,10 +5,12 @@
 #include <map>
 #include <string>
 #include <thread>
+#include <bitset>
 #include "mux.hpp"
 #include "tile.hpp"
 #include "memory.hpp"
 #include "processor.hpp"
+#include "router.hpp"
 
 //Page table entries - physical addr, virtual addr, frame no, flags
 
