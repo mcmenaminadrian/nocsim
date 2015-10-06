@@ -7,7 +7,7 @@ Router::Router(const long c, const long r): column(c), row(r)
 	locked = false;
 	sending = false;
 	receiving = false;
-	readyToSend = false)
+	readyToSend = false;
 }
 
 // return 0 = blocked, 1 = succeeded, -1 = nothing to do
@@ -15,11 +15,11 @@ Router::Router(const long c, const long r): column(c), row(r)
 int Router::send()
 {
 	
-	if (sending == false && readyToSend == false) {
+	if (!sending && !readyToSend) {
 		return -1;
 	}
 
-	if (sending == false && readyToSend == true) {
+	if (!sending && readyToSend) {
 		uint8_t destinationColumn = 0;
 		uint8_t destinationRow = 0;
 		for (int i = 0; i < 5; i++) {

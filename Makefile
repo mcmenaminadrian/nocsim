@@ -16,7 +16,7 @@ clean:
 	rm -f *.o
 
 nocdevice: computer.o memory.o noc.o tree.o mux.o processor.o tile.o paging.o \
-	functor.o
+	functor.o router.o
 	$(CC) $(CXXFLAGS) -o nocdevice $(CFLAGS) computer.o memory.o noc.o \
 		tree.o mux.o processor.o tile.o paging.o \
 		functor.o router.o

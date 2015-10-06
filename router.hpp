@@ -20,7 +20,7 @@ private:
 	
 
 public:
-	Router(const long c, const long r): column(c), row(r) {}
+	Router(const long c, const long r);
 	int send();
 	int receive();  
 
