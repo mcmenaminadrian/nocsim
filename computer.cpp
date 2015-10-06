@@ -20,8 +20,8 @@ void usage() {
 	cout << "---------" << endl;
 	cout << "-b    Memory blocks: default 4" << endl;
 	cout << "-s    Memory block size: default 1GB" << endl;
-	cout << "-r    Rows of CPUs in NoC (default 32)" << endl;
-	cout << "-c    Columns of CPUs in NoC (default 32)" << endl;
+	cout << "-r    Rows of CPUs in NoC (default 16)" << endl;
+	cout << "-c    Columns of CPUs in NoC (default 16)" << endl;
 	cout << "-p    Page size in power of 2 (default 10)" << endl;
 	cout << "-?    Print this message and exit" << endl;
 }
@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
 {
 	long memoryBlocks = 4;
 	long blockSize = 1024 * 1024 * 1024;
-	long rows = 32;
-	long columns = 32;
+	long rows = 16;
+	long columns = 16;
 	long pageShift = 10;
 
 	for (int i = 1; i < argc; i++) {
