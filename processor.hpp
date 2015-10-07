@@ -5,6 +5,8 @@
 
 #define REGISTER_FILE_SIZE 32
 #define BITMAP_BYTES 16
+//page mappings
+#define PAGETABLESLOCAL 0xA000000000000000
 
 class Tile;
 

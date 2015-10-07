@@ -15,6 +15,7 @@ Tile::Tile(Noc* n, const long c, const long r, const long pShift):
 	tileLocalMemory{new Memory(0, TILE_MEM_SIZE)},
 	coordinates{pair<const long, const long>(c, r)}, parentBoard{n}
 {
+	globalMemory = &(n->globalMemory[0]);
 	tileProcessor = new Processor(this);
 	tileProcessor->createMemoryMap(tileLocalMemory, pShift);
 }
@@ -42,4 +43,21 @@ const unsigned long Tile::getOrder() const
 	long row = coordinates.second;
 	return (row * parentBoard->getColumnCount()) + column;
 }
-	
+
+char Tile::readByte(const long address) const
+{
+	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
+		tileLocalMemory->getSize() - 1) {
+		return globalMemory->readByte(address);
+	} else {
+		return tileLocalMemory->readByte(address);
+	}
+}
+
+
+/*	long readLong(const long address);
+	uint32_t readWord32(const long address);
+	void writeWord32(const long address, uint32_t);
+	void writeByte(const long address, const char value);
+	void writeLong(const long address, const long value);
+*/

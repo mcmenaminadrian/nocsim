@@ -12,6 +12,7 @@ class Tile
 {
 private:
 	Memory *tileLocalMemory;
+	Memory *globalMemory;
 	std::vector<Mux *> treeLeaves;
 	const std::pair<const long, const long> coordinates;
 	std::vector<std::pair<long, long> > connections;
@@ -26,6 +27,15 @@ public:
 	const unsigned long getOrder() const;
 	const long getRow() const {return coordinates.second;}
 	const long getColumn() const { return coordinates.first;}
+
+	//memory pass through
+	char readByte(const long address) const;
+	long readLong(const long address) const;
+	uint32_t readWord32(const long address) const;
+	void writeWord32(const long address, uint32_t) const;
+	void writeByte(const long address, const char value) const;
+	void writeLong(const long address, const long value) const;
+
 };
 
 #endif
