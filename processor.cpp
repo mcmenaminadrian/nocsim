@@ -55,8 +55,8 @@ void Processor::zeroOutTLBs(const unsigned long& reqPTEPages)
 void Processor::writeOutPageAndBitmapLengths(const unsigned long& reqPTEPages,
 	const unsigned long& reqBitmapPages)
 {
-	localMemory->writeLong(0, reqPTEPages);
-	localMemory->writeLong(sizeof(long), reqBitmapPages);
+	masterTile->writeLong(0, reqPTEPages);
+	masterTile->writeLong(sizeof(long), reqBitmapPages);
 }
 
 void Processor::writeOutBasicPageEntries(const unsigned long& reqPTEPages)
@@ -64,9 +64,9 @@ void Processor::writeOutBasicPageEntries(const unsigned long& reqPTEPages)
 	const unsigned long tablesOffset = 1 << pageShift;
 	for (int i = 0; i < reqPTEPages; i++) {
 		long memoryLocalOffset = i * PAGETABLEENTRY + tablesOffset;
-		localMemory->writeLong(memoryLocalOffset + FRAMEOFFSET, i);
+		masterTile->writeLong(memoryLocalOffset + FRAMEOFFSET, i);
 		for (int j = FLAGOFFSET; j < ENDOFFSET; j++) {
-			localMemory->writeByte(memoryLocalOffset + j, 0);
+			masterTile->writeByte(memoryLocalOffset + j, 0);
 		}
 	}
 }
@@ -79,11 +79,11 @@ void Processor::markUpBasicPageEntries(const unsigned long& reqPTESize,
 			i * PAGETABLEENTRY;
 		const unsigned long mappingAddress = PAGETABLESLOCAL +
 			i * (1 << pageShift);
-		localMemory->writeLong(pageEntryBase + PHYSOFFSET,
+		masterTile->writeLong(pageEntryBase + PHYSOFFSET,
 			mappingAddress >> pageShift);
-		localMemory->writeLong(pageEntryBase + VIRTOFFSET,
+		masterTile->writeLong(pageEntryBase + VIRTOFFSET,
 			mappingAddress >> pageShift);
-		localMemory->writeWord32(pageEntryBase + FLAGOFFSET, 0x03);
+		masterTile->writeWord32(pageEntryBase + FLAGOFFSET, 0x03);
 	}
 }
 
@@ -120,7 +120,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 
 bool Processor::isPageValid(const unsigned long& frameNo) const
 {
-	unsigned long flags = localMemory->readWord32((1 << pageShift)
+	unsigned long flags = masterTile->readWord32((1 << pageShift)
 		+ frameNo * PAGETABLEENTRY + FLAGOFFSET);
 	return (flags & 0x01);
 }
@@ -128,13 +128,13 @@ bool Processor::isPageValid(const unsigned long& frameNo) const
 bool Processor::isBitmapValid(const unsigned long& address,
 	const unsigned long& frameNo) const
 {
-	unsigned long totalPages = localMemory->readLong(0);
+	unsigned long totalPages = masterTile->readLong(0);
 	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
 	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
 	unsigned long bitToCheck = ((address & bitMask) / BITMAP_BYTES);
 	unsigned long bitToCheckOffset = bitToCheck / 8;
 	bitToCheck %= 8;
-	return (localMemory->readByte(bitmapOffset +
+	return (masterTile->readByte(bitmapOffset +
 		frameNo * bitmapSize + bitToCheckOffset) & (1 << bitToCheck));
 }
 
@@ -150,7 +150,7 @@ const unsigned long Processor::triggerSmallFault(
 	const unsigned long& address)
 {
 	unsigned long globalAddress = tlbEntry.second;
-	unsigned long totalPages = localMemory->readLong(0);
+	unsigned long totalPages = masterTile->readLong(0);
 	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
 	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
 	unsigned long bitToFetch = ((address & bitMask) / BITMAP_BYTES);
@@ -159,10 +159,10 @@ const unsigned long Processor::triggerSmallFault(
 	//transferGlobalToLocal(globalAddress, tlbEntry.first,
 	//	(bitToFetchOffset * 8 + bitToFetch) * BITMAP_BYTES,
 	//	BITMAP_BYTES);
-	uint8_t bitmap = localMemory->readByte(bitmapOffset +
+	uint8_t bitmap = masterTile->readByte(bitmapOffset +
 		tlbEntry.second * bitmapSize + bitToFetchOffset);
 	bitmap |= (1 << bitToFetchOffset);
-	localMemory->writeByte((bitmapOffset +
+	masterTile->writeByte((bitmapOffset +
 		tlbEntry.second * bitmapSize + bitToFetchOffset),
 		bitmap);
 
@@ -199,17 +199,17 @@ void Processor::writeAddress(const unsigned long& address,
 	const unsigned long& value)
 {
 	//TODO: Lots!
-	localMemory->writeLong(fetchAddress(address), value);
+	masterTile->writeLong(fetchAddress(address), value);
 }
 
 unsigned long Processor::getLongAddress(const unsigned long& address)
 {
-	return localMemory->readLong(fetchAddress(address));
+	return masterTile->readLong(fetchAddress(address));
 }
 
 uint8_t Processor::getAddress(const unsigned long& address)
 {
-	return localMemory->readByte(fetchAddress(address));
+	return masterTile->readByte(fetchAddress(address));
 }		
 
 void Processor::setRegister(const unsigned long regNumber,

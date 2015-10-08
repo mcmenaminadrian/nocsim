@@ -32,7 +32,7 @@ public:
 	char readByte(const long address) const;
 	long readLong(const long address) const;
 	uint32_t readWord32(const long address) const;
-	void writeWord32(const long address, uint32_t) const;
+	void writeWord32(const long address, uint32_t value) const;
 	void writeByte(const long address, const char value) const;
 	void writeLong(const long address, const long value) const;
 
