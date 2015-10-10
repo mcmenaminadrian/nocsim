@@ -50,7 +50,7 @@ char Tile::readByte(const long address) const
 		tileLocalMemory->getSize() - 1) {
 		return globalMemory->readByte(address);
 	} else {
-		return tileLocalMemory->readByte(address);
+		return tileLocalMemory->readByte(address - PAGETABLESLOCAL);
 	}
 }
 
@@ -61,7 +61,7 @@ long Tile::readLong(const long address) const
 		tileLocalMemory->getSize() - 1) {
 		return globalMemory->readLong(address);
 	} else {
-		return tileLocalMemory->readLong(address);
+		return tileLocalMemory->readLong(address - PAGETABLESLOCAL);
 	}
 }
 
@@ -73,7 +73,7 @@ uint32_t Tile::readWord32(const long address) const
 		tileLocalMemory->getSize() - 1) {
 		return globalMemory->readWord32(address);
 	} else {
-		return tileLocalMemory->readWord32(address);
+		return tileLocalMemory->readWord32(address - PAGETABLESLOCAL);
 	}
 }
 
@@ -83,7 +83,7 @@ void Tile::writeWord32(const long address, uint32_t value) const
 		tileLocalMemory->getSize() - 1) {
 		globalMemory->writeWord32(address, value);
 	} else {
-		tileLocalMemory->writeWord32(address, value);
+		tileLocalMemory->writeWord32(address - PAGETABLESLOCAL, value);
 	}
 }
 
@@ -93,7 +93,7 @@ void Tile::writeByte(const long address, const char value) const
 		tileLocalMemory->getSize() - 1) {
 		globalMemory->writeByte(address, value);
 	} else {
-		tileLocalMemory->writeByte(address, value);
+		tileLocalMemory->writeByte(address - PAGETABLESLOCAL, value);
 	}
 }
 
@@ -103,7 +103,8 @@ void Tile::writeLong(const long address, const long value) const
 		tileLocalMemory->getSize() - 1) {
 		globalMemory->writeLong(address, value);
 	} else {
-		return tileLocalMemory->writeLong(address, value);
+		return tileLocalMemory->writeLong(address - PAGETABLESLOCAL,
+			value);
 	}
 }
 

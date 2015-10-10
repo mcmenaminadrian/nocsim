@@ -35,14 +35,27 @@ Processor::Processor(Tile *parent): masterTile(parent), mode(REAL),
 	registerFile = vector<unsigned long>(REGISTER_FILE_SIZE, 0);
 }
 
+void Processor::setMode()
+{
+	if (!statusWord[0]) {
+		mode = REAL;
+	} else {
+		mode = VIRTUAL;
+	}
+}
+
 void Processor::switchModeReal()
 {
-	mode = REAL;
+	if (!statusWord[0]) {
+		mode = REAL;
+	}
 }
 
 void Processor::switchModeVirtual()
 {
-	mode = VIRTUAL;
+	if (statusWord[0]) {
+		mode = VIRTUAL;
+	}
 }
 
 void Processor::zeroOutTLBs(const unsigned long& reqPTEPages)
@@ -55,8 +68,8 @@ void Processor::zeroOutTLBs(const unsigned long& reqPTEPages)
 void Processor::writeOutPageAndBitmapLengths(const unsigned long& reqPTEPages,
 	const unsigned long& reqBitmapPages)
 {
-	masterTile->writeLong(0, reqPTEPages);
-	masterTile->writeLong(sizeof(long), reqBitmapPages);
+	masterTile->writeLong(PAGETABLESLOCAL, reqPTEPages);
+	masterTile->writeLong(PAGETABLESLOCAL + sizeof(long), reqBitmapPages);
 }
 
 void Processor::writeOutBasicPageEntries(const unsigned long& reqPTEPages)
@@ -64,9 +77,11 @@ void Processor::writeOutBasicPageEntries(const unsigned long& reqPTEPages)
 	const unsigned long tablesOffset = 1 << pageShift;
 	for (int i = 0; i < reqPTEPages; i++) {
 		long memoryLocalOffset = i * PAGETABLEENTRY + tablesOffset;
-		masterTile->writeLong(memoryLocalOffset + FRAMEOFFSET, i);
+		masterTile->writeLong(
+			PAGETABLESLOCAL + memoryLocalOffset + FRAMEOFFSET, i);
 		for (int j = FLAGOFFSET; j < ENDOFFSET; j++) {
-			masterTile->writeByte(memoryLocalOffset + j, 0);
+			masterTile->writeByte(
+				PAGETABLESLOCAL + memoryLocalOffset + j, 0);
 		}
 	}
 }
@@ -76,7 +91,7 @@ void Processor::markUpBasicPageEntries(const unsigned long& reqPTESize,
 {
 	for (int i = 0; i == reqPTESize + reqBitmapPages; i++) {
 		const unsigned long pageEntryBase = (1 << pageShift) +
-			i * PAGETABLEENTRY;
+			i * PAGETABLEENTRY + PAGETABLESLOCAL;
 		const unsigned long mappingAddress = PAGETABLESLOCAL +
 			i * (1 << pageShift);
 		masterTile->writeLong(pageEntryBase + PHYSOFFSET,
@@ -128,7 +143,7 @@ bool Processor::isPageValid(const unsigned long& frameNo) const
 bool Processor::isBitmapValid(const unsigned long& address,
 	const unsigned long& frameNo) const
 {
-	unsigned long totalPages = masterTile->readLong(0);
+	unsigned long totalPages = masterTile->readLong(PAGETABLESLOCAL);
 	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
 	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
 	unsigned long bitToCheck = ((address & bitMask) / BITMAP_BYTES);
@@ -150,7 +165,7 @@ const unsigned long Processor::triggerSmallFault(
 	const unsigned long& address)
 {
 	unsigned long globalAddress = tlbEntry.second;
-	unsigned long totalPages = masterTile->readLong(0);
+	unsigned long totalPages = masterTile->readLong(PAGETABLESLOCAL);
 	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
 	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
 	unsigned long bitToFetch = ((address & bitMask) / BITMAP_BYTES);
@@ -159,10 +174,10 @@ const unsigned long Processor::triggerSmallFault(
 	//transferGlobalToLocal(globalAddress, tlbEntry.first,
 	//	(bitToFetchOffset * 8 + bitToFetch) * BITMAP_BYTES,
 	//	BITMAP_BYTES);
-	uint8_t bitmap = masterTile->readByte(bitmapOffset +
+	uint8_t bitmap = masterTile->readByte(PAGETABLESLOCAL + bitmapOffset +
 		tlbEntry.second * bitmapSize + bitToFetchOffset);
 	bitmap |= (1 << bitToFetchOffset);
-	masterTile->writeByte((bitmapOffset +
+	masterTile->writeByte((PAGETABLESLOCAL + bitmapOffset +
 		tlbEntry.second * bitmapSize + bitToFetchOffset),
 		bitmap);
 
@@ -178,7 +193,7 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 			if ((address & pageMask) == (x.first & pageMask)) {
 				//confirm page is in local store and is valid
 				if (!isPageValid(x.second)){
-					return 0/*triggerHardFault(address)*/;
+					continue;
 				}
 				//entry in TLB - check bitmap
 				if (!isBitmapValid(address, x.second)) {
@@ -190,7 +205,7 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 		return 0/*triggerHardFault(address)*/;
 	} else {
 		//what do we do if it's physical address?
-		return 0;
+		return address;
 	}
 }
 

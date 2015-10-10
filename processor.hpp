@@ -41,10 +41,12 @@ private:
 		const unsigned long& address);
 
 public:
+	std::bitset<16> statusWord;
 	Processor(Tile* parent);
 	void loadMem(const long regNo, const unsigned long memAddr);
 	void switchModeReal();
 	void switchModeVirtual();
+	void setMode();
 	void createMemoryMap(Memory *local, long pShift);
 	void setPCNull();
 	void pcAdvance(const long count = sizeof(long));

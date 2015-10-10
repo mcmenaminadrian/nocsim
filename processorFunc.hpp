@@ -31,7 +31,8 @@ private:
 		const unsigned long& rC);
 	void muli_(const unsigned long& rA, const unsigned long& rB,
 		const unsigned long& imm);
-
+	void getsw_(const unsigned long& regA);
+	void setsw_(const unsigned long& regA);
 
 	void loadInitialData(const unsigned long order);
 

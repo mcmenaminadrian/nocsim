@@ -115,6 +115,22 @@ void ProcessorFunctor::muli_(const unsigned long& regA,
 	proc->pcAdvance();
 }
 
+void ProcessorFunctor::getsw_(const unsigned long& regA)
+{
+	proc->setRegister(regA, proc->statusWord.to_ulong());
+	proc->pcAdvance();
+}
+
+void ProcessorFunctor::setsw_(const unsigned long& regA)
+{
+	uint32_t statusWord = proc->getRegister(regA);
+	for (int i = 0; i < 32; i++) {
+		proc->statusWord[i] = (statusWord & (1 << i));
+	}
+	proc->setMode();
+	proc->pcAdvance();
+}	
+
 ///End of instruction set ///
 
 #define SETSIZE 256
@@ -130,5 +146,9 @@ void ProcessorFunctor::operator()()
 	if (order >= SETSIZE) {
 		return;
 	}
+
+	addi_(REG1, REG0, 0x1);
+	setsw_(REG1);
+	sw_(REG0, REG1, REG0);	
 }
 
