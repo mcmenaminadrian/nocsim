@@ -5,6 +5,7 @@
 
 #define REGISTER_FILE_SIZE 32
 #define BITMAP_BYTES 16
+#define BITMAP_MASK 0xFFFFFFFFFFFFFFF0
 //page mappings
 #define PAGETABLESLOCAL 0xA000000000000000
 
@@ -22,6 +23,7 @@ private:
 	ProcessorMode mode;
 	Memory *localMemory;
 	long pageShift;
+	unsigned long stackPointer;
 	unsigned long pageMask;
 	unsigned long bitMask;
 	void markUpBasicPageEntries(const unsigned long& reqPTEPages,
@@ -39,6 +41,12 @@ private:
 	const unsigned long triggerSmallFault(
 		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& address);
+	void transferGlobalToLocal(
+		const pair<unsigned long, unsigned long>& tlbEntry,
+		const unsigned long& bitmapOffset,
+		const unsigned long& size) const;
+	void interruptBegin();
+	void interruptEnd();
 
 public:
 	std::bitset<16> statusWord;
@@ -59,7 +67,9 @@ public:
 	unsigned long getLongAddress(const unsigned long& address);
 	void writeAddress(const unsigned long& addr,
 		const unsigned long& value);
+	unsigned long getStackPointer() const { return stackPointer;}
+	void setStackPointer(const unsigned long& address) { 
+		stackPointer = address; }
 	//message passing code
-	
 };
 #endif

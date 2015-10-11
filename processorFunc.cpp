@@ -21,7 +21,7 @@ enum reg {REG0, REG1, REG2, REG3, REG4, REG5, REG6, REG7, REG8, REG9,
 
 
 void ProcessorFunctor::add_(const unsigned long& regA,
-	const unsigned long& regB, const unsigned long& regC)
+	const unsigned long& regB, const unsigned long& regC) const
 {
 	proc->setRegister(regA,
 		proc->getRegister(regB) + proc->getRegister(regC));
@@ -29,14 +29,14 @@ void ProcessorFunctor::add_(const unsigned long& regA,
 }
 
 void ProcessorFunctor::addi_(const unsigned long& regA,
-	const unsigned long& regB, const unsigned long& imm)
+	const unsigned long& regB, const unsigned long& imm) const
 {
 	proc->setRegister(regA, proc->getRegister(regB) + imm);
 	proc->pcAdvance();
 }
 
 void ProcessorFunctor::addm_(const unsigned long& regA,
-	const unsigned long& regB, const unsigned long& address)
+	const unsigned long& regB, const unsigned long& address) const
 {
 	proc->setRegister(regA,
 		proc->getRegister(regB) + proc->getLongAddress(address));
@@ -44,7 +44,7 @@ void ProcessorFunctor::addm_(const unsigned long& regA,
 }
 
 void ProcessorFunctor::and_(const unsigned long& regA,
-	const unsigned long& regB, const unsigned long& regC)
+	const unsigned long& regB, const unsigned long& regC) const
 {
 	proc->setRegister(regA,
 		proc->getRegister(regB) & proc->getRegister(regC));
@@ -52,7 +52,7 @@ void ProcessorFunctor::and_(const unsigned long& regA,
 }
 
 void ProcessorFunctor::sw_(const unsigned long& regA, const unsigned long& regB,
-	const unsigned long& regC)
+	const unsigned long& regC) const
 {
 	proc->writeAddress(proc->getRegister(regB) + proc->getRegister(regC),
 		proc->getRegister(regA));
@@ -60,7 +60,7 @@ void ProcessorFunctor::sw_(const unsigned long& regA, const unsigned long& regB,
 }
 
 void ProcessorFunctor::swi_(const unsigned long& regA,
-	const unsigned long& regB, const unsigned long& address)
+	const unsigned long& regB, const unsigned long& address) const
 {
 	proc->writeAddress(proc->getRegister(regB) + address,
 		proc->getRegister(regA));
@@ -68,7 +68,7 @@ void ProcessorFunctor::swi_(const unsigned long& regA,
 }
 
 void ProcessorFunctor::lw_(const unsigned long& regA, const unsigned long& regB,
-	const unsigned long& regC)
+	const unsigned long& regC) const
 {
 	proc->setRegister(regA, proc->getLongAddress(
 		proc->getRegister(regB) + proc->getRegister(regC)));
@@ -76,7 +76,7 @@ void ProcessorFunctor::lw_(const unsigned long& regA, const unsigned long& regB,
 }
 
 void ProcessorFunctor::lwi_(const unsigned long& regA,
-	const unsigned long& regB, const unsigned long& address)
+	const unsigned long& regB, const unsigned long& address) const
 {
 	proc->setRegister(regA, proc->getLongAddress(
 		proc->getRegister(regB) + address)); 
@@ -84,7 +84,7 @@ void ProcessorFunctor::lwi_(const unsigned long& regA,
 }
 
 bool ProcessorFunctor::beq_(const unsigned long& regA,
-	const unsigned long& regB, const unsigned long& address)
+	const unsigned long& regB, const unsigned long& address) const
 {
 	if (proc->getRegister(regA) == proc->getRegister(regB)) {
 		return true;
@@ -100,7 +100,7 @@ void ProcessorFunctor::br_(const unsigned long& address) const
 }
 
 void ProcessorFunctor::mul_(const unsigned long& regA,
-	const unsigned long& regB, const unsigned long& regC)
+	const unsigned long& regB, const unsigned long& regC) const
 {
 	proc->setRegister(regA, 
 		proc->multiplyWithCarry(
@@ -109,19 +109,19 @@ void ProcessorFunctor::mul_(const unsigned long& regA,
 }
 
 void ProcessorFunctor::muli_(const unsigned long& regA,
-	const unsigned long& regB, const unsigned long& multiplier)
+	const unsigned long& regB, const unsigned long& multiplier) const
 {
 	proc->setRegister(regA, proc->multiplyWithCarry(regB, multiplier));
 	proc->pcAdvance();
 }
 
-void ProcessorFunctor::getsw_(const unsigned long& regA)
+void ProcessorFunctor::getsw_(const unsigned long& regA) const
 {
 	proc->setRegister(regA, proc->statusWord.to_ulong());
 	proc->pcAdvance();
 }
 
-void ProcessorFunctor::setsw_(const unsigned long& regA)
+void ProcessorFunctor::setsw_(const unsigned long& regA) const
 {
 	uint32_t statusWord = proc->getRegister(regA);
 	for (int i = 0; i < 32; i++) {
@@ -129,7 +129,19 @@ void ProcessorFunctor::setsw_(const unsigned long& regA)
 	}
 	proc->setMode();
 	proc->pcAdvance();
-}	
+}
+
+void ProcessorFunctor::getsp_(const unsigned long& regA) const
+{
+	proc->setRegister(regA, proc->getStackPointer());
+	proc->pcAdvance();
+}
+
+void ProcessorFunctor::setsp_(const unsigned long& regA) const
+{
+	proc->setStackPointer(proc->getRegister(regA));
+	proc->pcAdvance();
+}
 
 ///End of instruction set ///
 

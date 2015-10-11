@@ -160,20 +160,45 @@ const unsigned long Processor::generateLocalAddress(const unsigned long& frame,
 	return (frame << pageShift) + offset;
 }
 
+void Processor::interruptBegin()
+{
+}
+
+void Processor::interruptEnd()
+{
+}
+
+void Processor::fetchGlobalToLocal(const unsigned long& maskedAddress,
+	const pair<unsigned long, unsigned long>& tlbEntry,
+	const unsigned long& size) const
+{
+	interruptBegin();
+	//copy
+	interruptEnd();
+}
+
+void Processor::transferGlobalToLocal(const unsigned long& address,
+	const pair<unsigned long, unsigned long>& tlbEntry,
+	const unsigned long& bitmapOffset, const unsigned long& size) const
+{
+	unsigned long maskedAddress = address & BITMAP_MASK;
+	fetchGlobalToLocal(maskedAddress, tlbEntry, size);
+	updateBitmap(bitmapOffset);	
+}
+
 const unsigned long Processor::triggerSmallFault(
 	const pair<unsigned long, unsigned long>& tlbEntry,
 	const unsigned long& address)
 {
-	unsigned long globalAddress = tlbEntry.second;
 	unsigned long totalPages = masterTile->readLong(PAGETABLESLOCAL);
 	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
 	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
 	unsigned long bitToFetch = ((address & bitMask) / BITMAP_BYTES);
 	unsigned long bitToFetchOffset = bitToFetch / 8;
 	bitToFetch %= 8;
-	//transferGlobalToLocal(globalAddress, tlbEntry.first,
-	//	(bitToFetchOffset * 8 + bitToFetch) * BITMAP_BYTES,
-	//	BITMAP_BYTES);
+	transferGlobalToLocal(address, tlbEntry,
+		(bitToFetchOffset * 8 + bitToFetch) * BITMAP_BYTES,
+		BITMAP_BYTES);
 	uint8_t bitmap = masterTile->readByte(PAGETABLESLOCAL + bitmapOffset +
 		tlbEntry.second * bitmapSize + bitToFetchOffset);
 	bitmap |= (1 << bitToFetchOffset);
