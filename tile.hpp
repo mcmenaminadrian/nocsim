@@ -29,8 +29,8 @@ public:
 	const long getColumn() const { return coordinates.first;}
 
 	//memory pass through
-	char readByte(const long address) const;
-	long readLong(const long address) const;
+	uint8_t readByte(const long address) const;
+	unsigned long readLong(const long address) const;
 	uint32_t readWord32(const long address) const;
 	void writeWord32(const long address, uint32_t value) const;
 	void writeByte(const long address, const char value) const;

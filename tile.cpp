@@ -44,7 +44,7 @@ const unsigned long Tile::getOrder() const
 	return (row * parentBoard->getColumnCount()) + column;
 }
 
-char Tile::readByte(const long address) const
+uint8_t Tile::readByte(const long address) const
 {
 	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
 		tileLocalMemory->getSize() - 1) {
@@ -55,7 +55,7 @@ char Tile::readByte(const long address) const
 }
 
 
-long Tile::readLong(const long address) const
+unsigned long Tile::readLong(const long address) const
 {
 	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
 		tileLocalMemory->getSize() - 1) {
@@ -64,8 +64,6 @@ long Tile::readLong(const long address) const
 		return tileLocalMemory->readLong(address - PAGETABLESLOCAL);
 	}
 }
-
-
 	
 uint32_t Tile::readWord32(const long address) const
 {

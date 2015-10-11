@@ -15,8 +15,8 @@ private:
 
 public:
 	Memory(const unsigned long start, const unsigned long size);
-	char readByte(const long address);
-	long readLong(const long address);
+	uint8_t readByte(const long address);
+	unsigned long readLong(const long address);
 	uint32_t readWord32(const long address);
 	void writeWord32(const long address, uint32_t);
 	void writeByte(const long address, const char value);

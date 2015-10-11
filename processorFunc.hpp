@@ -35,6 +35,8 @@ private:
 	void setsw_(const unsigned long& regA) const;
 	void getsp_(const unsigned long& regA) const;
 	void setsp_(const unsigned long& regA) const;
+	void push_(const unsigned long& regA) const;
+	void pop_(const unsigned long& regA) const;
 
 	void loadInitialData(const unsigned long order);
 

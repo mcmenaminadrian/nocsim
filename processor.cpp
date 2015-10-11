@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <bitset>
+#include <mutex>
 #include "mux.hpp"
 #include "tile.hpp"
 #include "memory.hpp"
@@ -162,24 +163,42 @@ const unsigned long Processor::generateLocalAddress(const unsigned long& frame,
 
 void Processor::interruptBegin()
 {
+	interruptLock.lock();
+	for (int i = 0; i < registerFile.size(); i++) {
+		pcAdvance();
+		stackPointer+= sizeof(long);
+		pcAdvance();
+		masterTile->writeLong(registerFile[i], stackPointer);
+	}
 }
 
 void Processor::interruptEnd()
 {
+	for (int i = registerFile.size() - 1; i >= 0; i--) {
+		pcAdvance();
+		registerFile[i] = masterTile->readLong(stackPointer);
+		pcAdvance();
+		stackPointer -= sizeof(long);
+	}
+	interruptLock.unlock();
 }
 
 void Processor::fetchGlobalToLocal(const unsigned long& maskedAddress,
 	const pair<unsigned long, unsigned long>& tlbEntry,
-	const unsigned long& size) const
+	const unsigned long& size) 
 {
 	interruptBegin();
 	//copy
 	interruptEnd();
 }
 
+void Processor::updateBitmap(const unsigned long& offset) const
+{
+}
+
 void Processor::transferGlobalToLocal(const unsigned long& address,
 	const pair<unsigned long, unsigned long>& tlbEntry,
-	const unsigned long& bitmapOffset, const unsigned long& size) const
+	const unsigned long& bitmapOffset, const unsigned long& size) 
 {
 	unsigned long maskedAddress = address & BITMAP_MASK;
 	fetchGlobalToLocal(maskedAddress, tlbEntry, size);

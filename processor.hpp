@@ -14,6 +14,7 @@ class Tile;
 class Processor {
 private:
 	Router router;
+	std::mutex interruptLock;
 	std::vector<unsigned long> registerFile;
 	std::vector<std::pair<unsigned long, unsigned long> > tlbs;
 	bool carryBit;
@@ -41,12 +42,17 @@ private:
 	const unsigned long triggerSmallFault(
 		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& address);
-	void transferGlobalToLocal(
-		const pair<unsigned long, unsigned long>& tlbEntry,
+	void transferGlobalToLocal(const unsigned long& address, 
+		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& bitmapOffset,
-		const unsigned long& size) const;
+		const unsigned long& size);
 	void interruptBegin();
 	void interruptEnd();
+	void fetchGlobalToLocal(const unsigned long& maskedAddress,
+		const std::pair<unsigned long, unsigned long>& tlbEntry,
+		const unsigned long& size);
+	void updateBitmap(const unsigned long& offset) const;
+
 
 public:
 	std::bitset<16> statusWord;

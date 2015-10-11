@@ -14,9 +14,9 @@ Memory::Memory(const unsigned long startAddress, const unsigned long size):
 	start(startAddress), memorySize(size)
 {}
 
-char Memory::readByte(const long address)
+uint8_t Memory::readByte(const long address)
 {
-	char retVal = 0;
+	uint8_t retVal = 0;
 
 	if (address < start || address > start + memorySize) {
 		cout << "Memory::readByte out of range" << endl;
@@ -34,9 +34,9 @@ char Memory::readByte(const long address)
 	return retVal;
 }
 
-long Memory::readLong(const long address)
+unsigned long Memory::readLong(const long address)
 {
-	long retVal = 0;
+	unsigned long retVal = 0;
 
 	if (address < start || address + sizeof(long) > start + memorySize) {
 		cout << "Memory::readLong out of range" << endl;
