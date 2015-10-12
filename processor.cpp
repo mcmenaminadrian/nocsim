@@ -26,7 +26,9 @@
 //bit 0 - 0 for invalid entry, 1 for valid
 //bit 1 - 0 for moveable, 1 for fixed
 
-
+//TLB model
+//first entry - virtual address 
+//second entry - physical address 
 
 using namespace std;
 
@@ -137,7 +139,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 bool Processor::isPageValid(const unsigned long& frameNo) const
 {
 	unsigned long flags = masterTile->readWord32((1 << pageShift)
-		+ frameNo * PAGETABLEENTRY + FLAGOFFSET);
+		+ frameNo * PAGETABLEENTRY + FLAGOFFSET + PAGETABLESLOCAL);
 	return (flags & 0x01);
 }
 
@@ -183,41 +185,52 @@ void Processor::interruptEnd()
 	interruptLock.unlock();
 }
 
-void Processor::fetchGlobalToLocal(const unsigned long& maskedAddress,
-	const pair<unsigned long, unsigned long>& tlbEntry,
-	const unsigned long& size) 
-{
-	interruptBegin();
-	//copy
-	interruptEnd();
-}
 
-void Processor::updateBitmap(const unsigned long& offset) const
+void Processor::updateBitmap(const pair<unsigned long, unsigned long>& tlb,
+	const unsigned long& bitByte, const unsigned long& bitBit) const
 {
+	const unsigned long bitMapStarts =
+		masterTile->readLong(PAGETABLESLOCAL) * PAGETABLEENTRY +
+		(1 << pageShift);
+		
 }
 
 void Processor::transferGlobalToLocal(const unsigned long& address,
 	const pair<unsigned long, unsigned long>& tlbEntry,
-	const unsigned long& bitmapOffset, const unsigned long& size) 
+	const unsigned long& size) 
 {
 	unsigned long maskedAddress = address & BITMAP_MASK;
-	fetchGlobalToLocal(maskedAddress, tlbEntry, size);
-	updateBitmap(bitmapOffset);	
+	
+	pcAdvance();
+	registerFile[2] = 0;
+	pcAdvance();
+	while (registerFile[2] < size) {
+		pcAdvance();
+		registerFile[1] = masterTile->readLong(maskedAddress + i);
+		pcAdvance();
+		masterTile->writeLong(
+			tlbEntry.second + (maskedAddress & bitMask),
+			registerFile[1]);
+		pcAdvance();
+		registerFile[2] += sizeof(long);
+		pcAdvance();
+	}
 }
 
 const unsigned long Processor::triggerSmallFault(
 	const pair<unsigned long, unsigned long>& tlbEntry,
 	const unsigned long& address)
 {
-	unsigned long totalPages = masterTile->readLong(PAGETABLESLOCAL);
+	unsigned long totalPTEPages = masterTile->readLong(PAGETABLESLOCAL);
 	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
-	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
 	unsigned long bitToFetch = ((address & bitMask) / BITMAP_BYTES);
-	unsigned long bitToFetchOffset = bitToFetch / 8;
+	unsigned long byteToFetchOffset = bitToFetch / 8;
 	bitToFetch %= 8;
-	transferGlobalToLocal(address, tlbEntry,
-		(bitToFetchOffset * 8 + bitToFetch) * BITMAP_BYTES,
-		BITMAP_BYTES);
+	interruptBegin();
+	transferGlobalToLocal(address, tlbEntry, BITMAP_BYTES);
+	updateBitmap(tlbEntry, byteToFetchOffset, bitToFetch);
+	interruptEnd();
+
 	uint8_t bitmap = masterTile->readByte(PAGETABLESLOCAL + bitmapOffset +
 		tlbEntry.second * bitmapSize + bitToFetchOffset);
 	bitmap |= (1 << bitToFetchOffset);
