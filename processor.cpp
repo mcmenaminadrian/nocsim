@@ -186,15 +186,6 @@ void Processor::interruptEnd()
 }
 
 
-void Processor::updateBitmap(const pair<unsigned long, unsigned long>& tlb,
-	const unsigned long& bitByte, const unsigned long& bitBit) const
-{
-	const unsigned long bitMapStarts =
-		masterTile->readLong(PAGETABLESLOCAL) * PAGETABLEENTRY +
-		(1 << pageShift);
-		
-}
-
 void Processor::transferGlobalToLocal(const unsigned long& address,
 	const pair<unsigned long, unsigned long>& tlbEntry,
 	const unsigned long& size) 
@@ -206,11 +197,12 @@ void Processor::transferGlobalToLocal(const unsigned long& address,
 	pcAdvance();
 	while (registerFile[2] < size) {
 		pcAdvance();
-		registerFile[1] = masterTile->readLong(maskedAddress + i);
+		registerFile[1] = masterTile->readLong(maskedAddress
+			+ registerFile[2]);
 		pcAdvance();
 		masterTile->writeLong(
-			tlbEntry.second + (maskedAddress & bitMask),
-			registerFile[1]);
+			tlbEntry.second + registerFile[2]
+			+ (maskedAddress & bitMask), registerFile[1]);
 		pcAdvance();
 		registerFile[2] += sizeof(long);
 		pcAdvance();
@@ -221,23 +213,22 @@ const unsigned long Processor::triggerSmallFault(
 	const pair<unsigned long, unsigned long>& tlbEntry,
 	const unsigned long& address)
 {
-	unsigned long totalPTEPages = masterTile->readLong(PAGETABLESLOCAL);
-	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
+	const unsigned long totalPTEPages = masterTile->readLong(PAGETABLESLOCAL);
+	const unsigned long bitmapOffset = (1 + totalPTEPages) * (1 << pageShift);
+	const unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
 	unsigned long bitToFetch = ((address & bitMask) / BITMAP_BYTES);
-	unsigned long byteToFetchOffset = bitToFetch / 8;
+	const unsigned long byteToFetchOffset = bitToFetch / 8;
 	bitToFetch %= 8;
 	interruptBegin();
 	transferGlobalToLocal(address, tlbEntry, BITMAP_BYTES);
-	updateBitmap(tlbEntry, byteToFetchOffset, bitToFetch);
+	
+	const unsigned long offset = PAGETABLESLOCAL + bitmapOffset +
+		(tlbEntry.second - PAGETABLESLOCAL) * bitmapSize
+		+ byteToFetchOffset;
+	uint8_t bitmapByte = masterTile->readByte(offset);
+	bitmapByte |= (1 << bitToFetch);
+	masterTile->writeByte(offset, bitmapByte);
 	interruptEnd();
-
-	uint8_t bitmap = masterTile->readByte(PAGETABLESLOCAL + bitmapOffset +
-		tlbEntry.second * bitmapSize + bitToFetchOffset);
-	bitmap |= (1 << bitToFetchOffset);
-	masterTile->writeByte((PAGETABLESLOCAL + bitmapOffset +
-		tlbEntry.second * bitmapSize + bitToFetchOffset),
-		bitmap);
-
 	return generateLocalAddress(tlbEntry.first, address);
 }	
 

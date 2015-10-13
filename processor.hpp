@@ -42,16 +42,12 @@ private:
 	const unsigned long triggerSmallFault(
 		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& address);
-	void transferGlobalToLocal(const unsigned long& address, 
-		const std::pair<unsigned long, unsigned long>& tlbEntry,
-		const unsigned long& bitmapOffset,
-		const unsigned long& size);
 	void interruptBegin();
 	void interruptEnd();
-	void fetchGlobalToLocal(const unsigned long& maskedAddress,
+	void transferGlobalToLocal(const unsigned long& address,
 		const std::pair<unsigned long, unsigned long>& tlbEntry,
-		const unsigned long& size);
-	void updateBitmap(const unsigned long& offset) const;
+		const unsigned long& size); 
+
 
 
 public:
