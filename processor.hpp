@@ -47,7 +47,8 @@ private:
 	void transferGlobalToLocal(const unsigned long& address,
 		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& size); 
-
+	const unsigned long triggerHardFault(const unsigned long& address);
+	const std::pair<const unsigned long, bool> getFreeFrame() const;	
 
 
 public:

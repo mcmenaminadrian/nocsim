@@ -61,9 +61,9 @@ void Processor::switchModeVirtual()
 	}
 }
 
-void Processor::zeroOutTLBs(const unsigned long& reqPTEPages)
+void Processor::zeroOutTLBs(const unsigned long& frames)
 {
-	for (int i = 0; i < reqPTEPages; i++) {
+	for (int i = 0; i < frames; i++) {
 		tlbs.push_back(pair<unsigned long, unsigned long>(0, 0));
 	}
 }
@@ -117,7 +117,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 		requiredPTEPages++;
 	}
 
-	zeroOutTLBs(requiredPTEPages);
+	zeroOutTLBs(pagesAvailable);
 
 	//how many pages needed for bitmaps?
 	unsigned long bitmapSize = ((1 << pageShift) / (BITMAP_BYTES)) / 8;
@@ -230,7 +230,42 @@ const unsigned long Processor::triggerSmallFault(
 	masterTile->writeByte(offset, bitmapByte);
 	interruptEnd();
 	return generateLocalAddress(tlbEntry.first, address);
-}	
+}
+
+//nominate a frame to be used
+const pair<const unsigned long, bool> Processor::getFreeFrame() const
+{
+	//have we any empty frames?
+	//we assume this to be subcycle
+	unsigned long frames = (localMemory->getSize()) >> pageShift; 
+	for (unsigned long i = 0; i < frames; i++) {
+		unsigned long flags = masterTile->readWord32((1 << pageShift)
+			+ i * PAGETABLEENTRY + FLAGOFFSET + PAGETABLESLOCAL);
+		if (!(flags & 0x01)) {
+			return pair<const unsigned long, bool>(i, false);
+		}
+	}
+	//no free frames, so we have to pick one
+	//TODO: implement CLOCK or similar
+	return pair<const unsigned long, bool>(7, true);
+}
+
+const unsigned long Processor::triggerHardFault(const unsigned long& address)
+{
+	interruptBegin();
+	const pair<const unsigned long, bool> frameNo = getFreeFrame();
+	if (frameNo.second) {
+		writeBackMemory(frameNo);
+		wipeBitmap(frameNo);
+	}
+	loadMemory(frameNo, address);
+	fixBitmap(frameNo, address);
+	std::pair<unsigned long, unsigned long> tlbEntry =
+		fixTLB(frameNo, address);
+	interruptEnd();
+	return generateLocalAddress(tlbEntry.first, address);
+}
+	
 
 //when this returns, address guarenteed to be present at returned local address
 const unsigned long Processor::fetchAddress(const unsigned long& address)
