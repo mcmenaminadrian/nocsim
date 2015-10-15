@@ -213,8 +213,10 @@ const unsigned long Processor::triggerSmallFault(
 	const pair<unsigned long, unsigned long>& tlbEntry,
 	const unsigned long& address)
 {
-	const unsigned long totalPTEPages = masterTile->readLong(PAGETABLESLOCAL);
-	const unsigned long bitmapOffset = (1 + totalPTEPages) * (1 << pageShift);
+	const unsigned long totalPTEPages =
+		masterTile->readLong(PAGETABLESLOCAL);
+	const unsigned long bitmapOffset =
+		(1 + totalPTEPages) * (1 << pageShift);
 	const unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
 	unsigned long bitToFetch = ((address & bitMask) / BITMAP_BYTES);
 	const unsigned long byteToFetchOffset = bitToFetch / 8;
@@ -250,13 +252,52 @@ const pair<const unsigned long, bool> Processor::getFreeFrame() const
 	return pair<const unsigned long, bool>(7, true);
 }
 
+void Processor::writeBackMemory(const unsigned long& frameNo) const
+{
+	//find bitmap for this frame
+	const unsigned long totalPTEPages =
+		masterTile->readLong(PAGETABLESLOCAL);
+	const unsigned long bitmapOffset =
+		(1 + totalPTEPages) * (1 << pageShift);
+	const unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
+	unsigned long bitToRead = frameNo * bitmapSize;
+	const unsigned long physicalAddress =
+		localMemory->readLong((1 << pageShift) +
+		frameNo * PAGETABLEENTRY);
+	long byteToRead = -1;
+	uint8_t byteBit = 0;
+	for (int i = 0; i < bitmapSize; i++)
+	{
+		long nextByte = bitToRead / 8;
+		if (nextByte != byteToRead) {
+			byteBit =
+				localMemory->readByte(bitmapOffset + nextByte);
+			byteToRead = nextByte;
+		}
+		uint8_t actualBit = bitToRead%8;
+		if (byteBit & (1 << actualBit)) {
+			for (int j = 0; j < BITMAP_BYTES/sizeof(long); j++) {
+				unsigned long toGo =
+					masterTile->readLong(
+					frameNo * (1 << pageShift)
+					+ PAGETABLESLOCAL +
+					bitToRead * BITMAP_BYTES +
+					j * sizeof(long));
+				masterTile->writeLong(physicalAddress +
+					bitToRead * BITMAP_BYTES +
+					j * sizeof(long), toGo);
+			}
+		}
+	}
+}
+
 const unsigned long Processor::triggerHardFault(const unsigned long& address)
 {
 	interruptBegin();
 	const pair<const unsigned long, bool> frameNo = getFreeFrame();
 	if (frameNo.second) {
-		writeBackMemory(frameNo);
-		wipeBitmap(frameNo);
+		writeBackMemory(frameNo.first);
+		wipeBitmap(frameNo.first);
 	}
 	loadMemory(frameNo, address);
 	fixBitmap(frameNo, address);

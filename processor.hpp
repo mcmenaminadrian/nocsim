@@ -48,8 +48,8 @@ private:
 		const std::pair<unsigned long, unsigned long>& tlbEntry,
 		const unsigned long& size); 
 	const unsigned long triggerHardFault(const unsigned long& address);
-	const std::pair<const unsigned long, bool> getFreeFrame() const;	
-
+	const std::pair<const unsigned long, bool> getFreeFrame() const;
+	void writeBackMemory(const unsigned long& frameNo) const;	
 
 public:
 	std::bitset<16> statusWord;
