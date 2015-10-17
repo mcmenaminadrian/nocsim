@@ -294,15 +294,15 @@ void Processor::writeBackMemory(const unsigned long& frameNo)
 }
 
 void Processor::loadMemory(const unsigned long& frameNo,
-	const unsigned long& address) const
+	const unsigned long& address)
 {
 	const unsigned long fetchPortion = (address & bitMask) & BITMAP_MASK;
-	for (int i = 0; i < BITMAP_BYTES/sizeof(long); i+= sizeof(long) {
+	for (int i = 0; i < BITMAP_BYTES/sizeof(long); i+= sizeof(long)) {
 		pcAdvance();
 		unsigned long toGet = masterTile->readLong(address + i);
 		pcAdvance();
 		masterTile->writeLong(PAGETABLESLOCAL +
-			frameNo * (1 << PageShift) + fetchPortion + i, toGet);
+			frameNo * (1 << pageShift) + fetchPortion + i, toGet);
 	}
 }
 
@@ -323,14 +323,14 @@ void Processor::fixBitmap(const unsigned long& frameNo,
 {
 	const unsigned long totalPTEPages =
 		masterTile->readLong(PAGETABLESLOCAL);
-	const unsigned long bitmapOffset =
+	unsigned long bitmapOffset =
 		(1 + totalPTEPages) * (1 << pageShift);
 	const unsigned long bitmapSizeBytes =
 		(1 << pageShift) / (BITMAP_BYTES * 8);
 	const unsigned long bitmapSizeBits = bitmapSizeBytes * 8;
 	uint8_t bitmapByte = localMemory->readByte(frameNo * bitmapSizeBytes
 		+ bitmapOffset);
-	uinit8_t startBit = (frameNo * bitmapSizeBits) % 8;
+	uint8_t startBit = (frameNo * bitmapSizeBits) % 8;
 	for (unsigned long i = 0; i < bitmapSizeBits; i++) {
 		bitmapByte = bitmapByte & ~(1 << startBit);
 		startBit++;
@@ -339,7 +339,7 @@ void Processor::fixBitmap(const unsigned long& frameNo,
 			localMemory->writeByte(
 				frameNo * bitmapSizeBytes + bitmapOffset,
 				bitmapByte);
-			bitmapByte = localMemory(
+			bitmapByte = localMemory->readByte(
 				++bitmapOffset + frameNo * bitmapSizeBytes);
 		}
 	}
@@ -353,11 +353,11 @@ const unsigned long Processor::triggerHardFault(const unsigned long& address)
 	if (frameNo.second) {
 		writeBackMemory(frameNo.first);
 	}
-	loadMemory(frameNo, address);
-	fixPageMap(frameNo, address);
-	fixBitmap(frameNo, address);
+	loadMemory(frameNo.first, address);
+	fixPageMap(frameNo.first, address);
+	fixBitmap(frameNo.first, address);
 	std::pair<unsigned long, unsigned long> tlbEntry =
-		fixTLB(frameNo, address);
+		fixTLB(frameNo.first, address);
 	interruptEnd();
 	return generateLocalAddress(tlbEntry.first, address);
 }

@@ -50,7 +50,13 @@ private:
 		const unsigned long& size); 
 	const unsigned long triggerHardFault(const unsigned long& address);
 	const std::pair<const unsigned long, bool> getFreeFrame() const;
-	void writeBackMemory(const unsigned long& frameNo) const;	
+	void writeBackMemory(const unsigned long& frameNo);
+	void loadMemory(const unsigned long& frameNo,
+		const unsigned long& address);
+	void fixPageMap(const unsigned long& frameNo,
+		const unsigned long& address);
+	void fixBitmap(const unsigned long& frameNo,
+		const unsigned long& address);
 
 public:
 	std::bitset<16> statusWord;
