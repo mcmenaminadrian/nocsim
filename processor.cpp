@@ -344,7 +344,20 @@ void Processor::fixBitmap(const unsigned long& frameNo,
 		}
 	}
 }
-	
+
+void Processor::fixTLB(const unsigned long& frameNo,
+	const unsigned long& address)
+{
+	const unsigned long pageAddress = address & pageMask;
+	for (auto x: tlbs) {
+		if (x.second == frameNo) {
+			x.first = pageAddress;
+			return;
+		}
+	}
+	//should never get here
+	throw "TLB error";
+}
 
 const unsigned long Processor::triggerHardFault(const unsigned long& address)
 {
@@ -356,10 +369,9 @@ const unsigned long Processor::triggerHardFault(const unsigned long& address)
 	loadMemory(frameNo.first, address);
 	fixPageMap(frameNo.first, address);
 	fixBitmap(frameNo.first, address);
-	std::pair<unsigned long, unsigned long> tlbEntry =
-		fixTLB(frameNo.first, address);
+	fixTLB(frameNo.first, address);
 	interruptEnd();
-	return generateLocalAddress(tlbEntry.first, address);
+	return generateLocalAddress(frameNo.first, address);
 }
 	
 

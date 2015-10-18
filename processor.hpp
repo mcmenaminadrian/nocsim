@@ -57,6 +57,8 @@ private:
 		const unsigned long& address);
 	void fixBitmap(const unsigned long& frameNo,
 		const unsigned long& address);
+	void fixTLB(const unsigned long& frameNo,
+		const unsigned long& address);
 
 public:
 	std::bitset<16> statusWord;
