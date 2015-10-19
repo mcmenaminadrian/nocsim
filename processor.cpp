@@ -166,6 +166,7 @@ const unsigned long Processor::generateLocalAddress(const unsigned long& frame,
 void Processor::interruptBegin()
 {
 	interruptLock.lock();
+	switchModeReal();
 	for (int i = 0; i < registerFile.size(); i++) {
 		pcAdvance();
 		stackPointer+= sizeof(long);
@@ -182,6 +183,7 @@ void Processor::interruptEnd()
 		pcAdvance();
 		stackPointer -= sizeof(long);
 	}
+	switchModeVirtual();
 	interruptLock.unlock();
 }
 
@@ -256,14 +258,14 @@ void Processor::writeBackMemory(const unsigned long& frameNo)
 {
 	//find bitmap for this frame
 	const unsigned long totalPTEPages =
-		masterTile->readLong(PAGETABLESLOCAL);
+		masterTile->readLong(fetchAddress(PAGETABLESLOCAL));
 	const unsigned long bitmapOffset =
 		(1 + totalPTEPages) * (1 << pageShift);
 	const unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
 	unsigned long bitToRead = frameNo * bitmapSize;
 	const unsigned long physicalAddress =
-		localMemory->readLong((1 << pageShift) +
-		frameNo * PAGETABLEENTRY);
+		localMemory->readLong(fetchAddress((1 << pageShift) +
+		frameNo * PAGETABLEENTRY));
 	long byteToRead = -1;
 	uint8_t byteBit = 0;
 	for (int i = 0; i < bitmapSize; i++)
@@ -271,7 +273,8 @@ void Processor::writeBackMemory(const unsigned long& frameNo)
 		long nextByte = bitToRead / 8;
 		if (nextByte != byteToRead) {
 			byteBit =
-				localMemory->readByte(bitmapOffset + nextByte);
+				localMemory->readByte(fetchAddress
+					(bitmapOffset + nextByte));
 			byteToRead = nextByte;
 		}
 		uint8_t actualBit = bitToRead%8;
@@ -279,15 +282,16 @@ void Processor::writeBackMemory(const unsigned long& frameNo)
 			for (int j = 0; j < BITMAP_BYTES/sizeof(long); j++) {
 				pcAdvance();
 				unsigned long toGo =
-					masterTile->readLong(
+					masterTile->readLong(fetchAddress(
 					frameNo * (1 << pageShift)
 					+ PAGETABLESLOCAL +
 					bitToRead * BITMAP_BYTES +
-					j * sizeof(long));
+					j * sizeof(long)));
 				pcAdvance();
-				masterTile->writeLong(physicalAddress +
+				masterTile->writeLong(fetchAddress(
+					physicalAddress +
 					bitToRead * BITMAP_BYTES +
-					j * sizeof(long), toGo);
+					j * sizeof(long)), toGo);
 			}
 		}
 	}
@@ -299,10 +303,11 @@ void Processor::loadMemory(const unsigned long& frameNo,
 	const unsigned long fetchPortion = (address & bitMask) & BITMAP_MASK;
 	for (int i = 0; i < BITMAP_BYTES/sizeof(long); i+= sizeof(long)) {
 		pcAdvance();
-		unsigned long toGet = masterTile->readLong(address + i);
+		unsigned long toGet = masterTile->readLong(
+			fetchAddress(address + i));
 		pcAdvance();
-		masterTile->writeLong(PAGETABLESLOCAL +
-			frameNo * (1 << pageShift) + fetchPortion + i, toGet);
+		masterTile->writeLong(fetchAddress(PAGETABLESLOCAL +
+			frameNo * (1 << pageShift) + fetchPortion + i), toGet);
 	}
 }
 
@@ -311,36 +316,36 @@ void Processor::fixPageMap(const unsigned long& frameNo,
 {
 	const unsigned long pageAddress = address & pageMask;
 	pcAdvance();
-	localMemory->writeLong((1 << pageShift) + frameNo * PAGETABLEENTRY,
-		pageAddress);
+	localMemory->writeLong(fetchAddress((1 << pageShift) +
+		frameNo * PAGETABLEENTRY), pageAddress);
 	pcAdvance();
-	localMemory->writeByte((1 << pageShift) + frameNo * PAGETABLEENTRY
-		+ FLAGOFFSET, 0x01);
+	localMemory->writeByte(fetchAddress((1 << pageShift) +
+		frameNo * PAGETABLEENTRY + FLAGOFFSET), 0x01);
 }
 
 void Processor::fixBitmap(const unsigned long& frameNo,
 	const unsigned long& address)
 {
 	const unsigned long totalPTEPages =
-		masterTile->readLong(PAGETABLESLOCAL);
+		masterTile->readLong(fetchAddress(PAGETABLESLOCAL));
 	unsigned long bitmapOffset =
 		(1 + totalPTEPages) * (1 << pageShift);
 	const unsigned long bitmapSizeBytes =
 		(1 << pageShift) / (BITMAP_BYTES * 8);
 	const unsigned long bitmapSizeBits = bitmapSizeBytes * 8;
-	uint8_t bitmapByte = localMemory->readByte(frameNo * bitmapSizeBytes
-		+ bitmapOffset);
+	uint8_t bitmapByte = localMemory->readByte(fetchAddress(
+		frameNo * bitmapSizeBytes + bitmapOffset));
 	uint8_t startBit = (frameNo * bitmapSizeBits) % 8;
 	for (unsigned long i = 0; i < bitmapSizeBits; i++) {
 		bitmapByte = bitmapByte & ~(1 << startBit);
 		startBit++;
 		startBit %= 8;
 		if (startBit == 0) {
-			localMemory->writeByte(
-				frameNo * bitmapSizeBytes + bitmapOffset,
+			localMemory->writeByte(fetchAddress(
+				frameNo * bitmapSizeBytes + bitmapOffset),
 				bitmapByte);
-			bitmapByte = localMemory->readByte(
-				++bitmapOffset + frameNo * bitmapSizeBytes);
+			bitmapByte = localMemory->readByte(fetchAddress(
+				++bitmapOffset + frameNo * bitmapSizeBytes));
 		}
 	}
 }
