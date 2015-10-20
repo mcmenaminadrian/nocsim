@@ -291,6 +291,8 @@ long Noc::executeInstructions()
 
 	long lines = readInVariables();
 	writeSystemToMemory();
+	ControlFunctor barrierClock();
+	thread controlThread(barrierClock); 
 	vector<thread> threads;
 
 	for (int i = 0; i < columnCount * rowCount; i++) {
@@ -299,6 +301,7 @@ long Noc::executeInstructions()
 		threads.push_back(thread(funcky));
 		
 	}
+	controlThread.join();	
 	for (int i = 0; i < columnCount * rowCount; i++) {
 		threads[i].join();
 	}

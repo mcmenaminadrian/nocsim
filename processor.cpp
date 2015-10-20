@@ -398,7 +398,7 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 				return generateLocalAddress(address, x.second);
 			}
 		}
-		return 0/*triggerHardFault(address)*/;
+		return triggerHardFault(address);
 	} else {
 		//what do we do if it's physical address?
 		return address;
