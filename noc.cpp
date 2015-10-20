@@ -14,6 +14,7 @@
 #include "processor.hpp"
 #include "paging.hpp"
 #include "processorFunc.hpp"
+#include "ControlThread.hpp"
 
 using namespace std;
 
@@ -291,19 +292,19 @@ long Noc::executeInstructions()
 
 	long lines = readInVariables();
 	writeSystemToMemory();
-	ControlFunctor barrierClock();
+	ControlThread barrierClock(0);
 	thread controlThread(barrierClock); 
-	vector<thread> threads;
+	vector<thread *> threads;
 
 	for (int i = 0; i < columnCount * rowCount; i++) {
 		ProcessorFunctor funcky(tileAt(i));
 		//spawn a thread per tile
-		threads.push_back(thread(funcky));
+		threads.push_back(new thread(funcky));
 		
 	}
 	controlThread.join();	
 	for (int i = 0; i < columnCount * rowCount; i++) {
-		threads[i].join();
+		threads[i]->join();
 	}
 	return 0;
 }

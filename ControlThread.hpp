@@ -2,9 +2,12 @@
 #define __CONTROLTHREAD_
 
 class ControlThread {
+private:
+	unsigned long ticks;
 
 public:
-	operator()();
+	ControlThread(unsigned long count): ticks(count){};
+	void operator()();
 };
 
 #endif
