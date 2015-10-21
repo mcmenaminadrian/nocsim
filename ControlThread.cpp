@@ -10,14 +10,12 @@ void ControlThread::operator()()
 
 void ControlThread::incrementTaskCount()
 {
-	taskCountLock.lock();
+	lock_guard<mutex> lock(taskCountLock);
 	taskCount++;
-	taskCountLock.unlock();
 }
 
 void ControlThread::decrementTaskCount()
 {
-	taskCountLock.lock();
+	lock_guard<mutex> lock(taskCountLock);
 	taskCount--;
-	taskCountLock.unlock();
 }
