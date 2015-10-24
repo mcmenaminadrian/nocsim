@@ -300,8 +300,10 @@ long Noc::executeInstructions()
 		ProcessorFunctor funcky(tileAt(i));
 		//spawn a thread per tile
 		threads.push_back(new thread(funcky));
+		barrierClock.incrementTaskCount();
 		
 	}
+	barrierClock.begin();
 	controlThread.join();	
 	for (int i = 0; i < columnCount * rowCount; i++) {
 		threads[i]->join();
