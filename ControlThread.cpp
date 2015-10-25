@@ -5,23 +5,23 @@
 
 using namespace std;
 
-ControlThread::ControlThread(): ticks(0), taskCount(0), runnable(false)
+ControlThread::ControlThread(): ticks(0), taskCount(0), runnable(false),
+	begin(false)
 {
 }
 
 void ControlThread::releaseToRun()
 {
-	unique_lock<mutex> lck(runLock);
+	taskCountLock.lock();
 	runnable = false;
 	signedInCount++;
-	taskCountLock.lock();
 	if (signedInCount >= taskCount) {
-		begin();
+		run();
 	}
 	taskCountLock.unlock();
-	while (!runnable) {
-		go.wait(lck);
-	}
+	unique_lock<mutex> lck(runLock);
+	go.wait(lck, !runnable);
+}
 
 void ControlThread::operator()()
 {
@@ -43,14 +43,24 @@ void ControlThread::decrementTaskCount()
 
 void ControlThread::run()
 {
-	unique_lock<mutex> lock(runLock);
+	unique_lock<mutex> lck(runLock);
 	signedInCount = 0;
 	runnable = true;
 	ticks++;
 	go.notify_all();
 }
 
+void ControlThread::waitForBegin()
+{
+	unique_lock<mutex> lck(runLock);
+	go.wait(lck, begin == true);
+	lck.unlock();
+}
+
 void ControlThread::begin()
 {
-	
+	lock_guard<mutex> lck(runLock);
+	begin = true;
+	go.notify_all();
+}
 

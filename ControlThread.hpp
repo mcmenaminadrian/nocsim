@@ -10,6 +10,7 @@ private:
 	std::mutex runLock;
 	std::condition_variable go;
 	bool runnable;
+	bool begin;
 
 public:
 	ControlThread(unsigned long count): ticks(count){ taskCount = 0;};
