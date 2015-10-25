@@ -19,6 +19,8 @@ public:
 	void decrementTaskCount();
 	void run();
 	void begin();
+	void releaseToRun();
+	void waitForBegin();
 };
 
 #endif

@@ -63,4 +63,3 @@ void ControlThread::begin()
 	begin = true;
 	go.notify_all();
 }
-
