@@ -35,6 +35,7 @@ public:
 	void writeWord32(const long address, uint32_t value) const;
 	void writeByte(const long address, const char value) const;
 	void writeLong(const long address, const long value) const;
+	ControlThread *getBarrier() { return parentBoard->getBarrier(); }
 
 };
 

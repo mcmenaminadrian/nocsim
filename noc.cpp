@@ -51,6 +51,7 @@ Noc::Noc(const long columns, const long rows, const long pageShift,
 		trees.push_back(new Tree(globalMemory[i], *this, columns,
 			rows));
 	}
+	pBarrier{nullptr};
 }
 
 Noc::~Noc()
@@ -293,6 +294,7 @@ long Noc::executeInstructions()
 	long lines = readInVariables();
 	writeSystemToMemory();
 	ControlThread barrierClock(0);
+	pBarrier = &barrierClock;
 	thread controlThread(barrierClock); 
 	vector<thread *> threads;
 
@@ -309,4 +311,9 @@ long Noc::executeInstructions()
 		threads[i]->join();
 	}
 	return 0;
+}
+
+ControlThread* Noc::getBarrier()
+{
+	return pBarrier;
 }

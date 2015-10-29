@@ -53,13 +53,13 @@ void ControlThread::run()
 void ControlThread::waitForBegin()
 {
 	unique_lock<mutex> lck(runLock);
-	go.wait(lck, begin == true);
+	go.wait(lck, beginnable == true);
 	lck.unlock();
 }
 
 void ControlThread::begin()
 {
 	lock_guard<mutex> lck(runLock);
-	begin = true;
+	beginnable = true;
 	go.notify_all();
 }

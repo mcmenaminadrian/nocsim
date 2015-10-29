@@ -23,7 +23,7 @@ private:
 	unsigned long createBasicPageTables();
 	unsigned long scanLevelFourTable(unsigned long addr);
 	void cleanRestOfPageTable(unsigned long address);
-
+	ControlThread *pBarrier;
 
 public:
 	std::vector<Memory> globalMemory;
@@ -38,7 +38,7 @@ public:
 	unsigned long getBasePageTables() const { return ptrBasePageTables; }
 	const long getColumnCount() const { return columnCount;}
 	const long getRowCount() const { return rowCount; }
-
+	ControlThread *getBarrier();
 };
 
 #endif
