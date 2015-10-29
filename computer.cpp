@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include "mux.hpp"
 #include "memory.hpp"
+#include "ControlThread.hpp"
 #include "tree.hpp"
 #include "tile.hpp"
 #include "processor.hpp"
