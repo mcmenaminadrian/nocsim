@@ -16,7 +16,7 @@ private:
 	std::vector<Mux *> treeLeaves;
 	const std::pair<const long, const long> coordinates;
 	std::vector<std::pair<long, long> > connections;
-	const Noc *parentBoard;
+	Noc *parentBoard;
 
 public:
 	Tile(Noc* parent, const long col, const long r, const long pShift);
@@ -36,7 +36,6 @@ public:
 	void writeByte(const long address, const char value) const;
 	void writeLong(const long address, const long value) const;
 	ControlThread *getBarrier() { return parentBoard->getBarrier(); }
-
 };
 
 #endif

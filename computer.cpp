@@ -7,10 +7,11 @@
 #include "mux.hpp"
 #include "memory.hpp"
 #include "ControlThread.hpp"
+#include "noc.hpp"
 #include "tree.hpp"
 #include "tile.hpp"
 #include "processor.hpp"
-#include "noc.hpp"
+
 
 using namespace std;
 

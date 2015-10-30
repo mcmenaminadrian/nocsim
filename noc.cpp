@@ -8,8 +8,9 @@
 #include <cstdlib>
 #include <thread>
 #include "memory.hpp"
-#include "tile.hpp"
+#include "ControlThread.hpp"
 #include "noc.hpp"
+#include "tile.hpp"
 #include "tree.hpp"
 #include "processor.hpp"
 #include "paging.hpp"
@@ -51,7 +52,7 @@ Noc::Noc(const long columns, const long rows, const long pageShift,
 		trees.push_back(new Tree(globalMemory[i], *this, columns,
 			rows));
 	}
-	pBarrier{nullptr};
+	pBarrier = nullptr;
 }
 
 Noc::~Noc()
