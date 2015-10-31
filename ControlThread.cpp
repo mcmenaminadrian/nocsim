@@ -9,14 +9,18 @@ ControlThread::ControlThread(unsigned long tcks): ticks(tcks),
 	taskCount(0), beginnable(false)
 {}
 
-bool ControlThread::releaseToRun()
+void ControlThread::releaseToRun()
 {
-	lock_guard<mutex> cntLock(taskCountLock);
+	taskCountLock.lock();
 	signedInCount++;
 	if (signedInCount >= taskCount) {
-		return true;
+		run();
+		taskCountLock.unlock();
+		return;
 	}
-	return false;
+	taskCountLock.unlock();;
+	unique_lock<mutex> lck(runLock);
+	go.wait(lck);
 }
 
 void ControlThread::incrementTaskCount()
@@ -43,12 +47,13 @@ void ControlThread::waitForBegin()
 {
 	unique_lock<mutex> lck(runLock);
 	go.wait(lck, [&]() { return this->beginnable;});
-	lck.unlock();
 }
 
 void ControlThread::begin()
 {
-	lock_guard<mutex> lck(runLock);
+	runLock.lock();
 	beginnable = true;
 	go.notify_all();
+	runLock.unlock();
+	cout << "we're off" << endl;
 }

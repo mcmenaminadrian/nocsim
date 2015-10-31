@@ -492,10 +492,5 @@ void Processor::pcAdvance(const long count)
 	programCounter += count;
 	fetchAddress(programCounter);
 	ControlThread *pBarrier = masterTile->getBarrier();
-	if (pBarrier->releaseToRun()) {
-		pBarrier->run();
-	} else {
-		unique_lock<mutex> lckWait(waitMutex);
-		pBarrier->go.wait(lckWait);
-	}
+	pBarrier->releaseToRun();
 }
