@@ -16,6 +16,7 @@ class Processor {
 private:
 	Router router;
 	std::mutex interruptLock;
+	std::mutex waitMutex;
 	std::vector<unsigned long> registerFile;
 	std::vector<std::pair<unsigned long, unsigned long> > tlbs;
 	bool carryBit;

@@ -294,23 +294,22 @@ long Noc::executeInstructions()
 
 	long lines = readInVariables();
 	writeSystemToMemory();
-	ControlThread barrierClock(0);
-	pBarrier = &barrierClock;
-	thread controlThread(barrierClock); 
+	pBarrier = new ControlThread(0);
 	vector<thread *> threads;
 
 	for (int i = 0; i < columnCount * rowCount; i++) {
 		ProcessorFunctor funcky(tileAt(i));
 		//spawn a thread per tile
 		threads.push_back(new thread(funcky));
-		barrierClock.incrementTaskCount();
+		pBarrier->incrementTaskCount();
 		
 	}
-	barrierClock.begin();
-	controlThread.join();	
+	pBarrier->begin();
 	for (int i = 0; i < columnCount * rowCount; i++) {
 		threads[i]->join();
 	}
+	delete pBarrier;
+	pBarrier = nullptr;
 	return 0;
 }
 

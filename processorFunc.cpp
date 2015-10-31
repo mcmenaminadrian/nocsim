@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include "ControlThread.hpp"
 #include "mux.hpp"
 #include "noc.hpp"
 #include "tile.hpp"

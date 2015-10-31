@@ -3,6 +3,7 @@
 #include <map>
 #include <utility>
 #include <string>
+#include "ControlThread.hpp"
 #include "mux.hpp"
 #include "memory.hpp"
 #include "processor.hpp"
@@ -106,3 +107,7 @@ void Tile::writeLong(const long address, const long value) const
 	}
 }
 
+ControlThread* Tile::getBarrier()
+{
+	return parentBoard->getBarrier();
+}

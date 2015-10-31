@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include "ControlThread.hpp"
 #include "mux.hpp"
 #include "memory.hpp"
 #include "tree.hpp"

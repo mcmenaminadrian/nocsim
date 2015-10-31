@@ -7,6 +7,7 @@
 #include <thread>
 #include <bitset>
 #include <mutex>
+#include "ControlThread.hpp"
 #include "mux.hpp"
 #include "tile.hpp"
 #include "memory.hpp"
