@@ -13,6 +13,7 @@ void ControlThread::releaseToRun()
 {
 	taskCountLock.lock();
 	signedInCount++;
+	cout << "Count is " << signedInCount << endl;
 	if (signedInCount >= taskCount) {
 		run();
 		taskCountLock.unlock();
@@ -21,6 +22,7 @@ void ControlThread::releaseToRun()
 	taskCountLock.unlock();;
 	unique_lock<mutex> lck(runLock);
 	go.wait(lck);
+	cout << "!";
 }
 
 void ControlThread::incrementTaskCount()

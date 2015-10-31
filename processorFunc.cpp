@@ -159,9 +159,13 @@ void ProcessorFunctor::operator()()
 	if (order >= SETSIZE) {
 		return;
 	}
-
+	proc->start();
+	cout << "1";
 	addi_(REG1, REG0, 0x1);
+	cout << "2";
 	setsw_(REG1);
+	cout << "3";
 	sw_(REG0, REG1, REG0);	
+	cout << " - our work here is done" << endl;
 }
 

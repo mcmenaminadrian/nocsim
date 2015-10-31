@@ -487,6 +487,12 @@ void Processor::setPCNull()
 	programCounter = 0;
 }
 
+void Processor::start()
+{
+	ControlThread *pBarrier = masterTile->getBarrier();
+	pBarrier->waitForBegin();
+}	
+
 void Processor::pcAdvance(const long count)
 {
 	programCounter += count;

@@ -70,6 +70,7 @@ public:
 	void setMode();
 	void createMemoryMap(Memory *local, long pShift);
 	void setPCNull();
+	void start();
 	void pcAdvance(const long count = sizeof(long));
 	unsigned long getRegister(const unsigned long regNumber) const;
 	void setRegister(const unsigned long regNumber,
