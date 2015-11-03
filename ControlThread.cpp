@@ -13,7 +13,7 @@ void ControlThread::releaseToRun()
 {
 	taskCountLock.lock();
 	signedInCount++;
-	cout << "Count is " << signedInCount << endl;
+	cout << "Count is " << signedInCount << " versus " << taskCount << endl;
 	if (signedInCount >= taskCount) {
 		run();
 		taskCountLock.unlock();
@@ -22,7 +22,7 @@ void ControlThread::releaseToRun()
 	taskCountLock.unlock();;
 	unique_lock<mutex> lck(runLock);
 	go.wait(lck);
-	cout << "!";
+	cout << "!" << endl;;
 }
 
 void ControlThread::incrementTaskCount()
@@ -42,7 +42,9 @@ void ControlThread::run()
 	unique_lock<mutex> lck(runLock);
 	signedInCount = 0;
 	ticks++;
+	cout << "AND HERE " << endl;
 	go.notify_all();
+	cout << "NOTIFIED" << endl;
 }
 
 void ControlThread::waitForBegin()
@@ -57,5 +59,4 @@ void ControlThread::begin()
 	beginnable = true;
 	go.notify_all();
 	runLock.unlock();
-	cout << "we're off" << endl;
 }

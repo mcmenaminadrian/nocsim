@@ -18,7 +18,7 @@ private:
 	std::mutex interruptLock;
 	std::mutex waitMutex;
 	std::vector<unsigned long> registerFile;
-	std::vector<std::pair<unsigned long, unsigned long> > tlbs;
+	std::vector<std::tuple<unsigned long, unsigned long, uint8_t> > tlbs;
 	bool carryBit;
 	long programCounter;
 	Tile *masterTile;

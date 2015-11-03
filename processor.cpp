@@ -7,6 +7,7 @@
 #include <thread>
 #include <bitset>
 #include <mutex>
+#include <tuple>
 #include "ControlThread.hpp"
 #include "mux.hpp"
 #include "tile.hpp"
@@ -29,7 +30,8 @@
 
 //TLB model
 //first entry - virtual address 
-//second entry - physical address 
+//second entry - physical address
+//third entry - 8 bits of status 
 
 using namespace std;
 
@@ -65,7 +67,8 @@ void Processor::switchModeVirtual()
 void Processor::zeroOutTLBs(const unsigned long& frames)
 {
 	for (int i = 0; i < frames; i++) {
-		tlbs.push_back(pair<unsigned long, unsigned long>(0, 0));
+		tlbs.push_back(tuple<unsigned long, unsigned long, uint8_t>
+			(0, 0, 0));
 	}
 }
 
@@ -130,6 +133,8 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	writeOutPageAndBitmapLengths(requiredPTEPages, requiredBitmapPages);
 	writeOutBasicPageEntries(pagesAvailable);
 	markUpBasicPageEntries(requiredPTESize, requiredBitmapPages);
+	tlbs[0]<0> = PAGETABLESLOCAL;
+	tlbs[0]<1> = 
 
 	pageMask = 0xFFFFFFFFFFFFFFFF;
 	pageMask = pageMask >> pageShift;
@@ -190,7 +195,7 @@ void Processor::interruptEnd()
 
 
 void Processor::transferGlobalToLocal(const unsigned long& address,
-	const pair<unsigned long, unsigned long>& tlbEntry,
+	const tuple<unsigned long, unsigned long, uint8_t>& tlbEntry,
 	const unsigned long& size) 
 {
 	unsigned long maskedAddress = address & BITMAP_MASK;
@@ -213,7 +218,7 @@ void Processor::transferGlobalToLocal(const unsigned long& address,
 }
 
 const unsigned long Processor::triggerSmallFault(
-	const pair<unsigned long, unsigned long>& tlbEntry,
+	const tuple<unsigned long, unsigned long, uint8_t>& tlbEntry,
 	const unsigned long& address)
 {
 	const unsigned long totalPTEPages =
@@ -356,8 +361,9 @@ void Processor::fixTLB(const unsigned long& frameNo,
 {
 	const unsigned long pageAddress = address & pageMask;
 	for (auto x: tlbs) {
-		if (x.second == frameNo) {
-			x.first = pageAddress;
+		if (x<1> == frameNo * (1 << pageShift) + PAGETABLESLOCAL) {
+			x<0> = pageAddress;
+			x<2> = 0x01;
 			return;
 		}
 	}
@@ -387,16 +393,16 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 	//implement paging logic
 	if (mode == VIRTUAL) {
 		for (auto x: tlbs) {
-			if ((address & pageMask) == (x.first & pageMask)) {
+			if ((address & pageMask) == (x<0> & pageMask)) {
 				//confirm page is in local store and is valid
-				if (!isPageValid(x.second)){
+				if (!isPageValid(x<2>)){
 					continue;
 				}
 				//entry in TLB - check bitmap
-				if (!isBitmapValid(address, x.second)) {
+				if (!isBitmapValid(address, x<1>)) {
 					return triggerSmallFault(x, address);
 				}
-				return generateLocalAddress(address, x.second);
+				return generateLocalAddress(address, x<1>);
 			}
 		}
 		return triggerHardFault(address);
@@ -489,6 +495,11 @@ void Processor::setPCNull()
 
 void Processor::start()
 {
+	//set up initial memory
+	//populate page table
+	//mark TLB
+	//mark bitmap
+
 	ControlThread *pBarrier = masterTile->getBarrier();
 	pBarrier->waitForBegin();
 }	
