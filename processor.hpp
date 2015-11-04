@@ -18,7 +18,7 @@ private:
 	std::mutex interruptLock;
 	std::mutex waitMutex;
 	std::vector<unsigned long> registerFile;
-	std::vector<std::tuple<unsigned long, unsigned long, uint8_t> > tlbs;
+	std::vector<std::tuple<unsigned long, unsigned long, bool>> tlbs;
 	bool carryBit;
 	long programCounter;
 	Tile *masterTile;
@@ -42,12 +42,12 @@ private:
 	const unsigned long generateLocalAddress(const unsigned long& frame,
 		const unsigned long& address) const;
 	const unsigned long triggerSmallFault(
-		const std::pair<unsigned long, unsigned long>& tlbEntry,
+		const std::tuple<unsigned long, unsigned long, bool>& tlbEntry,
 		const unsigned long& address);
 	void interruptBegin();
 	void interruptEnd();
 	void transferGlobalToLocal(const unsigned long& address,
-		const std::pair<unsigned long, unsigned long>& tlbEntry,
+		const std::tuple<unsigned long, unsigned long, bool>& tlbEntry,
 		const unsigned long& size); 
 	const unsigned long triggerHardFault(const unsigned long& address);
 	const std::pair<const unsigned long, bool> getFreeFrame() const;

@@ -31,7 +31,7 @@
 //TLB model
 //first entry - virtual address 
 //second entry - physical address
-//third entry - 8 bits of status 
+//third entry - bool for validity
 
 using namespace std;
 
@@ -67,8 +67,8 @@ void Processor::switchModeVirtual()
 void Processor::zeroOutTLBs(const unsigned long& frames)
 {
 	for (int i = 0; i < frames; i++) {
-		tlbs.push_back(tuple<unsigned long, unsigned long, uint8_t>
-			(0, 0, 0));
+		tlbs.push_back(tuple<unsigned long, unsigned long, bool>
+			(0, 0, false));
 	}
 }
 
@@ -133,9 +133,11 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	writeOutPageAndBitmapLengths(requiredPTEPages, requiredBitmapPages);
 	writeOutBasicPageEntries(pagesAvailable);
 	markUpBasicPageEntries(requiredPTESize, requiredBitmapPages);
-	tlbs[0]<0> = PAGETABLESLOCAL;
-	tlbs[0]<1> = 
-
+	for (int i = 0; i <= (requiredPTESize + requiredBitmapPages); i++) {
+		get<0>(tlbs[i]) = PAGETABLESLOCAL + i * (1 << pageShift);
+		get<1>(tlbs[i]) = PAGETABLESLOCAL + i * (1 << pageShift);
+		get<2>(tlbs[i]) = true;
+	}
 	pageMask = 0xFFFFFFFFFFFFFFFF;
 	pageMask = pageMask >> pageShift;
 	pageMask = pageMask << pageShift;
@@ -195,7 +197,7 @@ void Processor::interruptEnd()
 
 
 void Processor::transferGlobalToLocal(const unsigned long& address,
-	const tuple<unsigned long, unsigned long, uint8_t>& tlbEntry,
+	const tuple<unsigned long, unsigned long, bool>& tlbEntry,
 	const unsigned long& size) 
 {
 	unsigned long maskedAddress = address & BITMAP_MASK;
@@ -209,7 +211,7 @@ void Processor::transferGlobalToLocal(const unsigned long& address,
 			+ registerFile[2]);
 		pcAdvance();
 		masterTile->writeLong(
-			tlbEntry.second + registerFile[2]
+			get<1>(tlbEntry) + registerFile[2]
 			+ (maskedAddress & bitMask), registerFile[1]);
 		pcAdvance();
 		registerFile[2] += sizeof(long);
@@ -218,7 +220,7 @@ void Processor::transferGlobalToLocal(const unsigned long& address,
 }
 
 const unsigned long Processor::triggerSmallFault(
-	const tuple<unsigned long, unsigned long, uint8_t>& tlbEntry,
+	const tuple<unsigned long, unsigned long, bool>& tlbEntry,
 	const unsigned long& address)
 {
 	const unsigned long totalPTEPages =
@@ -233,13 +235,13 @@ const unsigned long Processor::triggerSmallFault(
 	transferGlobalToLocal(address, tlbEntry, BITMAP_BYTES);
 	
 	const unsigned long offset = PAGETABLESLOCAL + bitmapOffset +
-		(tlbEntry.second - PAGETABLESLOCAL) * bitmapSize
+		(get<1>(tlbEntry) - PAGETABLESLOCAL) * bitmapSize
 		+ byteToFetchOffset;
 	uint8_t bitmapByte = masterTile->readByte(offset);
 	bitmapByte |= (1 << bitToFetch);
 	masterTile->writeByte(offset, bitmapByte);
 	interruptEnd();
-	return generateLocalAddress(tlbEntry.first, address);
+	return generateLocalAddress(get<0>(tlbEntry), address);
 }
 
 //nominate a frame to be used
@@ -361,9 +363,9 @@ void Processor::fixTLB(const unsigned long& frameNo,
 {
 	const unsigned long pageAddress = address & pageMask;
 	for (auto x: tlbs) {
-		if (x<1> == frameNo * (1 << pageShift) + PAGETABLESLOCAL) {
-			x<0> = pageAddress;
-			x<2> = 0x01;
+		if (get<1>(x) == frameNo * (1 << pageShift) + PAGETABLESLOCAL) {
+			get<0>(x) = pageAddress;
+			get<2>(x) = true;
 			return;
 		}
 	}
@@ -393,16 +395,13 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 	//implement paging logic
 	if (mode == VIRTUAL) {
 		for (auto x: tlbs) {
-			if ((address & pageMask) == (x<0> & pageMask)) {
-				//confirm page is in local store and is valid
-				if (!isPageValid(x<2>)){
-					continue;
-				}
+			if (get<2>(x) &&
+				((address & pageMask) == (get<0>(x) & pageMask))) {
 				//entry in TLB - check bitmap
-				if (!isBitmapValid(address, x<1>)) {
+				if (!isBitmapValid(address, get<1>(x))) {
 					return triggerSmallFault(x, address);
 				}
-				return generateLocalAddress(address, x<1>);
+				return generateLocalAddress(address, get<1>(x));
 			}
 		}
 		return triggerHardFault(address);
