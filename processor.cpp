@@ -68,7 +68,7 @@ void Processor::zeroOutTLBs(const unsigned long& frames)
 {
 	for (int i = 0; i < frames; i++) {
 		tlbs.push_back(tuple<unsigned long, unsigned long, bool>
-			(0, 0, false));
+			(0, PAGETABLESLOCAL + (1 << pageShift) * i, false));
 	}
 }
 
@@ -133,10 +133,8 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	writeOutPageAndBitmapLengths(requiredPTEPages, requiredBitmapPages);
 	writeOutBasicPageEntries(pagesAvailable);
 	markUpBasicPageEntries(requiredPTESize, requiredBitmapPages);
-	for (int i = 0; i <= (requiredPTESize + requiredBitmapPages); i++) {
-		get<0>(tlbs[i]) = PAGETABLESLOCAL + i * (1 << pageShift);
-		get<1>(tlbs[i]) = PAGETABLESLOCAL + i * (1 << pageShift);
-		get<2>(tlbs[i]) = true;
+	for (int i = 0; i <= (requiredPTEPages + requiredBitmapPages); i++) {
+		fixTLB(i, PAGETABLESLOCAL + i * (1 << pageShift));
 	}
 	pageMask = 0xFFFFFFFFFFFFFFFF;
 	pageMask = pageMask >> pageShift;
