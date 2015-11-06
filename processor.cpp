@@ -36,17 +36,20 @@
 using namespace std;
 
 Processor::Processor(Tile *parent): masterTile(parent), mode(REAL),
-	router(parent->getColumn(), parent->getRow())
+	router(parent->getColumn(), parent->getRow()) 
 {
 	registerFile = vector<unsigned long>(REGISTER_FILE_SIZE, 0);
+	statusWord[0] = true;
 }
 
 void Processor::setMode()
 {
 	if (!statusWord[0]) {
 		mode = REAL;
+		statusWord[0] = true;
 	} else {
 		mode = VIRTUAL;
+		statusWord[0] = false;
 	}
 }
 
@@ -54,6 +57,7 @@ void Processor::switchModeReal()
 {
 	if (!statusWord[0]) {
 		mode = REAL;
+		statusWord[0] = true;
 	}
 }
 
@@ -61,6 +65,7 @@ void Processor::switchModeVirtual()
 {
 	if (statusWord[0]) {
 		mode = VIRTUAL;
+		statusWord[0] = false;
 	}
 }
 
@@ -68,7 +73,8 @@ void Processor::zeroOutTLBs(const unsigned long& frames)
 {
 	for (int i = 0; i < frames; i++) {
 		tlbs.push_back(tuple<unsigned long, unsigned long, bool>
-			(0, PAGETABLESLOCAL + (1 << pageShift) * i, false));
+			(PAGETABLESLOCAL + (1 << pageShift) * i,
+			 PAGETABLESLOCAL + (1 << pageShift) * i, false));
 	}
 }
 
@@ -133,13 +139,13 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	writeOutPageAndBitmapLengths(requiredPTEPages, requiredBitmapPages);
 	writeOutBasicPageEntries(pagesAvailable);
 	markUpBasicPageEntries(requiredPTESize, requiredBitmapPages);
-	for (int i = 0; i <= (requiredPTEPages + requiredBitmapPages); i++) {
-		fixTLB(i, PAGETABLESLOCAL + i * (1 << pageShift));
-	}
 	pageMask = 0xFFFFFFFFFFFFFFFF;
 	pageMask = pageMask >> pageShift;
 	pageMask = pageMask << pageShift;
 	bitMask = ~ pageMask;
+	for (int i = 0; i <= (requiredPTEPages + requiredBitmapPages); i++) {
+		fixTLB(i, PAGETABLESLOCAL + i * (1 << pageShift));
+	}
 }
 
 bool Processor::isPageValid(const unsigned long& frameNo) const
@@ -329,6 +335,16 @@ void Processor::fixPageMap(const unsigned long& frameNo,
 		frameNo * PAGETABLEENTRY + FLAGOFFSET), 0x01);
 }
 
+void Processor::fixPageMapStart(const unsigned long& frameNo,
+	const unsigned long& address) 
+{
+	const unsigned long pageAddress = address & pageMask;
+	localMemory->writeLong(fetchAddress((1 << pageShift) +
+		frameNo * PAGETABLEENTRY), pageAddress);
+	localMemory->writeByte(fetchAddress((1 << pageShift) +
+		frameNo * PAGETABLEENTRY + FLAGOFFSET), 0x01);
+}
+
 void Processor::fixBitmap(const unsigned long& frameNo,
 	const unsigned long& address)
 {
@@ -360,15 +376,10 @@ void Processor::fixTLB(const unsigned long& frameNo,
 	const unsigned long& address)
 {
 	const unsigned long pageAddress = address & pageMask;
-	for (auto x: tlbs) {
-		if (get<1>(x) == frameNo * (1 << pageShift) + PAGETABLESLOCAL) {
-			get<0>(x) = pageAddress;
-			get<2>(x) = true;
-			return;
-		}
-	}
-	//should never get here
-	throw "TLB error";
+	auto x = tlbs[frameNo];
+	get<1>(x) = frameNo * (1 << pageShift) + PAGETABLESLOCAL;
+	get<0>(x) = pageAddress;
+	get<2>(x) = true;
 }
 
 const unsigned long Processor::triggerHardFault(const unsigned long& address)
@@ -496,7 +507,16 @@ void Processor::start()
 	//populate page table
 	//mark TLB
 	//mark bitmap
+	auto tabPages = masterTile->readLong(PAGETABLESLOCAL);
+	auto bitPages = masterTile->readLong(PAGETABLESLOCAL + sizeof(long));
 
+	unsigned long pagesIn = (1 + tabPages + bitPages);
+
+	programCounter = pagesIn * (1 << pageShift) + 0x1000;
+	fixPageMapStart(pagesIn, programCounter);
+	fixBitmap(pagesIn, programCounter);
+	fixTLB(pagesIn, programCounter);
+	switchModeVirtual();
 	ControlThread *pBarrier = masterTile->getBarrier();
 	pBarrier->waitForBegin();
 }	

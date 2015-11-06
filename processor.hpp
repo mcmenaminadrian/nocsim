@@ -29,6 +29,7 @@ private:
 	unsigned long stackPointer;
 	unsigned long pageMask;
 	unsigned long bitMask;
+
 	void markUpBasicPageEntries(const unsigned long& reqPTEPages,
 		const unsigned long& reqBitmapPages);
 	void writeOutBasicPageEntries(const unsigned long& reqPTEPages);
@@ -55,6 +56,8 @@ private:
 	void loadMemory(const unsigned long& frameNo,
 		const unsigned long& address);
 	void fixPageMap(const unsigned long& frameNo,
+		const unsigned long& address);
+	void fixPageMapStart(const unsigned long& frameNo,
 		const unsigned long& address);
 	void fixBitmap(const unsigned long& frameNo,
 		const unsigned long& address);
