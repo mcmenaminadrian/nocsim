@@ -29,12 +29,12 @@ public:
 	const long getColumn() const { return coordinates.first;}
 
 	//memory pass through
-	uint8_t readByte(const long address) const;
-	unsigned long readLong(const long address) const;
-	uint32_t readWord32(const long address) const;
-	void writeWord32(const long address, uint32_t value) const;
-	void writeByte(const long address, const char value) const;
-	void writeLong(const long address, const long value) const;
+	const uint8_t readByte(const unsigned long address) const;
+	const unsigned long readLong(const unsigned long address) const;
+	const uint32_t readWord32(const unsigned long address) const;
+	void writeWord32(const unsigned long address, const uint32_t value) const;
+	void writeByte(const unsigned long address, const uint8_t value) const;
+	void writeLong(const unsigned long address, const unsigned long value) const;
 	ControlThread *getBarrier();
 };
 

@@ -339,10 +339,10 @@ void Processor::fixPageMapStart(const unsigned long& frameNo,
 	const unsigned long& address) 
 {
 	const unsigned long pageAddress = address & pageMask;
-	localMemory->writeLong(fetchAddress((1 << pageShift) +
-		frameNo * PAGETABLEENTRY), pageAddress);
-	localMemory->writeByte(fetchAddress((1 << pageShift) +
-		frameNo * PAGETABLEENTRY + FLAGOFFSET), 0x01);
+	localMemory->writeLong((1 << pageShift) +
+		frameNo * PAGETABLEENTRY, pageAddress);
+	localMemory->writeByte((1 << pageShift) +
+		frameNo * PAGETABLEENTRY + FLAGOFFSET, 0x01);
 }
 
 void Processor::fixBitmap(const unsigned long& frameNo,
@@ -372,14 +372,41 @@ void Processor::fixBitmap(const unsigned long& frameNo,
 	}
 }
 
+void Processor::fixBitmapStart(const unsigned long& frameNo,
+const unsigned long& address)
+{
+	const unsigned long totalPTEPages =
+		masterTile->readLong(PAGETABLESLOCAL);
+	unsigned long bitmapOffset =
+		(1 + totalPTEPages) * (1 << pageShift);
+	const unsigned long bitmapSizeBytes =
+		(1 << pageShift) / (BITMAP_BYTES * 8);
+	const unsigned long bitmapSizeBits = bitmapSizeBytes * 8;
+	uint8_t bitmapByte = localMemory->readByte(
+		frameNo * bitmapSizeBytes + bitmapOffset);
+	uint8_t startBit = (frameNo * bitmapSizeBits) % 8;
+	for (unsigned long i = 0; i < bitmapSizeBits; i++) {
+		bitmapByte = bitmapByte & ~(1 << startBit);
+		startBit++;
+		startBit %= 8;
+		if (startBit == 0) {
+			localMemory->writeByte(
+				frameNo * bitmapSizeBytes + bitmapOffset,
+				bitmapByte);
+			bitmapByte = localMemory->readByte(
+				++bitmapOffset + frameNo * bitmapSizeBytes);
+		}
+	}
+}
+
+
 void Processor::fixTLB(const unsigned long& frameNo,
 	const unsigned long& address)
 {
 	const unsigned long pageAddress = address & pageMask;
-	auto x = tlbs[frameNo];
-	get<1>(x) = frameNo * (1 << pageShift) + PAGETABLESLOCAL;
-	get<0>(x) = pageAddress;
-	get<2>(x) = true;
+	get<1>(tlbs[frameNo]) = frameNo * (1 << pageShift) + PAGETABLESLOCAL;
+	get<0>(tlbs[frameNo]) = pageAddress;
+	get<2>(tlbs[frameNo]) = true;
 }
 
 const unsigned long Processor::triggerHardFault(const unsigned long& address)
@@ -512,7 +539,7 @@ void Processor::start()
 
 	unsigned long pagesIn = (1 + tabPages + bitPages);
 
-	programCounter = pagesIn * (1 << pageShift) + 0x1000;
+	programCounter = pagesIn * (1 << pageShift) + 0x10000000;
 	fixPageMapStart(pagesIn, programCounter);
 	fixBitmap(pagesIn, programCounter);
 	fixTLB(pagesIn, programCounter);

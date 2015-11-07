@@ -45,7 +45,7 @@ const unsigned long Tile::getOrder() const
 	return (row * parentBoard->getColumnCount()) + column;
 }
 
-uint8_t Tile::readByte(const long address) const
+const uint8_t Tile::readByte(const unsigned long address) const
 {
 	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
 		tileLocalMemory->getSize() - 1) {
@@ -56,7 +56,7 @@ uint8_t Tile::readByte(const long address) const
 }
 
 
-unsigned long Tile::readLong(const long address) const
+const unsigned long Tile::readLong(const unsigned long address) const
 {
 	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
 		tileLocalMemory->getSize() - 1) {
@@ -66,7 +66,7 @@ unsigned long Tile::readLong(const long address) const
 	}
 }
 	
-uint32_t Tile::readWord32(const long address) const
+const uint32_t Tile::readWord32(const unsigned long address) const
 {
 	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
 		tileLocalMemory->getSize() - 1) {
@@ -76,7 +76,7 @@ uint32_t Tile::readWord32(const long address) const
 	}
 }
 
-void Tile::writeWord32(const long address, uint32_t value) const
+void Tile::writeWord32(const unsigned long address, const uint32_t value) const
 {
 	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
 		tileLocalMemory->getSize() - 1) {
@@ -86,7 +86,7 @@ void Tile::writeWord32(const long address, uint32_t value) const
 	}
 }
 
-void Tile::writeByte(const long address, const char value) const
+void Tile::writeByte(const unsigned long address, const uint8_t value) const
 {
 	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
 		tileLocalMemory->getSize() - 1) {
@@ -96,7 +96,8 @@ void Tile::writeByte(const long address, const char value) const
 	}
 }
 
-void Tile::writeLong(const long address, const long value) const
+void Tile::writeLong(const unsigned long address, const unsigned long value)
+	const
 {
 	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
 		tileLocalMemory->getSize() - 1) {

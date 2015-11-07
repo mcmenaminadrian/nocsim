@@ -61,6 +61,8 @@ private:
 		const unsigned long& address);
 	void fixBitmap(const unsigned long& frameNo,
 		const unsigned long& address);
+	void fixBitmapStart(const unsigned long& frameNo,
+		const unsigned long& address);
 	void fixTLB(const unsigned long& frameNo,
 		const unsigned long& address);
 
