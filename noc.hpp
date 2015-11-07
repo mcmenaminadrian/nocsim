@@ -24,9 +24,9 @@ private:
 	unsigned long scanLevelFourTable(unsigned long addr);
 	void cleanRestOfPageTable(unsigned long address);
 	ControlThread *pBarrier;
-
-public:
 	std::vector<Memory> globalMemory;
+public:
+	std::vector<Memory>& getGlobal() { return globalMemory;}
 	const long memoryBlocks;
 	std::vector<Tree *> trees; 
 	Noc(const long columns, const long rows, const long pageShift,
