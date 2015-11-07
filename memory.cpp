@@ -14,7 +14,7 @@ Memory::Memory(const unsigned long startAddress, const unsigned long size):
 	start(startAddress), memorySize(size)
 {}
 
-uint8_t Memory::readByte(const long address)
+const uint8_t Memory::readByte(const unsigned long& address)
 {
 	uint8_t retVal = 0;
 
@@ -34,7 +34,7 @@ uint8_t Memory::readByte(const long address)
 	return retVal;
 }
 
-unsigned long Memory::readLong(const long address)
+const unsigned long Memory::readLong(const unsigned long& address)
 {
 	unsigned long retVal = 0;
 
@@ -59,7 +59,7 @@ unsigned long Memory::readLong(const long address)
 	return retVal;
 }
 
-void Memory::writeByte(const long address, const char value)
+void Memory::writeByte(const unsigned long& address, const uint8_t& value)
 {
 	if (address < start || address > start + memorySize) {
 		cout << "Memory::writeByte out of range" << endl;
@@ -69,7 +69,7 @@ void Memory::writeByte(const long address, const char value)
 	contents[address] = value;
 }
 
-void Memory::writeLong(const long address, const long value)
+void Memory::writeLong(const unsigned long& address, const unsigned long& value)
 {
 	if (address < start || address + sizeof(long) > start + memorySize) {
 		cout << "Memory::readLong out of range" << endl;
@@ -83,7 +83,7 @@ void Memory::writeLong(const long address, const long value)
 	}
 }
 
-uint32_t Memory::readWord32(const long address) 
+const uint32_t Memory::readWord32(const unsigned long& address) 
 {
 	uint32_t result = 0;
 	for (int i = 4; i < 0; i--) {
@@ -93,7 +93,7 @@ uint32_t Memory::readWord32(const long address)
 	return result;
 }
 
-void Memory::writeWord32(const long address, uint32_t data)
+void Memory::writeWord32(const unsigned long& address, const uint32_t& data)
 {
 	char mask = 0xFF;
 	for (int i = 0; i < 4; i++) {

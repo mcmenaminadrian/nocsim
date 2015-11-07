@@ -156,7 +156,7 @@ bool Processor::isPageValid(const unsigned long& frameNo) const
 }
 
 bool Processor::isBitmapValid(const unsigned long& address,
-	const unsigned long& frameNo) const
+	const unsigned long& physAddress) const
 {
 	unsigned long totalPages = masterTile->readLong(PAGETABLESLOCAL);
 	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
@@ -164,7 +164,8 @@ bool Processor::isBitmapValid(const unsigned long& address,
 	unsigned long bitToCheck = ((address & bitMask) / BITMAP_BYTES);
 	unsigned long bitToCheckOffset = bitToCheck / 8;
 	bitToCheck %= 8;
-	return (masterTile->readByte(bitmapOffset +
+	unsigned long frameNo = (physAddress - PAGETABLESLOCAL) >> pageShift;
+	return (masterTile->readByte(PAGETABLESLOCAL + bitmapOffset +
 		frameNo * bitmapSize + bitToCheckOffset) & (1 << bitToCheck));
 }
 
@@ -541,7 +542,7 @@ void Processor::start()
 
 	programCounter = pagesIn * (1 << pageShift) + 0x10000000;
 	fixPageMapStart(pagesIn, programCounter);
-	fixBitmap(pagesIn, programCounter);
+	fixBitmapStart(pagesIn, programCounter);
 	fixTLB(pagesIn, programCounter);
 	switchModeVirtual();
 	ControlThread *pBarrier = masterTile->getBarrier();

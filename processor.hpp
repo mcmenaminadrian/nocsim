@@ -38,7 +38,7 @@ private:
 	void zeroOutTLBs(const unsigned long& reqPTEPages);
 	const unsigned long fetchAddress(const unsigned long& address);
 	bool isBitmapValid(const unsigned long& address,
-		const unsigned long& fame) const;
+		const unsigned long& physAddress) const;
 	bool isPageValid(const unsigned long& frameNo) const;
 	const unsigned long generateLocalAddress(const unsigned long& frame,
 		const unsigned long& address) const;

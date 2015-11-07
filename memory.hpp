@@ -15,12 +15,13 @@ private:
 
 public:
 	Memory(const unsigned long start, const unsigned long size);
-	uint8_t readByte(const long address);
-	unsigned long readLong(const long address);
-	uint32_t readWord32(const long address);
-	void writeWord32(const long address, uint32_t);
-	void writeByte(const long address, const char value);
-	void writeLong(const long address, const long value);
+	const uint8_t readByte(const unsigned long& address);
+	const unsigned long readLong(const unsigned long& address);
+	const uint32_t readWord32(const unsigned long& address);
+	void writeWord32(const unsigned long& address, const uint32_t& value);
+	void writeByte(const unsigned long& address, const uint8_t& value);
+	void writeLong(const unsigned long& address,
+		const unsigned long& value);
 	void attachTree(Mux* root);
 	unsigned long getSize() const;
 };
