@@ -41,7 +41,7 @@ void ControlThread::run()
 	signedInCount = 0;
 	ticks++;
 	go.notify_all();
-	cout << "NOTIFIED" << endl;
+	cout << "NOTIFIED: " << ticks << endl;
 }
 
 void ControlThread::waitForBegin()

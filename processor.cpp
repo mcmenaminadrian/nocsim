@@ -40,6 +40,7 @@ Processor::Processor(Tile *parent): masterTile(parent), mode(REAL),
 {
 	registerFile = vector<unsigned long>(REGISTER_FILE_SIZE, 0);
 	statusWord[0] = true;
+	stackPointer = TILE_MEM_SIZE - sizeof(long) + PAGETABLESLOCAL;
 }
 
 void Processor::setMode()
@@ -143,8 +144,18 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	pageMask = pageMask >> pageShift;
 	pageMask = pageMask << pageShift;
 	bitMask = ~ pageMask;
-	for (int i = 0; i <= (requiredPTEPages + requiredBitmapPages); i++) {
-		fixTLB(i, PAGETABLESLOCAL + i * (1 << pageShift));
+	unsigned long pageCount = requiredPTEPages + requiredBitmapPages;
+	for (int i = 0; i <= pageCount; i++) {
+		const unsigned long pageStart =
+			PAGETABLESLOCAL + i * (1 << pageShift);
+		fixTLB(i, pageStart);
+		for (int j = 0; j < bitmapSize * 8; j++) {
+			markBitmapStart(i, pageStart + j * BITMAP_BYTES);
+		}
+	}
+	fixPageMapStart(++pageCount, stackPointer);
+	for (int i = 0; i < bitmapSize * 8; i++) {
+		markBitmapStart(pageCount, (stackPointer & pageMask) + i);
 	}
 }
 
@@ -185,7 +196,7 @@ void Processor::interruptBegin()
 	switchModeReal();
 	for (int i = 0; i < registerFile.size(); i++) {
 		pcAdvance();
-		stackPointer+= sizeof(long);
+		stackPointer-= sizeof(long);
 		pcAdvance();
 		masterTile->writeLong(registerFile[i], stackPointer);
 	}
@@ -197,7 +208,7 @@ void Processor::interruptEnd()
 		pcAdvance();
 		registerFile[i] = masterTile->readLong(stackPointer);
 		pcAdvance();
-		stackPointer -= sizeof(long);
+		stackPointer += sizeof(long);
 	}
 	switchModeVirtual();
 	interruptLock.unlock();
