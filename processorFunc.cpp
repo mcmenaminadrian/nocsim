@@ -160,7 +160,6 @@ void ProcessorFunctor::operator()()
 		return;
 	}
 	proc->start();
-	cout << "1";
 	addi_(REG1, REG0, 0x1);
 	cout << "2";
 	setsw_(REG1);
