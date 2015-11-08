@@ -158,15 +158,18 @@ bool Processor::isPageValid(const unsigned long& frameNo) const
 bool Processor::isBitmapValid(const unsigned long& address,
 	const unsigned long& physAddress) const
 {
-	unsigned long totalPages = masterTile->readLong(PAGETABLESLOCAL);
-	unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
-	unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
+	const unsigned long totalPages = masterTile->readLong(PAGETABLESLOCAL);
+	const unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
+	const unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
 	unsigned long bitToCheck = ((address & bitMask) / BITMAP_BYTES);
-	unsigned long bitToCheckOffset = bitToCheck / 8;
+	const unsigned long bitToCheckOffset = bitToCheck / 8;
 	bitToCheck %= 8;
-	unsigned long frameNo = (physAddress - PAGETABLESLOCAL) >> pageShift;
-	return (masterTile->readByte(PAGETABLESLOCAL + bitmapOffset +
-		frameNo * bitmapSize + bitToCheckOffset) & (1 << bitToCheck));
+	const unsigned long frameNo =
+		(physAddress - PAGETABLESLOCAL) >> pageShift;
+	const uint8_t bitFromBitmap = 
+		masterTile->readByte(PAGETABLESLOCAL + bitmapOffset +
+		frameNo * bitmapSize + bitToCheckOffset);
+	return bitFromBitmap & (1 << bitToCheck);
 }
 
 const unsigned long Processor::generateLocalAddress(const unsigned long& frame,
@@ -346,8 +349,7 @@ void Processor::fixPageMapStart(const unsigned long& frameNo,
 		frameNo * PAGETABLEENTRY + FLAGOFFSET, 0x01);
 }
 
-void Processor::fixBitmap(const unsigned long& frameNo,
-	const unsigned long& address)
+void Processor::fixBitmap(const unsigned long& frameNo)
 {
 	const unsigned long totalPTEPages =
 		masterTile->readLong(fetchAddress(PAGETABLESLOCAL));
@@ -373,8 +375,8 @@ void Processor::fixBitmap(const unsigned long& frameNo,
 	}
 }
 
-void Processor::fixBitmapStart(const unsigned long& frameNo,
-const unsigned long& address)
+void Processor::markBitmapStart(const unsigned long& frameNo,
+	const unsigned long& address)
 {
 	const unsigned long totalPTEPages =
 		masterTile->readLong(PAGETABLESLOCAL);
@@ -382,22 +384,13 @@ const unsigned long& address)
 		(1 + totalPTEPages) * (1 << pageShift);
 	const unsigned long bitmapSizeBytes =
 		(1 << pageShift) / (BITMAP_BYTES * 8);
-	const unsigned long bitmapSizeBits = bitmapSizeBytes * 8;
-	uint8_t bitmapByte = localMemory->readByte(
-		frameNo * bitmapSizeBytes + bitmapOffset);
-	uint8_t startBit = (frameNo * bitmapSizeBits) % 8;
-	for (unsigned long i = 0; i < bitmapSizeBits; i++) {
-		bitmapByte = bitmapByte & ~(1 << startBit);
-		startBit++;
-		startBit %= 8;
-		if (startBit == 0) {
-			localMemory->writeByte(
-				frameNo * bitmapSizeBytes + bitmapOffset,
-				bitmapByte);
-			bitmapByte = localMemory->readByte(
-				++bitmapOffset + frameNo * bitmapSizeBytes);
-		}
-	}
+	unsigned long bitToMark = (address & bitMask) / BITMAP_BYTES;
+	const unsigned long byteToFetch = (bitToMark / 8) +
+		frameNo * bitmapSizeBytes + bitmapOffset;
+	bitToMark %= 8;
+	uint8_t bitmapByte = localMemory->readByte(byteToFetch);
+	bitmapByte |= (1 << bitToMark);
+	localMemory->writeByte(byteToFetch, bitmapByte);
 }
 
 
@@ -415,11 +408,12 @@ const unsigned long Processor::triggerHardFault(const unsigned long& address)
 	interruptBegin();
 	const pair<const unsigned long, bool> frameNo = getFreeFrame();
 	if (frameNo.second) {
+		fixBitmap(frameNo.first);
 		writeBackMemory(frameNo.first);
 	}
 	loadMemory(frameNo.first, address);
 	fixPageMap(frameNo.first, address);
-	fixBitmap(frameNo.first, address);
+	markBitmapStart(frameNo.first, address);
 	fixTLB(frameNo.first, address);
 	interruptEnd();
 	return generateLocalAddress(frameNo.first, address);
@@ -542,7 +536,7 @@ void Processor::start()
 
 	programCounter = pagesIn * (1 << pageShift) + 0x10000000;
 	fixPageMapStart(pagesIn, programCounter);
-	fixBitmapStart(pagesIn, programCounter);
+	markBitmapStart(pagesIn, programCounter);
 	fixTLB(pagesIn, programCounter);
 	switchModeVirtual();
 	ControlThread *pBarrier = masterTile->getBarrier();

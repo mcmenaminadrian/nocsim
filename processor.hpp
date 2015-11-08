@@ -59,9 +59,8 @@ private:
 		const unsigned long& address);
 	void fixPageMapStart(const unsigned long& frameNo,
 		const unsigned long& address);
-	void fixBitmap(const unsigned long& frameNo,
-		const unsigned long& address);
-	void fixBitmapStart(const unsigned long& frameNo,
+	void fixBitmap(const unsigned long& frameNo);
+	void markBitmapStart(const unsigned long& frameNo,
 		const unsigned long& address);
 	void fixTLB(const unsigned long& frameNo,
 		const unsigned long& address);
