@@ -231,23 +231,11 @@ const unsigned long Processor::triggerSmallFault(
 	const tuple<unsigned long, unsigned long, bool>& tlbEntry,
 	const unsigned long& address)
 {
-	const unsigned long totalPTEPages =
-		masterTile->readLong(PAGETABLESLOCAL);
-	const unsigned long bitmapOffset =
-		(1 + totalPTEPages) * (1 << pageShift);
-	const unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
-	unsigned long bitToFetch = ((address & bitMask) / BITMAP_BYTES);
-	const unsigned long byteToFetchOffset = bitToFetch / 8;
-	bitToFetch %= 8;
 	interruptBegin();
 	transferGlobalToLocal(address, tlbEntry, BITMAP_BYTES);
-	
-	const unsigned long offset = PAGETABLESLOCAL + bitmapOffset +
-		(get<1>(tlbEntry) - PAGETABLESLOCAL) * bitmapSize
-		+ byteToFetchOffset;
-	uint8_t bitmapByte = masterTile->readByte(offset);
-	bitmapByte |= (1 << bitToFetch);
-	masterTile->writeByte(offset, bitmapByte);
+	const unsigned long frameNo =
+		(get<1>(tlbEntry) - PAGETABLESLOCAL) >> pageShift;
+	markBitmapStart(frameNo, address);	
 	interruptEnd();
 	return generateLocalAddress(get<0>(tlbEntry), address);
 }
