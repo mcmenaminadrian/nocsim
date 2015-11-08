@@ -334,7 +334,7 @@ void Processor::fixPageMap(const unsigned long& frameNo,
 	localMemory->writeLong(fetchAddress((1 << pageShift) +
 		frameNo * PAGETABLEENTRY), pageAddress);
 	pcAdvance();
-	localMemory->writeByte(fetchAddress((1 << pageShift) +
+	localMemory->writeWord32(fetchAddress((1 << pageShift) +
 		frameNo * PAGETABLEENTRY + FLAGOFFSET), 0x01);
 }
 
@@ -344,7 +344,7 @@ void Processor::fixPageMapStart(const unsigned long& frameNo,
 	const unsigned long pageAddress = address & pageMask;
 	localMemory->writeLong((1 << pageShift) +
 		frameNo * PAGETABLEENTRY, pageAddress);
-	localMemory->writeByte((1 << pageShift) +
+	localMemory->writeWord32((1 << pageShift) +
 		frameNo * PAGETABLEENTRY + FLAGOFFSET, 0x01);
 }
 

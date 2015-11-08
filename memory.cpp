@@ -86,8 +86,8 @@ void Memory::writeLong(const unsigned long& address, const unsigned long& value)
 const uint32_t Memory::readWord32(const unsigned long& address) 
 {
 	uint32_t result = 0;
-	for (int i = 4; i < 0; i--) {
-		char nextByte = readByte(address + i) << ((i - 1) * 8);
+	for (int i = 3; i >= 0; i--) {
+		char nextByte = readByte(address + i) << (i * 8);
 		result = result | nextByte;
 	}
 	return result;
@@ -97,7 +97,7 @@ void Memory::writeWord32(const unsigned long& address, const uint32_t& data)
 {
 	char mask = 0xFF;
 	for (int i = 0; i < 4; i++) {
-		char byteToWrite = (data >> ((4 - (i + 1)) * 8)) & mask;
+		char byteToWrite = (data >> (i * 8)) & mask;
 		writeByte(address + i, byteToWrite);
 	}
 }
