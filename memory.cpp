@@ -72,7 +72,7 @@ void Memory::writeByte(const unsigned long& address, const uint8_t& value)
 void Memory::writeLong(const unsigned long& address, const unsigned long& value)
 {
 	if (address < start || address + sizeof(long) > start + memorySize) {
-		cout << "Memory::readLong out of range" << endl;
+		cout << "Memory::writeLong out of range" << endl;
 		throw "Memory class range error";
 	}
 

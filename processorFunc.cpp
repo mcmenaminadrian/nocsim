@@ -19,7 +19,20 @@ enum reg {REG0, REG1, REG2, REG3, REG4, REG5, REG6, REG7, REG8, REG9,
 	REG30, REG31};
 
 //instructions
-
+//limited RISC instruction set
+//based on Ridiciulously Simple Computer concept
+//instructions:
+//	add_ 	rA, rB, rC	: rA <- rB + rC		add
+//	addi_	rA, rB, imm	: rA <- rB + imm	add immediate
+//	and_	rA, rB, rC	: rA <- rB & rC		and
+//	sw_	rA, rB, rC	: rA -> *(rB + rC)	store word
+//	swi_	rA, rB, imm	: rA -> *(rB + imm)	store word immediate
+//	lw_	rA, rB, rC	: rA <- *(rB + rC)	load word
+//	lwi_	rA, rB, imm	: rA <-	*(rB + imm)	load word immediate
+//	beq_	rA, rB, imm	: PC <- imm iff rA == rB	branch if equal
+//	br_	imm		: PC <- imm		branch immediate
+//	mul_	rA, rB, rC	: rA <- rB * rC		multiply
+//	muli_	rA, rB, imm	: rA <- rB * imm	multiply immediate
 
 void ProcessorFunctor::add_(const unsigned long& regA,
 	const unsigned long& regB, const unsigned long& regC) const
@@ -164,7 +177,7 @@ void ProcessorFunctor::operator()()
 	cout << "2";
 	setsw_(REG1);
 	cout << "3";
-	sw_(REG0, REG1, REG0);	
+	swi_(REG0, REG1, 0x1000);	
 	cout << " - our work here is done" << endl;
 }
 

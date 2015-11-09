@@ -8,7 +8,7 @@
 #define BITMAP_SHIFT 4
 #define BITMAP_MASK 0xFFFFFFFFFFFFFFF0
 //page mappings
-#define PAGETABLESLOCAL 0xA000000000000000
+static const unsigned long PAGETABLESLOCAL = 0xA000000000000000;
 
 class Tile;
 
@@ -20,7 +20,7 @@ private:
 	std::vector<unsigned long> registerFile;
 	std::vector<std::tuple<unsigned long, unsigned long, bool>> tlbs;
 	bool carryBit;
-	long programCounter;
+	unsigned long programCounter;
 	Tile *masterTile;
 	enum ProcessorMode { REAL, VIRTUAL };
 	ProcessorMode mode;

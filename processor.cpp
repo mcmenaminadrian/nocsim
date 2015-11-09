@@ -40,7 +40,7 @@ Processor::Processor(Tile *parent): masterTile(parent), mode(REAL),
 {
 	registerFile = vector<unsigned long>(REGISTER_FILE_SIZE, 0);
 	statusWord[0] = true;
-	stackPointer = TILE_MEM_SIZE - sizeof(long) + PAGETABLESLOCAL;
+	stackPointer = TILE_MEM_SIZE + PAGETABLESLOCAL;
 }
 
 void Processor::setMode()
@@ -100,10 +100,10 @@ void Processor::writeOutBasicPageEntries(const unsigned long& reqPTEPages)
 	}
 }
 
-void Processor::markUpBasicPageEntries(const unsigned long& reqPTESize,
+void Processor::markUpBasicPageEntries(const unsigned long& reqPTEPages,
 	const unsigned long& reqBitmapPages)
 {
-	for (int i = 0; i == reqPTESize + reqBitmapPages; i++) {
+	for (int i = 0; i <= reqPTEPages + reqBitmapPages; i++) {
 		const unsigned long pageEntryBase = (1 << pageShift) +
 			i * PAGETABLEENTRY + PAGETABLESLOCAL;
 		const unsigned long mappingAddress = PAGETABLESLOCAL +
@@ -139,7 +139,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	}
 	writeOutPageAndBitmapLengths(requiredPTEPages, requiredBitmapPages);
 	writeOutBasicPageEntries(pagesAvailable);
-	markUpBasicPageEntries(requiredPTESize, requiredBitmapPages);
+	markUpBasicPageEntries(requiredPTEPages, requiredBitmapPages);
 	pageMask = 0xFFFFFFFFFFFFFFFF;
 	pageMask = pageMask >> pageShift;
 	pageMask = pageMask << pageShift;
@@ -194,11 +194,11 @@ void Processor::interruptBegin()
 {
 	interruptLock.lock();
 	switchModeReal();
-	for (int i = 0; i < registerFile.size(); i++) {
+	for (auto i: registerFile) {
 		pcAdvance();
 		stackPointer-= sizeof(long);
 		pcAdvance();
-		masterTile->writeLong(registerFile[i], stackPointer);
+		masterTile->writeLong(stackPointer, i);
 	}
 }
 
@@ -258,7 +258,7 @@ const pair<const unsigned long, bool> Processor::getFreeFrame() const
 	//we assume this to be subcycle
 	unsigned long frames = (localMemory->getSize()) >> pageShift; 
 	for (unsigned long i = 0; i < frames; i++) {
-		unsigned long flags = masterTile->readWord32((1 << pageShift)
+		uint32_t flags = masterTile->readWord32((1 << pageShift)
 			+ i * PAGETABLEENTRY + FLAGOFFSET + PAGETABLESLOCAL);
 		if (!(flags & 0x01)) {
 			return pair<const unsigned long, bool>(i, false);
@@ -499,23 +499,6 @@ unsigned long Processor::multiplyWithCarry(const unsigned long A,
 		return A * B;
 	}
 }
-		
-
-
-//limited RISC instruction set
-//based on Ridiciulously Simple Computer concept
-//instructions:
-//	add_ 	rA, rB, rC	: rA <- rB + rC
-//	addi_	rA, rB, imm	: rA <- rB + imm
-//	and_	rA, rB, rC	: rA <- rB & rC
-//	sw_	rA, rB, rC	: rA -> *(rB + rC)
-//	swi_	rA, rB, imm	: rA -> *(rB + imm)
-//	lw_	rA, rB, rC	: rA <- *(rB + rC)
-//	lwi_	rA, rB, imm	: rA <-	*(rB + imm)
-//	beq_	rA, rB, imm	: PC <- imm iff rA == rB
-//	br_	imm		: PC <- imm
-//	mul_	rA, rB, rC	: rA <- rB * rC
-//	muli_	rA, rB, imm	: rA <- rB * imm
 
 void Processor::setPCNull()
 {

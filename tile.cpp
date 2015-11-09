@@ -98,8 +98,8 @@ void Tile::writeByte(const unsigned long address, const uint8_t value) const
 void Tile::writeLong(const unsigned long address, const unsigned long value)
 	const
 {
-	if (address < PAGETABLESLOCAL || address > PAGETABLESLOCAL +
-		tileLocalMemory->getSize() - 1) {
+	if (address < PAGETABLESLOCAL || address >= PAGETABLESLOCAL +
+		tileLocalMemory->getSize()) {
 		(parentBoard->getGlobal())[0].writeLong(address, value);
 	} else {
 		return tileLocalMemory->writeLong(address - PAGETABLESLOCAL,
