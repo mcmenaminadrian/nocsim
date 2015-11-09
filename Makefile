@@ -1,7 +1,7 @@
 BOOST_PROTO=/opt/local/include
 AD_LIB=/opt/local/lib
 CCFLAGS=-I$(BOOST_PROTO) -L$(AD_LIB)
-CXXFLAGS=-std=c++11 -stdlib=libc++
+CXXFLAGS=-std=c++11 
 
 CC=g++
 

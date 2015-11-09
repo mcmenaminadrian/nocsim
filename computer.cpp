@@ -4,6 +4,9 @@
 #include <string>
 #include <cstring>
 #include <cstdlib>
+#include <mutex>
+#include <condition_variable>
+#include <bitset>
 #include "mux.hpp"
 #include "memory.hpp"
 #include "ControlThread.hpp"
