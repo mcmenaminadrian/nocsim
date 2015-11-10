@@ -8,6 +8,8 @@
 #include <bitset>
 #include <mutex>
 #include <tuple>
+#include <condition_variable>
+#include <climits>
 #include "ControlThread.hpp"
 #include "mux.hpp"
 #include "tile.hpp"

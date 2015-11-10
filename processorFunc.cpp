@@ -2,6 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include <mutex>
+#include <condition_variable>
+#include <bitset>
 #include "ControlThread.hpp"
 #include "mux.hpp"
 #include "noc.hpp"

@@ -3,6 +3,9 @@
 #include <map>
 #include <utility>
 #include <string>
+#include <mutex>
+#include <bitset>
+#include <condition_variable>
 #include "ControlThread.hpp"
 #include "mux.hpp"
 #include "memory.hpp"

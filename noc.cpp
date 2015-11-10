@@ -7,6 +7,9 @@
 #include <string>
 #include <cstdlib>
 #include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <bitset>
 #include "memory.hpp"
 #include "ControlThread.hpp"
 #include "noc.hpp"

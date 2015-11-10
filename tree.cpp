@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <mutex>
+#include <bitset>
+#include <condition_variable>
 #include "ControlThread.hpp"
 #include "mux.hpp"
 #include "memory.hpp"
