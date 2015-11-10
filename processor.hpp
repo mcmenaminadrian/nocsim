@@ -26,7 +26,9 @@ private:
 	ProcessorMode mode;
 	Memory *localMemory;
 	long pageShift;
-	uint64_t stackPointer; 
+	uint64_t stackPointer;
+	uint64_t stackPointerOver;
+	uint64_t stackPointerUnder;
 	uint64_t pageMask;
 	uint64_t bitMask;
 
@@ -85,6 +87,8 @@ public:
 	uint64_t getLongAddress(const uint64_t& address);
 	void writeAddress(const uint64_t& addr,
 		const uint64_t& value);
+	void pushStackPointer();
+	void popStackPointer();
 	uint64_t getStackPointer() const { return stackPointer;}
 	void setStackPointer(const uint64_t& address) { 
 		stackPointer = address; }

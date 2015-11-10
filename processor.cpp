@@ -43,6 +43,8 @@ Processor::Processor(Tile *parent): masterTile(parent), mode(REAL),
 	registerFile = vector<uint64_t>(REGISTER_FILE_SIZE, 0);
 	statusWord[0] = true;
 	stackPointer = TILE_MEM_SIZE + PAGETABLESLOCAL;
+	stackPointerOver = stackPointer;
+	stackPointerUnder = stackPointer - (1 << pageShift);
 }
 
 void Processor::setMode()
@@ -199,7 +201,7 @@ void Processor::interruptBegin()
 	switchModeReal();
 	for (auto i: registerFile) {
 		pcAdvance();
-		stackPointer-= sizeof(uint64_t);
+		pushStackPointer();	
 		pcAdvance();
 		masterTile->writeLong(stackPointer, i);
 	}
@@ -211,7 +213,7 @@ void Processor::interruptEnd()
 		pcAdvance();
 		registerFile[i] = masterTile->readLong(stackPointer);
 		pcAdvance();
-		stackPointer += sizeof(uint64_t);
+		popStackPointer();
 	}
 	switchModeVirtual();
 	interruptLock.unlock();
@@ -538,4 +540,22 @@ void Processor::pcAdvance(const long count)
 	fetchAddress(programCounter);
 	ControlThread *pBarrier = masterTile->getBarrier();
 	pBarrier->releaseToRun();
+}
+
+void Processor::pushStackPointer()
+{
+	stackPointer -= sizeof(uint64_t);
+	if (stackPointer <= stackPointerUnder) {
+		cerr << "Stack Underflow" << endl;
+		throw "Stack Underflow\n";
+	}
+}
+
+void Processor::popStackPointer()
+{
+	stackPointer += sizeof(uint64_t);
+	if (stackPointer > stackPointerOver) {
+		cerr << "Stack Overflow" << endl;
+		throw "Stack Overflow\n";
+	}
 }
