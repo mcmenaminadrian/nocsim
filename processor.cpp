@@ -40,7 +40,7 @@ using namespace std;
 Processor::Processor(Tile *parent): masterTile(parent), mode(REAL),
 	router(parent->getColumn(), parent->getRow()) 
 {
-	registerFile = vector<unsigned long>(REGISTER_FILE_SIZE, 0);
+	registerFile = vector<uint64_t>(REGISTER_FILE_SIZE, 0);
 	statusWord[0] = true;
 	stackPointer = TILE_MEM_SIZE + PAGETABLESLOCAL;
 }
@@ -72,25 +72,26 @@ void Processor::switchModeVirtual()
 	}
 }
 
-void Processor::zeroOutTLBs(const unsigned long& frames)
+void Processor::zeroOutTLBs(const uint64_t& frames)
 {
 	for (int i = 0; i < frames; i++) {
-		tlbs.push_back(tuple<unsigned long, unsigned long, bool>
+		tlbs.push_back(tuple<uint64_t, uint64_t, bool>
 			(PAGETABLESLOCAL + (1 << pageShift) * i,
 			 PAGETABLESLOCAL + (1 << pageShift) * i, false));
 	}
 }
 
-void Processor::writeOutPageAndBitmapLengths(const unsigned long& reqPTEPages,
-	const unsigned long& reqBitmapPages)
+void Processor::writeOutPageAndBitmapLengths(const uint64_t& reqPTEPages,
+	const uint64_t& reqBitmapPages)
 {
 	masterTile->writeLong(PAGETABLESLOCAL, reqPTEPages);
-	masterTile->writeLong(PAGETABLESLOCAL + sizeof(long), reqBitmapPages);
+	masterTile->writeLong(PAGETABLESLOCAL + sizeof(uint64_t),
+		reqBitmapPages);
 }
 
-void Processor::writeOutBasicPageEntries(const unsigned long& reqPTEPages)
+void Processor::writeOutBasicPageEntries(const uint64_t& reqPTEPages)
 {
-	const unsigned long tablesOffset = 1 << pageShift;
+	const uint64_t tablesOffset = 1 << pageShift;
 	for (int i = 0; i < reqPTEPages; i++) {
 		long memoryLocalOffset = i * PAGETABLEENTRY + tablesOffset;
 		masterTile->writeLong(
@@ -102,13 +103,13 @@ void Processor::writeOutBasicPageEntries(const unsigned long& reqPTEPages)
 	}
 }
 
-void Processor::markUpBasicPageEntries(const unsigned long& reqPTEPages,
-	const unsigned long& reqBitmapPages)
+void Processor::markUpBasicPageEntries(const uint64_t& reqPTEPages,
+	const uint64_t& reqBitmapPages)
 {
 	for (int i = 0; i <= reqPTEPages + reqBitmapPages; i++) {
-		const unsigned long pageEntryBase = (1 << pageShift) +
+		const uint64_t pageEntryBase = (1 << pageShift) +
 			i * PAGETABLEENTRY + PAGETABLESLOCAL;
-		const unsigned long mappingAddress = PAGETABLESLOCAL +
+		const uint64_t mappingAddress = PAGETABLESLOCAL +
 			i * (1 << pageShift);
 		masterTile->writeLong(pageEntryBase + PHYSOFFSET,
 			mappingAddress >> pageShift);
@@ -122,9 +123,9 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 {
 	localMemory = local;
 	pageShift = pShift;
-	unsigned long memoryAvailable = localMemory->getSize();
-	unsigned long pagesAvailable = memoryAvailable >> pageShift;
-	unsigned long requiredPTESize = pagesAvailable * PAGETABLEENTRY;
+	uint64_t memoryAvailable = localMemory->getSize();
+	uint64_t pagesAvailable = memoryAvailable >> pageShift;
+	uint64_t requiredPTESize = pagesAvailable * PAGETABLEENTRY;
 	long requiredPTEPages = requiredPTESize >> pageShift;
 	if ((requiredPTEPages << pageShift) != requiredPTESize) {
 		requiredPTEPages++;
@@ -133,9 +134,9 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	zeroOutTLBs(pagesAvailable);
 
 	//how many pages needed for bitmaps?
-	unsigned long bitmapSize = ((1 << pageShift) / (BITMAP_BYTES)) / 8;
-	unsigned long totalBitmapSpace = bitmapSize * pagesAvailable;
-	unsigned long requiredBitmapPages = totalBitmapSpace >> pageShift;
+	uint64_t bitmapSize = ((1 << pageShift) / (BITMAP_BYTES)) / 8;
+	uint64_t totalBitmapSpace = bitmapSize * pagesAvailable;
+	uint64_t requiredBitmapPages = totalBitmapSpace >> pageShift;
 	if ((requiredBitmapPages << pageShift) != totalBitmapSpace) {
 		requiredBitmapPages++;
 	}
@@ -146,9 +147,9 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	pageMask = pageMask >> pageShift;
 	pageMask = pageMask << pageShift;
 	bitMask = ~ pageMask;
-	unsigned long pageCount = requiredPTEPages + requiredBitmapPages;
+	uint64_t pageCount = requiredPTEPages + requiredBitmapPages;
 	for (int i = 0; i <= pageCount; i++) {
-		const unsigned long pageStart =
+		const uint64_t pageStart =
 			PAGETABLESLOCAL + i * (1 << pageShift);
 		fixTLB(i, pageStart);
 		for (int j = 0; j < bitmapSize * 8; j++) {
@@ -161,23 +162,23 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	}
 }
 
-bool Processor::isPageValid(const unsigned long& frameNo) const
+bool Processor::isPageValid(const uint64_t& frameNo) const
 {
-	unsigned long flags = masterTile->readWord32((1 << pageShift)
+	uint64_t flags = masterTile->readWord32((1 << pageShift)
 		+ frameNo * PAGETABLEENTRY + FLAGOFFSET + PAGETABLESLOCAL);
 	return (flags & 0x01);
 }
 
-bool Processor::isBitmapValid(const unsigned long& address,
-	const unsigned long& physAddress) const
+bool Processor::isBitmapValid(const uint64_t& address,
+	const uint64_t& physAddress) const
 {
-	const unsigned long totalPages = masterTile->readLong(PAGETABLESLOCAL);
-	const unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
-	const unsigned long bitmapOffset = (1 + totalPages) * (1 << pageShift);
-	unsigned long bitToCheck = ((address & bitMask) / BITMAP_BYTES);
-	const unsigned long bitToCheckOffset = bitToCheck / 8;
+	const uint64_t totalPages = masterTile->readLong(PAGETABLESLOCAL);
+	const uint64_t bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
+	const uint64_t bitmapOffset = (1 + totalPages) * (1 << pageShift);
+	uint64_t bitToCheck = ((address & bitMask) / BITMAP_BYTES);
+	const uint64_t bitToCheckOffset = bitToCheck / 8;
 	bitToCheck %= 8;
-	const unsigned long frameNo =
+	const uint64_t frameNo =
 		(physAddress - PAGETABLESLOCAL) >> pageShift;
 	const uint8_t bitFromBitmap = 
 		masterTile->readByte(PAGETABLESLOCAL + bitmapOffset +
@@ -185,10 +186,10 @@ bool Processor::isBitmapValid(const unsigned long& address,
 	return bitFromBitmap & (1 << bitToCheck);
 }
 
-const unsigned long Processor::generateLocalAddress(const unsigned long& frame,
-	const unsigned long& address) const
+const uint64_t Processor::generateLocalAddress(const uint64_t& frame,
+	const uint64_t& address) const
 {
-	unsigned long offset = address & bitMask;
+	uint64_t offset = address & bitMask;
 	return (frame << pageShift) + offset;
 }
 
@@ -198,7 +199,7 @@ void Processor::interruptBegin()
 	switchModeReal();
 	for (auto i: registerFile) {
 		pcAdvance();
-		stackPointer-= sizeof(long);
+		stackPointer-= sizeof(uint64_t);
 		pcAdvance();
 		masterTile->writeLong(stackPointer, i);
 	}
@@ -210,18 +211,18 @@ void Processor::interruptEnd()
 		pcAdvance();
 		registerFile[i] = masterTile->readLong(stackPointer);
 		pcAdvance();
-		stackPointer += sizeof(long);
+		stackPointer += sizeof(uint64_t);
 	}
 	switchModeVirtual();
 	interruptLock.unlock();
 }
 
 
-void Processor::transferGlobalToLocal(const unsigned long& address,
-	const tuple<unsigned long, unsigned long, bool>& tlbEntry,
-	const unsigned long& size) 
+void Processor::transferGlobalToLocal(const uint64_t& address,
+	const tuple<uint64_t, uint64_t, bool>& tlbEntry,
+	const uint64_t& size) 
 {
-	unsigned long maskedAddress = address & BITMAP_MASK;
+	uint64_t maskedAddress = address & BITMAP_MASK;
 	
 	pcAdvance();
 	registerFile[2] = 0;
@@ -235,18 +236,18 @@ void Processor::transferGlobalToLocal(const unsigned long& address,
 			get<1>(tlbEntry) + registerFile[2]
 			+ (maskedAddress & bitMask), registerFile[1]);
 		pcAdvance();
-		registerFile[2] += sizeof(long);
+		registerFile[2] += sizeof(uint64_t);
 		pcAdvance();
 	}
 }
 
-const unsigned long Processor::triggerSmallFault(
-	const tuple<unsigned long, unsigned long, bool>& tlbEntry,
-	const unsigned long& address)
+const uint64_t Processor::triggerSmallFault(
+	const tuple<uint64_t, uint64_t, bool>& tlbEntry,
+	const uint64_t& address)
 {
 	interruptBegin();
 	transferGlobalToLocal(address, tlbEntry, BITMAP_BYTES);
-	const unsigned long frameNo =
+	const uint64_t frameNo =
 		(get<1>(tlbEntry) - PAGETABLESLOCAL) >> pageShift;
 	markBitmapStart(frameNo, address);	
 	interruptEnd();
@@ -254,33 +255,33 @@ const unsigned long Processor::triggerSmallFault(
 }
 
 //nominate a frame to be used
-const pair<const unsigned long, bool> Processor::getFreeFrame() const
+const pair<const uint64_t, bool> Processor::getFreeFrame() const
 {
 	//have we any empty frames?
 	//we assume this to be subcycle
-	unsigned long frames = (localMemory->getSize()) >> pageShift; 
-	for (unsigned long i = 0; i < frames; i++) {
+	uint64_t frames = (localMemory->getSize()) >> pageShift; 
+	for (uint64_t i = 0; i < frames; i++) {
 		uint32_t flags = masterTile->readWord32((1 << pageShift)
 			+ i * PAGETABLEENTRY + FLAGOFFSET + PAGETABLESLOCAL);
 		if (!(flags & 0x01)) {
-			return pair<const unsigned long, bool>(i, false);
+			return pair<const uint64_t, bool>(i, false);
 		}
 	}
 	//no free frames, so we have to pick one
 	//TODO: implement CLOCK or similar
-	return pair<const unsigned long, bool>(7, true);
+	return pair<const uint64_t, bool>(7, true);
 }
 
-void Processor::writeBackMemory(const unsigned long& frameNo)
+void Processor::writeBackMemory(const uint64_t& frameNo)
 {
 	//find bitmap for this frame
-	const unsigned long totalPTEPages =
+	const uint64_t totalPTEPages =
 		masterTile->readLong(fetchAddress(PAGETABLESLOCAL));
-	const unsigned long bitmapOffset =
+	const uint64_t bitmapOffset =
 		(1 + totalPTEPages) * (1 << pageShift);
-	const unsigned long bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
-	unsigned long bitToRead = frameNo * bitmapSize;
-	const unsigned long physicalAddress =
+	const uint64_t bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
+	uint64_t bitToRead = frameNo * bitmapSize;
+	const uint64_t physicalAddress =
 		localMemory->readLong(fetchAddress((1 << pageShift) +
 		frameNo * PAGETABLEENTRY));
 	long byteToRead = -1;
@@ -296,31 +297,32 @@ void Processor::writeBackMemory(const unsigned long& frameNo)
 		}
 		uint8_t actualBit = bitToRead%8;
 		if (byteBit & (1 << actualBit)) {
-			for (int j = 0; j < BITMAP_BYTES/sizeof(long); j++) {
+			for (int j = 0; j < BITMAP_BYTES/sizeof(uint64_t); j++)
+			{
 				pcAdvance();
-				unsigned long toGo =
+				uint64_t toGo =
 					masterTile->readLong(fetchAddress(
 					frameNo * (1 << pageShift)
 					+ PAGETABLESLOCAL +
 					bitToRead * BITMAP_BYTES +
-					j * sizeof(long)));
+					j * sizeof(uint64_t)));
 				pcAdvance();
 				masterTile->writeLong(fetchAddress(
 					physicalAddress +
 					bitToRead * BITMAP_BYTES +
-					j * sizeof(long)), toGo);
+					j * sizeof(uint64_t)), toGo);
 			}
 		}
 	}
 }
 
-void Processor::loadMemory(const unsigned long& frameNo,
-	const unsigned long& address)
+void Processor::loadMemory(const uint64_t& frameNo,
+	const uint64_t& address)
 {
-	const unsigned long fetchPortion = (address & bitMask) & BITMAP_MASK;
-	for (int i = 0; i < BITMAP_BYTES/sizeof(long); i+= sizeof(long)) {
+	const uint64_t fetchPortion = (address & bitMask) & BITMAP_MASK;
+	for (int i = 0; i < BITMAP_BYTES/sizeof(uint64_t); i+= sizeof(uint64_t)) {
 		pcAdvance();
-		unsigned long toGet = masterTile->readLong(
+		uint64_t toGet = masterTile->readLong(
 			fetchAddress(address + i));
 		pcAdvance();
 		masterTile->writeLong(fetchAddress(PAGETABLESLOCAL +
@@ -328,10 +330,10 @@ void Processor::loadMemory(const unsigned long& frameNo,
 	}
 }
 
-void Processor::fixPageMap(const unsigned long& frameNo,
-	const unsigned long& address) 
+void Processor::fixPageMap(const uint64_t& frameNo,
+	const uint64_t& address) 
 {
-	const unsigned long pageAddress = address & pageMask;
+	const uint64_t pageAddress = address & pageMask;
 	pcAdvance();
 	localMemory->writeLong(fetchAddress((1 << pageShift) +
 		frameNo * PAGETABLEENTRY), pageAddress);
@@ -340,29 +342,29 @@ void Processor::fixPageMap(const unsigned long& frameNo,
 		frameNo * PAGETABLEENTRY + FLAGOFFSET), 0x01);
 }
 
-void Processor::fixPageMapStart(const unsigned long& frameNo,
-	const unsigned long& address) 
+void Processor::fixPageMapStart(const uint64_t& frameNo,
+	const uint64_t& address) 
 {
-	const unsigned long pageAddress = address & pageMask;
+	const uint64_t pageAddress = address & pageMask;
 	localMemory->writeLong((1 << pageShift) +
 		frameNo * PAGETABLEENTRY, pageAddress);
 	localMemory->writeWord32((1 << pageShift) +
 		frameNo * PAGETABLEENTRY + FLAGOFFSET, 0x01);
 }
 
-void Processor::fixBitmap(const unsigned long& frameNo)
+void Processor::fixBitmap(const uint64_t& frameNo)
 {
-	const unsigned long totalPTEPages =
+	const uint64_t totalPTEPages =
 		masterTile->readLong(fetchAddress(PAGETABLESLOCAL));
-	unsigned long bitmapOffset =
+	uint64_t bitmapOffset =
 		(1 + totalPTEPages) * (1 << pageShift);
-	const unsigned long bitmapSizeBytes =
+	const uint64_t bitmapSizeBytes =
 		(1 << pageShift) / (BITMAP_BYTES * 8);
-	const unsigned long bitmapSizeBits = bitmapSizeBytes * 8;
+	const uint64_t bitmapSizeBits = bitmapSizeBytes * 8;
 	uint8_t bitmapByte = localMemory->readByte(fetchAddress(
 		frameNo * bitmapSizeBytes + bitmapOffset));
 	uint8_t startBit = (frameNo * bitmapSizeBits) % 8;
-	for (unsigned long i = 0; i < bitmapSizeBits; i++) {
+	for (uint64_t i = 0; i < bitmapSizeBits; i++) {
 		bitmapByte = bitmapByte & ~(1 << startBit);
 		startBit++;
 		startBit %= 8;
@@ -376,17 +378,17 @@ void Processor::fixBitmap(const unsigned long& frameNo)
 	}
 }
 
-void Processor::markBitmapStart(const unsigned long& frameNo,
-	const unsigned long& address)
+void Processor::markBitmapStart(const uint64_t& frameNo,
+	const uint64_t& address)
 {
-	const unsigned long totalPTEPages =
+	const uint64_t totalPTEPages =
 		masterTile->readLong(PAGETABLESLOCAL);
-	unsigned long bitmapOffset =
+	uint64_t bitmapOffset =
 		(1 + totalPTEPages) * (1 << pageShift);
-	const unsigned long bitmapSizeBytes =
+	const uint64_t bitmapSizeBytes =
 		(1 << pageShift) / (BITMAP_BYTES * 8);
-	unsigned long bitToMark = (address & bitMask) / BITMAP_BYTES;
-	const unsigned long byteToFetch = (bitToMark / 8) +
+	uint64_t bitToMark = (address & bitMask) / BITMAP_BYTES;
+	const uint64_t byteToFetch = (bitToMark / 8) +
 		frameNo * bitmapSizeBytes + bitmapOffset;
 	bitToMark %= 8;
 	uint8_t bitmapByte = localMemory->readByte(byteToFetch);
@@ -395,19 +397,19 @@ void Processor::markBitmapStart(const unsigned long& frameNo,
 }
 
 
-void Processor::fixTLB(const unsigned long& frameNo,
-	const unsigned long& address)
+void Processor::fixTLB(const uint64_t& frameNo,
+	const uint64_t& address)
 {
-	const unsigned long pageAddress = address & pageMask;
+	const uint64_t pageAddress = address & pageMask;
 	get<1>(tlbs[frameNo]) = frameNo * (1 << pageShift) + PAGETABLESLOCAL;
 	get<0>(tlbs[frameNo]) = pageAddress;
 	get<2>(tlbs[frameNo]) = true;
 }
 
-const unsigned long Processor::triggerHardFault(const unsigned long& address)
+const uint64_t Processor::triggerHardFault(const uint64_t& address)
 {
 	interruptBegin();
-	const pair<const unsigned long, bool> frameNo = getFreeFrame();
+	const pair<const uint64_t, bool> frameNo = getFreeFrame();
 	if (frameNo.second) {
 		fixBitmap(frameNo.first);
 		writeBackMemory(frameNo.first);
@@ -422,18 +424,20 @@ const unsigned long Processor::triggerHardFault(const unsigned long& address)
 	
 
 //when this returns, address guarenteed to be present at returned local address
-const unsigned long Processor::fetchAddress(const unsigned long& address)
+const uint64_t Processor::fetchAddress(const uint64_t& address)
 {
 	//implement paging logic
 	if (mode == VIRTUAL) {
 		for (auto x: tlbs) {
 			if (get<2>(x) &&
-				((address & pageMask) == (get<0>(x) & pageMask))) {
+				((address & pageMask) ==
+				(get<0>(x) & pageMask))) {
 				//entry in TLB - check bitmap
 				if (!isBitmapValid(address, get<1>(x))) {
 					return triggerSmallFault(x, address);
 				}
-				return generateLocalAddress(address, get<1>(x));
+				return generateLocalAddress(
+					address, get<1>(x));
 			}
 		}
 		return triggerHardFault(address);
@@ -444,25 +448,25 @@ const unsigned long Processor::fetchAddress(const unsigned long& address)
 }
 
 		
-void Processor::writeAddress(const unsigned long& address,
-	const unsigned long& value)
+void Processor::writeAddress(const uint64_t& address,
+	const uint64_t& value)
 {
 	//TODO: Lots!
 	masterTile->writeLong(fetchAddress(address), value);
 }
 
-unsigned long Processor::getLongAddress(const unsigned long& address)
+uint64_t Processor::getLongAddress(const uint64_t& address)
 {
 	return masterTile->readLong(fetchAddress(address));
 }
 
-uint8_t Processor::getAddress(const unsigned long& address)
+uint8_t Processor::getAddress(const uint64_t& address)
 {
 	return masterTile->readByte(fetchAddress(address));
 }		
 
-void Processor::setRegister(const unsigned long regNumber,
-	const unsigned long value)
+void Processor::setRegister(const uint64_t regNumber,
+	const uint64_t value)
 {
 	//R0 always a zero
 	if (regNumber == 0) {
@@ -475,7 +479,7 @@ void Processor::setRegister(const unsigned long regNumber,
 	}
 }
 
-unsigned long Processor::getRegister(const unsigned long regNumber) const
+uint64_t Processor::getRegister(const uint64_t regNumber) const
 {
 	if (regNumber == 0) {
 		return 0;
@@ -488,8 +492,8 @@ unsigned long Processor::getRegister(const unsigned long regNumber) const
 	}
 }
 
-unsigned long Processor::multiplyWithCarry(const unsigned long A,
-	const unsigned long B)
+uint64_t Processor::multiplyWithCarry(const uint64_t A,
+	const uint64_t B)
 {
 	carryBit = false;
 	if (A == 0 || B == 0) {
@@ -514,9 +518,10 @@ void Processor::start()
 	//mark TLB
 	//mark bitmap
 	auto tabPages = masterTile->readLong(PAGETABLESLOCAL);
-	auto bitPages = masterTile->readLong(PAGETABLESLOCAL + sizeof(long));
+	auto bitPages = masterTile->readLong(PAGETABLESLOCAL +
+		sizeof(uint64_t));
 
-	unsigned long pagesIn = (1 + tabPages + bitPages);
+	uint64_t pagesIn = (1 + tabPages + bitPages);
 
 	programCounter = pagesIn * (1 << pageShift) + 0x10000000;
 	fixPageMapStart(pagesIn, programCounter);

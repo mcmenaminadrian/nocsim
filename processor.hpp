@@ -17,58 +17,58 @@ private:
 	Router router;
 	std::mutex interruptLock;
 	std::mutex waitMutex;
-	std::vector<unsigned long> registerFile;
-	std::vector<std::tuple<unsigned long, unsigned long, bool>> tlbs;
+	std::vector<uint64_t> registerFile;
+	std::vector<std::tuple<uint64_t, uint64_t, bool>> tlbs;
 	bool carryBit;
-	unsigned long programCounter;
+	uint64_t programCounter;
 	Tile *masterTile;
 	enum ProcessorMode { REAL, VIRTUAL };
 	ProcessorMode mode;
 	Memory *localMemory;
 	long pageShift;
-	unsigned long stackPointer;
-	unsigned long pageMask;
-	unsigned long bitMask;
+	uint64_t stackPointer; 
+	uint64_t pageMask;
+	uint64_t bitMask;
 
-	void markUpBasicPageEntries(const unsigned long& reqPTEPages,
-		const unsigned long& reqBitmapPages);
-	void writeOutBasicPageEntries(const unsigned long& reqPTEPages);
-	void writeOutPageAndBitmapLengths(const unsigned long& reqPTESize,
-		const unsigned long& reqBitmapPages);
-	void zeroOutTLBs(const unsigned long& reqPTEPages);
-	const unsigned long fetchAddress(const unsigned long& address);
-	bool isBitmapValid(const unsigned long& address,
-		const unsigned long& physAddress) const;
-	bool isPageValid(const unsigned long& frameNo) const;
-	const unsigned long generateLocalAddress(const unsigned long& frame,
-		const unsigned long& address) const;
-	const unsigned long triggerSmallFault(
-		const std::tuple<unsigned long, unsigned long, bool>& tlbEntry,
-		const unsigned long& address);
+	void markUpBasicPageEntries(const uint64_t& reqPTEPages,
+		const uint64_t& reqBitmapPages);
+	void writeOutBasicPageEntries(const uint64_t& reqPTEPages);
+	void writeOutPageAndBitmapLengths(const uint64_t& reqPTESize,
+		const uint64_t& reqBitmapPages);
+	void zeroOutTLBs(const uint64_t& reqPTEPages);
+	const uint64_t fetchAddress(const uint64_t& address);
+	bool isBitmapValid(const uint64_t& address,
+		const uint64_t& physAddress) const;
+	bool isPageValid(const uint64_t& frameNo) const;
+	const uint64_t generateLocalAddress(const uint64_t& frame,
+		const uint64_t& address) const;
+	const uint64_t triggerSmallFault(
+		const std::tuple<uint64_t, uint64_t, bool>& tlbEntry,
+		const uint64_t& address);
 	void interruptBegin();
 	void interruptEnd();
-	void transferGlobalToLocal(const unsigned long& address,
-		const std::tuple<unsigned long, unsigned long, bool>& tlbEntry,
-		const unsigned long& size); 
-	const unsigned long triggerHardFault(const unsigned long& address);
-	const std::pair<const unsigned long, bool> getFreeFrame() const;
-	void writeBackMemory(const unsigned long& frameNo);
-	void loadMemory(const unsigned long& frameNo,
-		const unsigned long& address);
-	void fixPageMap(const unsigned long& frameNo,
-		const unsigned long& address);
-	void fixPageMapStart(const unsigned long& frameNo,
-		const unsigned long& address);
-	void fixBitmap(const unsigned long& frameNo);
-	void markBitmapStart(const unsigned long& frameNo,
-		const unsigned long& address);
-	void fixTLB(const unsigned long& frameNo,
-		const unsigned long& address);
+	void transferGlobalToLocal(const uint64_t& address,
+		const std::tuple<uint64_t, uint64_t, bool>& tlbEntry,
+		const uint64_t& size); 
+	const uint64_t triggerHardFault(const uint64_t& address);
+	const std::pair<const uint64_t, bool> getFreeFrame() const;
+	void writeBackMemory(const uint64_t& frameNo);
+	void loadMemory(const uint64_t& frameNo,
+		const uint64_t& address);
+	void fixPageMap(const uint64_t& frameNo,
+		const uint64_t& address);
+	void fixPageMapStart(const uint64_t& frameNo,
+		const uint64_t& address);
+	void fixBitmap(const uint64_t& frameNo);
+	void markBitmapStart(const uint64_t& frameNo,
+		const uint64_t& address);
+	void fixTLB(const uint64_t& frameNo,
+		const uint64_t& address);
 
 public:
 	std::bitset<16> statusWord;
 	Processor(Tile* parent);
-	void loadMem(const long regNo, const unsigned long memAddr);
+	void loadMem(const long regNo, const uint64_t memAddr);
 	void switchModeReal();
 	void switchModeVirtual();
 	void setMode();
@@ -76,17 +76,17 @@ public:
 	void setPCNull();
 	void start();
 	void pcAdvance(const long count = sizeof(long));
-	unsigned long getRegister(const unsigned long regNumber) const;
-	void setRegister(const unsigned long regNumber,
-		const unsigned long value);
-	uint8_t getAddress(const unsigned long& address);
-	unsigned long multiplyWithCarry(const unsigned long A,
-		const unsigned long B);
-	unsigned long getLongAddress(const unsigned long& address);
-	void writeAddress(const unsigned long& addr,
-		const unsigned long& value);
-	unsigned long getStackPointer() const { return stackPointer;}
-	void setStackPointer(const unsigned long& address) { 
+	uint64_t getRegister(const uint64_t regNumber) const;
+	void setRegister(const uint64_t regNumber,
+		const uint64_t value);
+	uint8_t getAddress(const uint64_t& address);
+	uint64_t multiplyWithCarry(const uint64_t A,
+		const uint64_t B);
+	uint64_t getLongAddress(const uint64_t& address);
+	void writeAddress(const uint64_t& addr,
+		const uint64_t& value);
+	uint64_t getStackPointer() const { return stackPointer;}
+	void setStackPointer(const uint64_t& address) { 
 		stackPointer = address; }
 	//message passing code
 };
