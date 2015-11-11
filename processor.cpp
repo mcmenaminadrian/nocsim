@@ -42,9 +42,6 @@ Processor::Processor(Tile *parent): masterTile(parent), mode(REAL),
 {
 	registerFile = vector<uint64_t>(REGISTER_FILE_SIZE, 0);
 	statusWord[0] = true;
-	stackPointer = TILE_MEM_SIZE + PAGETABLESLOCAL;
-	stackPointerOver = stackPointer;
-	stackPointerUnder = stackPointer - (1 << pageShift);
 }
 
 void Processor::setMode()
@@ -132,6 +129,10 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	if ((requiredPTEPages << pageShift) != requiredPTESize) {
 		requiredPTEPages++;
 	}
+
+	stackPointer = TILE_MEM_SIZE + PAGETABLESLOCAL;
+	stackPointerOver = stackPointer;
+	stackPointerUnder = stackPointer - (1 << pageShift);
 
 	zeroOutTLBs(pagesAvailable);
 
