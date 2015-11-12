@@ -543,6 +543,12 @@ void Processor::pcAdvance(const long count)
 	pBarrier->releaseToRun();
 }
 
+void Processor::waitATick() const
+{
+	ControlThread *pBarrier = masterTile->getBarrier();
+	pBarrier->releaseToRun();
+}
+
 void Processor::pushStackPointer()
 {
 	stackPointer -= sizeof(uint64_t);

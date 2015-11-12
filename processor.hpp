@@ -66,6 +66,7 @@ private:
 		const uint64_t& address);
 	void fixTLB(const uint64_t& frameNo,
 		const uint64_t& address);
+	void waitATick() const;
 
 public:
 	std::bitset<16> statusWord;
