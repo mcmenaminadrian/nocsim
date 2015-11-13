@@ -184,6 +184,7 @@ void ProcessorFunctor::operator()()
 	lwi_(REG1, REG0, 0x10000);
 	lwi_(REG1, REG0, 0x10004);
 	lwi_(REG1, REG0, 0x10400);
+	swi_(REG1, REG0, 0x12000);
 	cout << " - our work here is done" << endl;
 }
 

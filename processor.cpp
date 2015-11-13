@@ -220,6 +220,8 @@ void Processor::interruptEnd()
 	interruptLock.unlock();
 }
 
+// Maximum flit size 128 bits
+// Maximum packet size 5 flits
 
 void Processor::transferGlobalToLocal(const uint64_t& address,
 	const tuple<uint64_t, uint64_t, bool>& tlbEntry,
@@ -232,6 +234,9 @@ void Processor::transferGlobalToLocal(const uint64_t& address,
 	pcAdvance();
 	while (registerFile[2] < size) {
 		pcAdvance();
+		//FORM: requestRemoteMemory(size, remoteAddress, localAddress)
+		//requestRemoteMemory(size, maskedAddress, get<1>(tlbEntry) + (maskedAddress & bitMask));
+		//then sleep till returns
 		registerFile[1] = masterTile->readLong(maskedAddress
 			+ registerFile[2]);
 		pcAdvance();
