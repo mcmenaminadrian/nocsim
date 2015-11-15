@@ -16,10 +16,10 @@ clean:
 	rm -f *.o
 
 nocdevice: computer.o memory.o noc.o tree.o mux.o processor.o tile.o paging.o \
-	functor.o router.o controlthread.o
+	functor.o router.o controlthread.o memorypacket.o
 	$(CC) $(CXXFLAGS) -o nocdevice $(CFLAGS) computer.o memory.o noc.o \
 		tree.o mux.o processor.o tile.o paging.o \
-		functor.o router.o controlthread.o
+		functor.o router.o controlthread.o memorypacket.o
 
 computer.o: computer.cpp memory.hpp tree.hpp noc.hpp tile.hpp \
 	processor.hpp mux.hpp
@@ -60,6 +60,9 @@ paging.o: paging.cpp paging.hpp
 
 functor.o: processorFunc.cpp
 	$(CC) $(CXXFLAGS) -o functor.o -c -Wall processorFunc.cpp
+
+memorypacket.o: memorypacket.cpp memorypacket.hpp
+	$(CC) $(CXXFLAGS) -o memorypacket.o -c -Wall memorypacket.cpp
 
 router.o: router.cpp router.hpp
 	$(CC) $(CXXFLAGS) -o router.o -c -Wall router.cpp

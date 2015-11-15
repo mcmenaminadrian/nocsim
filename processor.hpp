@@ -67,6 +67,11 @@ private:
 	void fixTLB(const uint64_t& frameNo,
 		const uint64_t& address);
 	void waitATick() const;
+	const std::tuple<std::vector<uint8_t>, uint64_t, bool>
+		requestRemoteMemory(
+		const uint64_t& size, const uint64_t& remoteAddress,
+		const uint64_t& localAddress);
+
 
 public:
 	std::bitset<16> statusWord;

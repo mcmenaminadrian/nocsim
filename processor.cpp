@@ -223,6 +223,17 @@ void Processor::interruptEnd()
 // Maximum flit size 128 bits
 // Maximum packet size 5 flits
 
+//tuple - vector of bytes, size of vector, success
+
+const tuple<vector<uint8_t>, uint64_t, bool> Processor::requestRemoteMemory(
+	const uint64_t& size, const uint64_t& remoteAddress,
+	const uint64_t& localAddress)
+{
+	//assemble request
+	//wait for response
+	//fill in memory
+}
+
 void Processor::transferGlobalToLocal(const uint64_t& address,
 	const tuple<uint64_t, uint64_t, bool>& tlbEntry,
 	const uint64_t& size) 
@@ -236,7 +247,6 @@ void Processor::transferGlobalToLocal(const uint64_t& address,
 		pcAdvance();
 		//FORM: requestRemoteMemory(size, remoteAddress, localAddress)
 		//requestRemoteMemory(size, maskedAddress, get<1>(tlbEntry) + (maskedAddress & bitMask));
-		//then sleep till returns
 		registerFile[1] = masterTile->readLong(maskedAddress
 			+ registerFile[2]);
 		pcAdvance();
