@@ -30,7 +30,7 @@ public:
 		lowRange = i;
 		hiRange = i;
 	}
-	void routePacket(Packet *pack);
+	void routePacket(MemoryPacket *pack);
 	
 };	
 #endif
