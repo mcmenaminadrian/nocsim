@@ -8,7 +8,7 @@ private:
 	const uint64_t processorIndex;
 	const uint64_t remoteAddress;
 	const uint64_t localAddress;
-	std::vector<uint8_t> payload
+	std::vector<uint8_t> payload;
 	enum direction{OUT, IN} pd;
 
 public:

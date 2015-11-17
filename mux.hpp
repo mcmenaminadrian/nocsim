@@ -2,7 +2,6 @@
 #ifndef _MUX_CLASS_
 #define _MUX_CLASS_
 
-class Packet;
 class Memory;
 
 class Mux {
@@ -16,7 +15,9 @@ private:
 	long hiRange;
 	long midRangeRight;
 	bool blocked;
-	Packet* stored;
+	std::pair<MemoryPacket, bool> topBuffer;
+	std::pair<MemoryPacket, bool> leftBuffer;
+	std::pair<MemoryPacket, bool> rightBuffer;
 
 public:
 
