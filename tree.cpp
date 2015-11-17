@@ -5,6 +5,7 @@
 #include <bitset>
 #include <condition_variable>
 #include "ControlThread.hpp"
+#include "memorypacket.hpp"
 #include "mux.hpp"
 #include "memory.hpp"
 #include "tree.hpp"
@@ -14,24 +15,6 @@
 
 using namespace std;
 
-void Mux::joinUpLeft(Mux* left)
-{
-	lowRange = left->lowRange;
-	midRangeLeft = left->hiRange;
-}
-
-void Mux::joinUpRight(Mux* right)
-{
-	hiRange = right->hiRange;
-	midRangeRight = right->lowRange;
-}
-
-void Mux::routePacket(Packet* packet)
-{
-	
-}
-
-
 Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 {
 	long totalLeaves = columns * rows;
@@ -40,9 +23,9 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 
 	//create the nodes
 	while (muxCount > 1) {
-		nodesTree.push_back(vector<Mux *>(muxCount));
+		nodesTree.push_back(vector<Mux>(muxCount));
 		for (int i = 0; i < muxCount; i++) {
-			nodesTree[levels][i] = new Mux(&globalMemory);
+			nodesTree[levels][i] = Mux(&globalMemory);
 		}
 		muxCount /= 2;
 		levels++;
@@ -50,8 +33,7 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	//number the leaves
 	for (int i = 0; i < totalLeaves; i++)
 	{
-		Mux *target = nodesTree[0][i];
-		target->assignNumber(i);
+		(nodesTree[0][i]).assignNumber(i);
 		Tile *targetTile = noc.tileAt(i);
 		if (!targetTile) {
 			cout << "Bad tile index" << endl;
@@ -60,16 +42,16 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 		targetTile->addTreeLeaf(target);
 	}
 	//root Mux - connects to global memory
-	nodesTree.push_back(vector<Mux *>(1));
-	nodesTree[levels][0] = new Mux(&globalMemory);
+	nodesTree.push_back(vector<Mux>(1));
+	nodesTree[levels][0] = Mux(&globalMemory);
 
 	//join the nodes internally
 	for (int i = 0; i < levels; i++)
 	{
 		for (int j = 0; j < nodesTree[i].size(); j+= 2)
 		{
-			(nodesTree[i])[j]->joinUpLeft((nodesTree[i + 1])[j/2]);
-			(nodesTree[i])[j + 1]->joinUpRight((nodesTree[i + 1])[j/2]);
+			(nodesTree[i])[j].joinUpLeft((nodesTree[i + 1])[j/2]);
+			(nodesTree[i])[j + 1].joinUpRight((nodesTree[i + 1])[j/2]);
 		}
 	}
 

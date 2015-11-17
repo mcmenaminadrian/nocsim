@@ -6,6 +6,7 @@
 #include <cstring>
 #include "tree.hpp"
 #include "memory.hpp"
+#include "memorypacket.hpp"
 #include "mux.hpp"
 
 using namespace std;
