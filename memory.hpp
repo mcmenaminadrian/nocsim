@@ -11,7 +11,7 @@ private:
 	const unsigned long start;
 	const unsigned long memorySize;
 	std::map<long, uint8_t> contents;
-	Mux* rootMux;
+	Mux rootMux;
 
 public:
 	Memory(const unsigned long start, const unsigned long size);
@@ -22,7 +22,7 @@ public:
 	void writeByte(const unsigned long& address, const uint8_t& value);
 	void writeLong(const unsigned long& address,
 		const unsigned long& value);
-	void attachTree(Mux* root);
+	void attachTree(Mux& root);
 	unsigned long getSize() const;
 };
 

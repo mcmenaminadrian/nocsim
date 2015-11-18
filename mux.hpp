@@ -19,8 +19,8 @@ private:
 public:
 
 	Mux(Memory *gMem);
-	void joinUpLeft(Mux* joiner);
-	void joinUpRight(Mux* joiner);
+	void joinUpLeft(Mux& joiner);
+	void joinUpRight(Mux& joiner);
 	void assignNumber(const int i) {
 	}
 	void routePacket(MemoryPacket *pack);
