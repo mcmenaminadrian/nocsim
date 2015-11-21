@@ -25,11 +25,17 @@ public:
 		}
 	}
 
+	bool goingUp() {
+		return (pd == OUT);
+	}
+
 	void fillBuffer();
 	const uint64_t getRequestSize() const
 	{ return requestSize; }
 	const uint64_t getfulfilSize() const
 	{ return fulfilSize; }
+	const uint64_t getRemoteAddress() const
+	{ return remoteAddress; }
 };
 
 #endif

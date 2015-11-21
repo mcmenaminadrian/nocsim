@@ -12,13 +12,14 @@ private:
 	Mux* downstreamMuxHigh;
 	std::pair<uint64_t, uint64_t> lowerLeft;
 	std::pair<uint64_t, uint64_t> lowerRight;
-	std::pair<MemoryPacket, bool> topBuffer;
-	std::pair<MemoryPacket, bool> leftBuffer;
-	std::pair<MemoryPacket, bool> rightBuffer;
+	std::pair<MemoryPacket*, bool> topBuffer;
+	std::pair<MemoryPacket*, bool> leftBuffer;
+	std::pair<MemoryPacket*, bool> rightBuffer;
 
 public:
-
+	Mux() {};
 	Mux(Memory *gMem);
+	void assignGlobalMemory(Memory *gMem){ globalMemory = gMem;}
 	void joinUpLeft(Mux& joiner);
 	void joinUpRight(Mux& joiner);
 	void assignNumber(const int i) {
