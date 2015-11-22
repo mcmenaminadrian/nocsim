@@ -15,16 +15,18 @@ private:
 	std::pair<MemoryPacket*, bool> topBuffer;
 	std::pair<MemoryPacket*, bool> leftBuffer;
 	std::pair<MemoryPacket*, bool> rightBuffer;
+	int number;
 
 public:
-	Mux() {};
-	Mux(Memory *gMem);
+	Mux():number(-1) {};
+	Mux(Memory *gMem): globalMemory(gMem), number(-1) {};
 	void assignGlobalMemory(Memory *gMem){ globalMemory = gMem;}
-	void joinUpLeft(Mux& joiner);
-	void joinUpRight(Mux& joiner);
-	void assignNumber(const int i) {
-	}
-	void routePacket(MemoryPacket *pack);
-	
+	void joinUpMux(const Mux& left, const Mux& right);
+	void assignNumbers(const uint64_t& ll, const uint64_t& ul,
+		const uint64_t& lr, const uint64_t& ur);
+	const std::tuple<const uint64_t, const uint64_t,
+		const uint64_t, const uint64_t> fetchNumbers() const;
+	const std::pair<bool, bool> routePacket(MemoryPacket *pack);
+	const bool acceptPacketUp(const MemoryPacket *mPack) const;
 };	
 #endif

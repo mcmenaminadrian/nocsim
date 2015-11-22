@@ -33,13 +33,13 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	//number the leaves
 	for (int i = 0; i < totalLeaves; i++)
 	{
-		(nodesTree[0][i]).assignNumber(i);
+		(nodesTree[0][i]).assignNumbers(i, i, i, i);
 		Tile *targetTile = noc.tileAt(i);
 		if (!targetTile) {
 			cout << "Bad tile index" << endl;
 			throw "tile index error";
 		}
-		targetTile->addTreeLeaf(target);
+		targetTile->addTreeLeaf(&(nodesTree[0][i]));
 	}
 	//root Mux - connects to global memory
 	nodesTree.push_back(vector<Mux>(1));
@@ -50,20 +50,11 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	{
 		for (int j = 0; j < nodesTree[i].size(); j+= 2)
 		{
-			(nodesTree[i])[j].joinUpLeft((nodesTree[i + 1])[j/2]);
-			(nodesTree[i])[j + 1].joinUpRight((nodesTree[i + 1])[j/2]);
+			nodesTree[i + 1][j / 2].joinUpMux(
+				nodesTree[i][j], nodesTree[i][j + 1]);
 		}
 	}
 
 	//attach root to global memory
-	globalMemory.attachTree(nodesTree.at(nodesTree.size() - 1)[0]);
+	globalMemory.attachTree(&(nodesTree.at(nodesTree.size() - 1)[0]));
 }
-
-Tree::~Tree()
-{
-	for (int i = 0; i <= levels; i++) {
-		for (int j = 0; j < nodesTree[i].size(); j++) {
-			delete nodesTree[i][j];
-		}
-	}
-} 

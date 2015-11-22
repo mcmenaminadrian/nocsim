@@ -25,7 +25,7 @@ public:
 		}
 	}
 
-	bool goingUp() {
+	const bool goingUp() const {
 		return (pd == OUT);
 	}
 

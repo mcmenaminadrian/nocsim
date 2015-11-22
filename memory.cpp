@@ -11,11 +11,11 @@
 
 using namespace std;
 
-Memory::Memory(const unsigned long startAddress, const unsigned long size):
+Memory::Memory(const uint64_t& startAddress, const uint64_t& size):
 	start(startAddress), memorySize(size)
 {}
 
-const uint8_t Memory::readByte(const unsigned long& address)
+const uint8_t Memory::readByte(const uint64_t& address)
 {
 	uint8_t retVal = 0;
 
@@ -86,7 +86,7 @@ void Memory::writeLong(const uint64_t& address, const uint64_t& value)
 	}
 }
 
-const uint32_t Memory::readWord32(const uint64_t& address) const
+const uint32_t Memory::readWord32(const uint64_t& address)
 {
 	uint32_t result = 0;
 	for (int i = 3; i >= 0; i--) {
@@ -110,7 +110,7 @@ const uint64_t Memory::getSize() const
 	return memorySize;
 }
 
-const bool Memory::inRange(const uint64_t& address)
+const bool Memory::inRange(const uint64_t& address) const
 {
 	return (address <= (start + memorySize - 1) && address >= start);
 }

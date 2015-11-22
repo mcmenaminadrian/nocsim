@@ -15,6 +15,5 @@ private:
 public:
 	Tree(Memory& globalMemory, Noc& noc,
 		const long columns, const long rows);
-	~Tree();
 };
 #endif

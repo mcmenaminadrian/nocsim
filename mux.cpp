@@ -1,17 +1,15 @@
 #include <iostream>
 #include <map>
+#include <vector>
+#include <utility>
+#include <tuple>
 #include "memorypacket.hpp"
 #include "memory.hpp"
 #include "mux.hpp"
 
 using namespace std;
 
-Mux::Mux(Memory *gMem): globalMemory(gMem)
-{
-
-}
-
-bool Mux::acceptPacketUp(MemoryPacket *mPack)
+const bool Mux::acceptPacketUp(const MemoryPacket *mPack) const
 {
 	if (!mPack->goingUp()) {
 		cerr << "Routing memory packet in wrong direction" << endl;
@@ -21,24 +19,28 @@ bool Mux::acceptPacketUp(MemoryPacket *mPack)
 		cerr << "Mux has no global memory assigned" << endl;
 		return false;
 	}
-	return (gMem->inRange(mPack->getRemoteAddress());
+	return (globalMemory->inRange(mPack->getRemoteAddress()));
 }
 
 
-void Mux::joinUpLeft(Mux* left)
+const tuple<const uint64_t, const uint64_t, const uint64_t,
+	const uint64_t> Mux::fetchNumbers() const
 {
-	lowRange = left->lowRange;
-	midRangeLeft = left->hiRange;
+	return make_tuple(get<0>(lowerLeft), get<1>(lowerLeft),
+		get<0>(lowerRight), get<1>(lowerRight));
+}		
+
+const pair<bool, bool> Mux::routePacket(MemoryPacket* packet)
+{
+	return pair<bool, bool>(false, false);	
 }
 
-void Mux::joinUpRight(Mux* right)
+void Mux::assignNumbers(const uint64_t& ll, const uint64_t& ul,
+	const uint64_t& lr, const uint64_t& ur)
 {
-	hiRange = right->hiRange;
-	midRangeRight = right->lowRange;
+	lowerLeft = pair<uint64_t, uint64_t>(ll, ul);
+	lowerRight = pair<uint64_t, uint64_t>(lr, ur);
 }
 
-void Mux::routePacket(Packet* packet)
-{
-	
-}
+
 
