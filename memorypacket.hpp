@@ -13,7 +13,7 @@ private:
 
 public:
 	MemoryPacket(const uint64_t& processor, const uint64_t& remoteAddr,
-		const uint64_t& localAddr, const uint64_t sz):
+		const uint64_t& localAddr, const uint64_t& sz):
 		processorIndex(processor), remoteAddress(remoteAddr),
 		localAddress(localAddr), requestSize(sz), pd(OUT)
 	{}

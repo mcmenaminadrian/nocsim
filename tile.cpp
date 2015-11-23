@@ -38,7 +38,7 @@ void Tile::addConnection(const long col, const long row)
 
 void Tile::addTreeLeaf(Mux *leaf)
 {
-	treeLeaves.push_back(leaf);
+	treeLeaf = leaf;
 }
 
 const unsigned long Tile::getOrder() const

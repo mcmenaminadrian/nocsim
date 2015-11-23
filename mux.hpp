@@ -26,7 +26,7 @@ public:
 		const uint64_t& lr, const uint64_t& ur);
 	const std::tuple<const uint64_t, const uint64_t,
 		const uint64_t, const uint64_t> fetchNumbers() const;
-	const std::pair<bool, bool> routePacket(MemoryPacket *pack);
-	const bool acceptPacketUp(const MemoryPacket *mPack) const;
+	const std::pair<bool, bool> routePacket(MemoryPacket& pack);
+	const bool acceptPacketUp(const MemoryPacket& mPack) const;
 };	
 #endif

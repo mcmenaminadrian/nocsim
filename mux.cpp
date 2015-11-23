@@ -9,9 +9,9 @@
 
 using namespace std;
 
-const bool Mux::acceptPacketUp(const MemoryPacket *mPack) const
+const bool Mux::acceptPacketUp(const MemoryPacket& mPack) const
 {
-	if (!mPack->goingUp()) {
+	if (!mPack.goingUp()) {
 		cerr << "Routing memory packet in wrong direction" << endl;
 		return false;
 	}
@@ -19,7 +19,7 @@ const bool Mux::acceptPacketUp(const MemoryPacket *mPack) const
 		cerr << "Mux has no global memory assigned" << endl;
 		return false;
 	}
-	return (globalMemory->inRange(mPack->getRemoteAddress()));
+	return (globalMemory->inRange(mPack.getRemoteAddress()));
 }
 
 
@@ -30,7 +30,7 @@ const tuple<const uint64_t, const uint64_t, const uint64_t,
 		get<0>(lowerRight), get<1>(lowerRight));
 }		
 
-const pair<bool, bool> Mux::routePacket(MemoryPacket* packet)
+const pair<bool, bool> Mux::routePacket(MemoryPacket& packet)
 {
 	return pair<bool, bool>(false, false);	
 }

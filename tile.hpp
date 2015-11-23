@@ -13,7 +13,6 @@ class Tile
 private:
 	Memory *tileLocalMemory;
 	Memory *globalMemory;
-	std::vector<Mux *> treeLeaves;
 	const std::pair<const long, const long> coordinates;
 	std::vector<std::pair<long, long> > connections;
 	Noc *parentBoard;
@@ -21,6 +20,7 @@ private:
 public:
 	Tile(Noc* parent, const long col, const long r, const long pShift);
 	~Tile();
+	Mux *treeLeaf;
 	Processor *tileProcessor;
 	void addTreeLeaf(Mux* leaf);
 	void addConnection(const long col, const long row);

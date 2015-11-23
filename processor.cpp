@@ -231,7 +231,10 @@ const tuple<vector<uint8_t>, uint64_t, bool> Processor::requestRemoteMemory(
 	const uint64_t& localAddress)
 {
 	//assemble request
+	MemoryPacket memoryRequest(masterTile->getOrder(), remoteAddress,
+		localAddress, size);
 	//wait for response
+	masterTile->treeLeaf->routePacket(memoryRequest);
 	//fill in memory
 }
 
