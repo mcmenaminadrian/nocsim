@@ -11,6 +11,7 @@
 #include <condition_variable>
 #include <climits>
 #include "ControlThread.hpp"
+#include "memorypacket.hpp"
 #include "mux.hpp"
 #include "tile.hpp"
 #include "memory.hpp"

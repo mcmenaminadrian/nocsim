@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <bitset>
 #include "ControlThread.hpp"
+#include "memorypacket.hpp"
 #include "mux.hpp"
 #include "noc.hpp"
 #include "tile.hpp"

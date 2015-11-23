@@ -35,6 +35,12 @@ const pair<bool, bool> Mux::routePacket(MemoryPacket* packet)
 	return pair<bool, bool>(false, false);	
 }
 
+void Mux::joinUpMux(const Mux& left, const Mux& right)
+{
+	assignNumbers(left.lowerLeft.first, left.lowerRight.second,
+		right.lowerLeft.first, right.lowerRight.second);
+}
+
 void Mux::assignNumbers(const uint64_t& ll, const uint64_t& ul,
 	const uint64_t& lr, const uint64_t& ur)
 {
