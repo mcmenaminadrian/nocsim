@@ -28,11 +28,57 @@ const tuple<const uint64_t, const uint64_t, const uint64_t,
 {
 	return make_tuple(get<0>(lowerLeft), get<1>(lowerLeft),
 		get<0>(lowerRight), get<1>(lowerRight));
-}		
+}
 
-const pair<bool, bool> Mux::routePacket(MemoryPacket& packet)
+void Mux::fillBottomBuffer(pair<MemoryPacket*, bool>& buffer, mutex& botMutex,
+	const MemoryPacket& packet)
 {
-	return pair<bool, bool>(false, false);	
+	while (true) {
+		packet.getProcessor().waitATick();
+		botMutex.lock();
+		if (buffer.second == false) {
+			buffer.first = &packet;
+			buffer.second = true;
+			botMutex.unlock();
+			return;
+		}
+		botMutex.unlock();
+	}
+}
+
+const tuple<bool, bool, MemoryPacket> Mux::fillTopBuffer(
+	pair<MemoryPacket*, bool>& bottomBuffer,
+	pair<MemoryPacket*, bool>& topBuffer,
+	mutex& botMutex,
+	MemoryPacket& packet)
+{
+	while (true) {
+		packet.getProcessor().waitATick();
+		topMutex.lock();
+		if (topBuffer.second == false) {
+			botMutex.lock();
+			bottomBuffer.second = false;
+			botMutex.unlock();
+			topBuffer.first = &packet;
+			topBuffer.second = true;
+			topMutex.unlock();
+			//if we are top layer, then route into memory
+			
+
+const tuple<bool, bool, MemoryPacket> Mux::routePacket(MemoryPacket& packet)
+{
+	//is the buffer free?
+	const uint64_t processorIndex = packet.getProcessor();
+	if (processorIndex >= lowerLeft.first &&
+		processorIndex <= lowerLeft.second) {
+		fillBottomBuffer(leftBuffer, bottomLeftMutex, packet);
+		return fillTopBuffer(leftBuffer, topBuffer, bottomLeftMutex,
+			packet);
+	} else {
+		fillBottomBuffer(rightBuffer, bottomRightMutex, packet);
+		return fillTopBuffer(rightBuffer, topBuffer, bottomRightMutex,
+			packet);
+	}
 }
 
 void Mux::joinUpMux(const Mux& left, const Mux& right)

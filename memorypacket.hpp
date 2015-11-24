@@ -36,6 +36,8 @@ public:
 	{ return fulfilSize; }
 	const uint64_t getRemoteAddress() const
 	{ return remoteAddress; }
+	const uint64_t getProcessor() const
+	{ return processorIndex; }
 };
 
 #endif
