@@ -47,9 +47,7 @@ void Mux::fillBottomBuffer(pair<MemoryPacket*, bool>& buffer, mutex& botMutex,
 }
 
 const tuple<bool, bool, MemoryPacket> Mux::fillTopBuffer(
-	pair<MemoryPacket*, bool>& bottomBuffer,
-	pair<MemoryPacket*, bool>& topBuffer,
-	mutex& botMutex,
+	pair<MemoryPacket*, bool>& bottomBuffer, mutex& botMutex,
 	MemoryPacket& packet)
 {
 	while (true) {
@@ -63,7 +61,10 @@ const tuple<bool, bool, MemoryPacket> Mux::fillTopBuffer(
 			topBuffer.second = true;
 			topMutex.unlock();
 			//if we are top layer, then route into memory
-			
+			if (level == 0) {
+				return routeDown(packet);
+			}
+				
 
 const tuple<bool, bool, MemoryPacket> Mux::routePacket(MemoryPacket& packet)
 {
@@ -72,12 +73,10 @@ const tuple<bool, bool, MemoryPacket> Mux::routePacket(MemoryPacket& packet)
 	if (processorIndex >= lowerLeft.first &&
 		processorIndex <= lowerLeft.second) {
 		fillBottomBuffer(leftBuffer, bottomLeftMutex, packet);
-		return fillTopBuffer(leftBuffer, topBuffer, bottomLeftMutex,
-			packet);
+		return fillTopBuffer(leftBuffer, bottomLeftMutex, packet);
 	} else {
 		fillBottomBuffer(rightBuffer, bottomRightMutex, packet);
-		return fillTopBuffer(rightBuffer, topBuffer, bottomRightMutex,
-			packet);
+		return fillTopBuffer(rightBuffer, bottomRightMutex, packet);
 	}
 }
 
@@ -93,6 +92,3 @@ void Mux::assignNumbers(const uint64_t& ll, const uint64_t& ul,
 	lowerLeft = pair<uint64_t, uint64_t>(ll, ul);
 	lowerRight = pair<uint64_t, uint64_t>(lr, ur);
 }
-
-
-

@@ -24,16 +24,16 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	//create the nodes
 	while (muxCount > 1) {
 		nodesTree.push_back(vector<Mux>(muxCount));
-		for (int i = 0; i < muxCount; i++) {
-			nodesTree[levels][i] = Mux(&globalMemory);
+		for (auto x: nodesTree[levels]){
+			x[i] = Mux(&globalMemory);
 		}
 		muxCount /= 2;
 		levels++;
 	}
 	//number the leaves
-	for (int i = 0; i < totalLeaves; i++)
+	for (auto x: nodesTree[0])
 	{
-		(nodesTree[0][i]).assignNumbers(i, i, i, i);
+		x[i].assignNumbers(i, i, i, i);
 		Tile *targetTile = noc.tileAt(i);
 		if (!targetTile) {
 			cout << "Bad tile index" << endl;
@@ -44,7 +44,15 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	//root Mux - connects to global memory
 	nodesTree.push_back(vector<Mux>(1));
 	nodesTree[levels][0] = Mux(&globalMemory);
-
+	for (int i = 0; i <= levels; i++) {
+		for (int j = 0; j < levels[i].size(); j++) {
+			if (i > 0) {
+				nodesTree[i][j].downstreamMuxLow = &(nodesTree[i - 1][j * 2]);
+				nodesTree[i][j].downstreamMuxHigh = &(nodesTree[i - 1][j * 2 + 1]);
+			}
+			nodesTree[i][j].upstreamMux = &(nodesTree[i + 1][j/2]);
+		}
+	}
 	//join the nodes internally
 	for (int i = 0; i < levels; i++)
 	{

@@ -2,14 +2,13 @@
 #ifndef _MUX_CLASS_
 #define _MUX_CLASS_
 
+static const uint64_t DDR_DELAY = 25;
+
 class Memory;
 
 class Mux {
 private:
 	Memory* globalMemory;
-	Mux* upstreamMux;
-	Mux* downstreamMuxLow;
-	Mux* downstreamMuxHigh;
 	std::pair<uint64_t, uint64_t> lowerLeft;
 	std::pair<uint64_t, uint64_t> lowerRight;
 	std::pair<MemoryPacket*, bool> topBuffer;
@@ -21,7 +20,11 @@ private:
 	std::mutex topMutex;
 
 public:
-	Mux():number(-1) {};
+	Mux* upstreamMux;
+	Mux* downstreamMuxLow;
+	Mux* downstreamMuxHigh;
+	Mux():number(-1), upstreamMux(nullptr), downstreamMuxLow(nullptr),
+		downstreamMuxHigh(nullptr) {};
 	Mux(Memory *gMem): globalMemory(gMem), number(-1) {};
 	void assignGlobalMemory(Memory *gMem){ globalMemory = gMem; }
 	void joinUpMux(const Mux& left, const Mux& right);
@@ -32,5 +35,6 @@ public:
 	const std::tuple<bool, bool, MemoryPacket>
 		routePacket(MemoryPacket& pack);
 	const bool acceptPacketUp(const MemoryPacket& mPack) const;
+	void assignLevel(const int& x);
 };	
 #endif

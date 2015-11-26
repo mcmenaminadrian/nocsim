@@ -2,6 +2,7 @@
 #include <vector>
 #include "memorypacket.hpp"
 
-void MemoryPacket::fillBuffer()
+void MemoryPacket::fillBuffer(const uint8_t byte)
 {
+	payload.push_back(byte);
 }

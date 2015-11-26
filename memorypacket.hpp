@@ -29,7 +29,7 @@ public:
 		return (pd == OUT);
 	}
 
-	void fillBuffer();
+	void fillBuffer(const uint8_t byte);
 	const uint64_t getRequestSize() const
 	{ return requestSize; }
 	const uint64_t getfulfilSize() const
