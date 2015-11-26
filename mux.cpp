@@ -31,20 +31,51 @@ const tuple<const uint64_t, const uint64_t, const uint64_t,
 }
 
 void Mux::fillBottomBuffer(pair<MemoryPacket*, bool>& buffer, mutex& botMutex,
-	const MemoryPacket& packet)
+	Mux* muxBelow, const MemoryPacket& packet)
 {
 	while (true) {
 		packet.getProcessor().waitATick();
 		botMutex.lock();
+i		if (muxBelow) {
+			muxBelow->topMutex.lock();
+		}
 		if (buffer.second == false) {
+			if (muxBelow) {
+				muxBelow->topBuffer.second = false;
+				muxBelow->topMutex.unlock();
+			}
 			buffer.first = &packet;
 			buffer.second = true;
 			botMutex.unlock();
 			return;
 		}
+		if (muxBelow) {
+			muxBelow->topMutex.unlock();
+		}
 		botMutex.unlock();
 	}
 }
+
+const tuple<bool, bool, MemoryPacket> Mux::routeDown(MemoryPacket& packet, )
+{
+	//delay 1 tick
+	packet.getProcessor().waitATick();
+	//release buffer
+	topMutex.lock();
+	topBuffer.second = false;
+	topMutex.unlock();
+	//cross to DDR
+	for (int i = 0; i < DDR_DELAY; i++) {
+		packet.getProcessor().waitATick();
+	}
+	//get memory
+	for (int i = 0; i < packet.getRequestSize(); i++) {
+		packet.fillBuffer(packet.getProcessor().
+			masterTile->readByte(packet.getRemoteAddress() + i));
+	}
+	return make_tuple(true, true, packet);
+}	
+
 
 const tuple<bool, bool, MemoryPacket> Mux::fillTopBuffer(
 	pair<MemoryPacket*, bool>& bottomBuffer, mutex& botMutex,
@@ -61,10 +92,15 @@ const tuple<bool, bool, MemoryPacket> Mux::fillTopBuffer(
 			topBuffer.second = true;
 			topMutex.unlock();
 			//if we are top layer, then route into memory
-			if (level == 0) {
+			if (upstreamMux == nullptr) {
 				return routeDown(packet);
+			} else {
+				return upstreamMux->routePacket(packet);
 			}
-				
+		}
+		topMutex.unlock();
+	}
+}				
 
 const tuple<bool, bool, MemoryPacket> Mux::routePacket(MemoryPacket& packet)
 {
@@ -72,10 +108,13 @@ const tuple<bool, bool, MemoryPacket> Mux::routePacket(MemoryPacket& packet)
 	const uint64_t processorIndex = packet.getProcessor();
 	if (processorIndex >= lowerLeft.first &&
 		processorIndex <= lowerLeft.second) {
-		fillBottomBuffer(leftBuffer, bottomLeftMutex, packet);
-		return fillTopBuffer(leftBuffer, bottomLeftMutex, packet);
+		fillBottomBuffer(leftBuffer, bottomLeftMutex, downstreamMuxLow,
+			packet);
+		return fillTopBuffer(leftBuffer, bottomLeftMutex,
+			packet);
 	} else {
-		fillBottomBuffer(rightBuffer, bottomRightMutex, packet);
+		fillBottomBuffer(rightBuffer, bottomRightMutex,
+			downstreamMuxHigh, packet);
 		return fillTopBuffer(rightBuffer, bottomRightMutex, packet);
 	}
 }

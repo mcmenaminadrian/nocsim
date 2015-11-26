@@ -24,16 +24,16 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	//create the nodes
 	while (muxCount > 1) {
 		nodesTree.push_back(vector<Mux>(muxCount));
-		for (auto x: nodesTree[levels]){
-			x[i] = Mux(&globalMemory);
+		for (int i = 0; i < nodesTree[levels].size(); i++){
+			nodesTree[levels][i] = Mux(&globalMemory);
 		}
 		muxCount /= 2;
 		levels++;
 	}
 	//number the leaves
-	for (auto x: nodesTree[0])
+	for (int i = 0; i < nodesTree[0].size(); i++)
 	{
-		x[i].assignNumbers(i, i, i, i);
+		nodesTree[0][i].assignNumbers(i, i, i, i);
 		Tile *targetTile = noc.tileAt(i);
 		if (!targetTile) {
 			cout << "Bad tile index" << endl;
