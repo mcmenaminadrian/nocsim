@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
 #include "tree.hpp"
 #include "memorypacket.hpp"
 #include "mux.hpp"
