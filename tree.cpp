@@ -23,9 +23,9 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 
 	//create the nodes
 	while (muxCount > 1) {
-		nodesTree.push_back(vector<Mux>(muxCount));
+		nodesTree.push_back(vector<Mux>(0));
 		for (unsigned int i = 0; i < nodesTree[levels].size(); i++){
-			nodesTree[levels][i] = Mux(&globalMemory);
+			nodesTree[levels].push_back(Mux(&globalMemory));
 		}
 		muxCount /= 2;
 		levels++;
@@ -42,13 +42,15 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 		targetTile->addTreeLeaf(&(nodesTree[0][i]));
 	}
 	//root Mux - connects to global memory
-	nodesTree.push_back(vector<Mux>(1));
-	nodesTree[levels][0] = Mux(&globalMemory);
+	nodesTree.push_back(vector<Mux>(0));
+	nodesTree[levels].push_back(Mux(&globalMemory));
 	for (int i = 0; i <= levels; i++) {
-		for (int j = 0; j < nodesTree[i].size(); j++) {
+		for (unsigned int j = 0; j < nodesTree[i].size(); j++) {
 			if (i > 0) {
-				nodesTree[i][j].downstreamMuxLow = &(nodesTree[i - 1][j * 2]);
-				nodesTree[i][j].downstreamMuxHigh = &(nodesTree[i - 1][j * 2 + 1]);
+				nodesTree[i][j].downstreamMuxLow = 
+					&(nodesTree[i - 1][j * 2]);
+				nodesTree[i][j].downstreamMuxHigh = 
+					&(nodesTree[i - 1][j * 2 + 1]);
 			}
 			nodesTree[i][j].upstreamMux = &(nodesTree[i + 1][j/2]);
 		}
