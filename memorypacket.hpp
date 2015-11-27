@@ -1,18 +1,20 @@
 #ifndef __MPACKET_HPP_
 #define __MPACKET_HPP_
 
+class Processor;
+
 class MemoryPacket {
 private:
 	const uint64_t requestSize;
 	uint64_t fulfilSize;
-	const uint64_t processorIndex;
+	Processor *processorIndex;
 	const uint64_t remoteAddress;
 	const uint64_t localAddress;
 	std::vector<uint8_t> payload;
 	enum direction{OUT, IN} pd;
 
 public:
-	MemoryPacket(const uint64_t& processor, const uint64_t& remoteAddr,
+	MemoryPacket(Processor *processor, const uint64_t& remoteAddr,
 		const uint64_t& localAddr, const uint64_t& sz):
 		processorIndex(processor), remoteAddress(remoteAddr),
 		localAddress(localAddr), requestSize(sz), pd(OUT)
@@ -36,7 +38,7 @@ public:
 	{ return fulfilSize; }
 	const uint64_t getRemoteAddress() const
 	{ return remoteAddress; }
-	const uint64_t getProcessor() const
+	Processor* getProcessor() const
 	{ return processorIndex; }
 };
 

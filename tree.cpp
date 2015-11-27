@@ -26,6 +26,7 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 		nodesTree.push_back(vector<Mux>(0));
 		for (unsigned int i = 0; i < nodesTree[levels].size(); i++){
 			nodesTree[levels].push_back(Mux(&globalMemory));
+			nodesTree[levels][i].initialiseMutex();
 		}
 		muxCount /= 2;
 		levels++;
@@ -44,6 +45,7 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 	//root Mux - connects to global memory
 	nodesTree.push_back(vector<Mux>(0));
 	nodesTree[levels].push_back(Mux(&globalMemory));
+	nodesTree[levels][0].initialiseMutex();
 	for (int i = 0; i <= levels; i++) {
 		for (unsigned int j = 0; j < nodesTree[i].size(); j++) {
 			if (i > 0) {

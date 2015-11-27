@@ -231,7 +231,7 @@ const tuple<vector<uint8_t>, uint64_t, bool> Processor::requestRemoteMemory(
 	const uint64_t& localAddress)
 {
 	//assemble request
-	MemoryPacket memoryRequest(masterTile->getOrder(), remoteAddress,
+	MemoryPacket memoryRequest(this, remoteAddress,
 		localAddress, size);
 	//wait for response
 	if (masterTile->treeLeaf->acceptPacketUp(memoryRequest) {

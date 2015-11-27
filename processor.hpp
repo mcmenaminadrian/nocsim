@@ -31,7 +31,6 @@ private:
 	uint64_t stackPointerUnder;
 	uint64_t pageMask;
 	uint64_t bitMask;
-
 	void markUpBasicPageEntries(const uint64_t& reqPTEPages,
 		const uint64_t& reqBitmapPages);
 	void writeOutBasicPageEntries(const uint64_t& reqPTEPages);

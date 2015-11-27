@@ -15,9 +15,10 @@ private:
 	std::pair<MemoryPacket*, bool> leftBuffer;
 	std::pair<MemoryPacket*, bool> rightBuffer;
 	int number;
-	std::mutex bottomLeftMutex;
-	std::mutex bottomRightMutex;
-	std::mutex topMutex;
+	std::mutex *bottomLeftMutex;
+	std::mutex *bottomRightMutex;
+	std::mutex *topMutex;
+	void disarmMutex();
 
 public:
 	Mux* upstreamMux;
@@ -26,6 +27,15 @@ public:
 	Mux():number(-1), upstreamMux(nullptr), downstreamMuxLow(nullptr),
 		downstreamMuxHigh(nullptr) {};
 	Mux(Memory *gMem): globalMemory(gMem), number(-1) {};
+	~Mux();
+	void initialiseMutex();
+	void fillBottomBuffer(std::pair<MemoryPacket*, bool>& buffer,
+		std::mutex *botMutex, Mux* muxBelow, MemoryPacket& packet);
+	const std::tuple<bool, bool, MemoryPacket> routeDown(MemoryPacket&
+		packet);
+	const std::tuple<bool, bool, MemoryPacket> fillTopBuffer(
+		std::pair<MemoryPacket*, bool>& bottomBuffer,
+		std::mutex *botMutex, MemoryPacket& packet);
 	void assignGlobalMemory(Memory *gMem){ globalMemory = gMem; }
 	void joinUpMux(const Mux& left, const Mux& right);
 	void assignNumbers(const uint64_t& ll, const uint64_t& ul,
