@@ -226,7 +226,7 @@ void Processor::interruptEnd()
 
 //tuple - vector of bytes, size of vector, success
 
-const tuple<vector<uint8_t>, uint64_t, bool> Processor::requestRemoteMemory(
+const vector<uint8_t> Processor::requestRemoteMemory(
 	const uint64_t& size, const uint64_t& remoteAddress,
 	const uint64_t& localAddress)
 {
@@ -240,33 +240,23 @@ const tuple<vector<uint8_t>, uint64_t, bool> Processor::requestRemoteMemory(
 		cerr << "FAILED" << endl;
 		exit(1);
 	}
-	//fill in memory
+	return memoryRequest.getMemory();
 }
 
 void Processor::transferGlobalToLocal(const uint64_t& address,
 	const tuple<uint64_t, uint64_t, bool>& tlbEntry,
 	const uint64_t& size) 
 {
+	//mimic a DMA call - so need to advance PC
 	uint64_t maskedAddress = address & BITMAP_MASK;
-	
-	pcAdvance();
-	registerFile[2] = 0;
-	pcAdvance();
-	while (registerFile[2] < size) {
-		pcAdvance();
-		//FORM: requestRemoteMemory(size, remoteAddress, localAddress)
-		requestRemoteMemory(size, maskedAddress, get<1>(tlbEntry) +
-			(maskedAddress & bitMask));
-	//	registerFile[1] = masterTile->readLong(maskedAddress
-	//		+ registerFile[2]);
-		pcAdvance();
-		masterTile->writeLong(
-			get<1>(tlbEntry) + registerFile[2]
-			+ (maskedAddress & bitMask), registerFile[1]);
-		pcAdvance();
-		registerFile[2] += sizeof(uint64_t);
-		pcAdvance();
-	}
+	int offset = 0;
+	vector<uint8_t> answer = requestRemoteMemory(size,
+		maskedAddress, get<1>(tlbEntry) +
+		(maskedAddress & bitMask));
+		for (auto x: answer) {
+			masterTile->writeByte(get<1>(tlbEntry) + offset + (maskedAddress & bitMask), x);
+			offset++;
+		}
 }
 
 const uint64_t Processor::triggerSmallFault(

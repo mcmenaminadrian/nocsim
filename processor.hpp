@@ -65,7 +65,7 @@ private:
 		const uint64_t& address);
 	void fixTLB(const uint64_t& frameNo,
 		const uint64_t& address);
-	const std::tuple<std::vector<uint8_t>, uint64_t, bool>
+	const std::vector<uint8_t>
 		requestRemoteMemory(
 		const uint64_t& size, const uint64_t& remoteAddress,
 		const uint64_t& localAddress);

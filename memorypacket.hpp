@@ -40,6 +40,7 @@ public:
 	{ return remoteAddress; }
 	Processor* getProcessor() const
 	{ return processorIndex; }
+	const std::vector<uint8_t> getMemory() const { return payload; }
 };
 
 #endif

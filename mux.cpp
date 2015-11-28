@@ -83,7 +83,7 @@ void Mux::fillBottomBuffer(pair<MemoryPacket*, bool>& buffer, mutex *botMutex,
 	}
 }
 
-const tuple<bool, bool, MemoryPacket> Mux::routeDown(MemoryPacket& packet)
+void Mux::routeDown(MemoryPacket& packet)
 {
 	//delay 1 tick
 	packet.getProcessor()->waitATick();
@@ -100,11 +100,10 @@ const tuple<bool, bool, MemoryPacket> Mux::routeDown(MemoryPacket& packet)
 		packet.fillBuffer(packet.getProcessor()->
 			getTile()->readByte(packet.getRemoteAddress() + i));
 	}
-	return make_tuple(true, true, packet);
 }	
 
 
-const tuple<bool, bool, MemoryPacket> Mux::fillTopBuffer(
+void Mux::fillTopBuffer(
 	pair<MemoryPacket*, bool>& bottomBuffer, mutex *botMutex,
 	MemoryPacket& packet)
 {
@@ -120,9 +119,11 @@ const tuple<bool, bool, MemoryPacket> Mux::fillTopBuffer(
 			topMutex->unlock();
 			//if we are top layer, then route into memory
 			if (upstreamMux == nullptr) {
-				return routeDown(packet);
+				routeDown(packet);
+				return;
 			} else {
-				return upstreamMux->routePacket(packet);
+				upstreamMux->routePacket(packet);
+				return;
 			}
 		} else {
 			topMutex->unlock();
@@ -130,7 +131,7 @@ const tuple<bool, bool, MemoryPacket> Mux::fillTopBuffer(
 	}
 }				
 
-const tuple<bool, bool, MemoryPacket> Mux::routePacket(MemoryPacket& packet)
+void Mux::routePacket(MemoryPacket& packet)
 {
 	//is the buffer free?
 	const uint64_t processorIndex = packet.getProcessor()->

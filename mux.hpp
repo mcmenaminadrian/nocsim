@@ -32,9 +32,9 @@ public:
 	void initialiseMutex();
 	void fillBottomBuffer(std::pair<MemoryPacket*, bool>& buffer,
 		std::mutex *botMutex, Mux* muxBelow, MemoryPacket& packet);
-	const std::tuple<bool, bool, MemoryPacket> routeDown(MemoryPacket&
+	void routeDown(MemoryPacket&
 		packet);
-	const std::tuple<bool, bool, MemoryPacket> fillTopBuffer(
+	void fillTopBuffer(
 		std::pair<MemoryPacket*, bool>& bottomBuffer,
 		std::mutex *botMutex, MemoryPacket& packet);
 	void assignGlobalMemory(Memory *gMem){ globalMemory = gMem; }
@@ -43,8 +43,7 @@ public:
 		const uint64_t& lr, const uint64_t& ur);
 	const std::tuple<const uint64_t, const uint64_t,
 		const uint64_t, const uint64_t> fetchNumbers() const;
-	const std::tuple<bool, bool, MemoryPacket>
-		routePacket(MemoryPacket& pack);
+	void routePacket(MemoryPacket& pack);
 	const bool acceptPacketUp(const MemoryPacket& mPack) const;
 	void assignLevel(const int& x);
 };	
