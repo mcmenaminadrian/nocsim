@@ -124,8 +124,9 @@ const tuple<bool, bool, MemoryPacket> Mux::fillTopBuffer(
 			} else {
 				return upstreamMux->routePacket(packet);
 			}
+		} else {
+			topMutex->unlock();
 		}
-		topMutex->unlock();
 	}
 }				
 
