@@ -20,8 +20,10 @@ Mux::~Mux()
 
 void Mux::disarmMutex()
 {
-	delete bottomLeftMutex;
-	bottomLeftMutex = nullptr;
+	if (bottomLeftMutex) {
+		delete bottomLeftMutex;
+		bottomLeftMutex = nullptr;
+	}
 	delete bottomRightMutex;
 	bottomRightMutex = nullptr;
 	delete topMutex;
