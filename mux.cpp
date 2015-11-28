@@ -7,6 +7,8 @@
 #include "memory.hpp"
 #include "processor.hpp"
 #include "mux.hpp"
+#include "ControlThread.hpp"
+#include "tile.hpp"
 
 
 using namespace std;
@@ -94,7 +96,7 @@ const tuple<bool, bool, MemoryPacket> Mux::routeDown(MemoryPacket& packet)
 	//get memory
 	for (int i = 0; i < packet.getRequestSize(); i++) {
 		packet.fillBuffer(packet.getProcessor()->
-			masterTile->readByte(packet.getRemoteAddress() + i));
+			getTile()->readByte(packet.getRemoteAddress() + i));
 	}
 	return make_tuple(true, true, packet);
 }	
@@ -129,7 +131,7 @@ const tuple<bool, bool, MemoryPacket> Mux::routePacket(MemoryPacket& packet)
 {
 	//is the buffer free?
 	const uint64_t processorIndex = packet.getProcessor()->
-		masterTile->getOrder();
+		getTile()->getOrder();
 	if (processorIndex >= lowerLeft.first &&
 		processorIndex <= lowerLeft.second) {
 		fillBottomBuffer(leftBuffer, bottomLeftMutex, downstreamMuxLow,

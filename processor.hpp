@@ -97,6 +97,7 @@ public:
 	void setStackPointer(const uint64_t& address) { 
 		stackPointer = address; }
 	void waitATick() const;
+	const Tile* getTile() const { return masterTile; }
 
 	//message passing code
 };

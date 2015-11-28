@@ -234,7 +234,7 @@ const tuple<vector<uint8_t>, uint64_t, bool> Processor::requestRemoteMemory(
 	MemoryPacket memoryRequest(this, remoteAddress,
 		localAddress, size);
 	//wait for response
-	if (masterTile->treeLeaf->acceptPacketUp(memoryRequest) {
+	if (masterTile->treeLeaf->acceptPacketUp(memoryRequest)) {
 		masterTile->treeLeaf->routePacket(memoryRequest);
 	} else {
 		cerr << "FAILED" << endl;
