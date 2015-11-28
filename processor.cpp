@@ -255,9 +255,10 @@ void Processor::transferGlobalToLocal(const uint64_t& address,
 	while (registerFile[2] < size) {
 		pcAdvance();
 		//FORM: requestRemoteMemory(size, remoteAddress, localAddress)
-		//requestRemoteMemory(size, maskedAddress, get<1>(tlbEntry) + (maskedAddress & bitMask));
-		registerFile[1] = masterTile->readLong(maskedAddress
-			+ registerFile[2]);
+		requestRemoteMemory(size, maskedAddress, get<1>(tlbEntry) +
+			(maskedAddress & bitMask));
+	//	registerFile[1] = masterTile->readLong(maskedAddress
+	//		+ registerFile[2]);
 		pcAdvance();
 		masterTile->writeLong(
 			get<1>(tlbEntry) + registerFile[2]
@@ -563,8 +564,7 @@ void Processor::pcAdvance(const long count)
 {
 	programCounter += count;
 	fetchAddress(programCounter);
-	ControlThread *pBarrier = masterTile->getBarrier();
-	pBarrier->releaseToRun();
+	waitATick();
 }
 
 void Processor::waitATick() const

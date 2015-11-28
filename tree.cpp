@@ -65,9 +65,9 @@ Tree::Tree(Memory& globalMemory, Noc& noc, const long columns, const long rows)
 		}
 	}
 	//initialise the mutexes
-	for (auto x: nodesTree) {
-		for (auto y: x) {
-			y.initialiseMutex();
+	for (int i = 0; i < nodesTree.size(); i++) {
+		for (int j = 0; j < nodesTree[i].size(); j++) {
+			nodesTree[i][j].initialiseMutex();
 		}
 	}
 
