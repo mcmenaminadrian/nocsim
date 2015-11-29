@@ -43,8 +43,8 @@ void Tile::addTreeLeaf(Mux *leaf)
 
 const unsigned long Tile::getOrder() const
 {
-	long column = coordinates.first;
-	long row = coordinates.second;
+	long row = coordinates.first;
+	long column = coordinates.second;
 	return (row * parentBoard->getColumnCount()) + column;
 }
 

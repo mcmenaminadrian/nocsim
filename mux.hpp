@@ -2,7 +2,7 @@
 #ifndef _MUX_CLASS_
 #define _MUX_CLASS_
 
-static const uint64_t DDR_DELAY = 25;
+static const uint64_t DDR_DELAY = 30;
 
 class Memory;
 
@@ -14,7 +14,6 @@ private:
 	std::pair<MemoryPacket*, bool> topBuffer;
 	std::pair<MemoryPacket*, bool> leftBuffer;
 	std::pair<MemoryPacket*, bool> rightBuffer;
-	int number;
 	std::mutex *bottomLeftMutex;
 	std::mutex *bottomRightMutex;
 	std::mutex *topMutex;
@@ -24,18 +23,16 @@ public:
 	Mux* upstreamMux;
 	Mux* downstreamMuxLow;
 	Mux* downstreamMuxHigh;
-	Mux():number(-1), upstreamMux(nullptr), downstreamMuxLow(nullptr),
+	Mux():upstreamMux(nullptr), downstreamMuxLow(nullptr),
 		downstreamMuxHigh(nullptr), bottomLeftMutex(nullptr),
 		bottomRightMutex(nullptr), topMutex(nullptr) {};
-	Mux(Memory *gMem): globalMemory(gMem), number(-1) {};
+	Mux(Memory *gMem): globalMemory(gMem) {};
 	~Mux();
 	void initialiseMutex();
 	void fillBottomBuffer(std::pair<MemoryPacket*, bool>& buffer,
 		std::mutex *botMutex, Mux* muxBelow, MemoryPacket& packet);
-	void routeDown(MemoryPacket&
-		packet);
-	void fillTopBuffer(
-		std::pair<MemoryPacket*, bool>& bottomBuffer,
+	void routeDown(MemoryPacket& packet);
+	void fillTopBuffer( std::pair<MemoryPacket*, bool>& bottomBuffer,
 		std::mutex *botMutex, MemoryPacket& packet);
 	void assignGlobalMemory(Memory *gMem){ globalMemory = gMem; }
 	void joinUpMux(const Mux& left, const Mux& right);
@@ -45,6 +42,5 @@ public:
 		const uint64_t, const uint64_t> fetchNumbers() const;
 	void routePacket(MemoryPacket& pack);
 	const bool acceptPacketUp(const MemoryPacket& mPack) const;
-	void assignLevel(const int& x);
 };	
 #endif

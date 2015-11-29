@@ -60,6 +60,7 @@ const tuple<const uint64_t, const uint64_t, const uint64_t,
 void Mux::fillBottomBuffer(pair<MemoryPacket*, bool>& buffer, mutex *botMutex,
 	Mux* muxBelow, MemoryPacket& packet)
 {
+	int xx = 0;
 	while (true) {
 		packet.getProcessor()->waitATick();
 		botMutex->lock();
@@ -73,9 +74,11 @@ void Mux::fillBottomBuffer(pair<MemoryPacket*, bool>& buffer, mutex *botMutex,
 			}
 			buffer.first = &packet;
 			buffer.second = true;
+			cout << xx << endl;
 			botMutex->unlock();
 			return;
 		}
+		xx++;
 		if (muxBelow) {
 			muxBelow->topMutex->unlock();
 		}
@@ -142,10 +145,15 @@ void Mux::routePacket(MemoryPacket& packet)
 			packet);
 		return fillTopBuffer(leftBuffer, bottomLeftMutex,
 			packet);
-	} else {
+	} else if (processorIndex >= lowerRight.first && 
+		processorIndex <= lowerRight.second) {
 		fillBottomBuffer(rightBuffer, bottomRightMutex,
 			downstreamMuxHigh, packet);
 		return fillTopBuffer(rightBuffer, bottomRightMutex, packet);
+	}
+	else {
+		cerr << "Misrouted memory packet" << endl;
+		exit(1);
 	}
 }
 

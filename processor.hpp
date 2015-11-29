@@ -10,6 +10,8 @@
 //page mappings
 static const unsigned long PAGETABLESLOCAL = 0xA000000000000000;
 
+#define fetchAddressWrite fetchAddressRead
+
 class Tile;
 
 class Processor {
@@ -37,7 +39,7 @@ private:
 	void writeOutPageAndBitmapLengths(const uint64_t& reqPTESize,
 		const uint64_t& reqBitmapPages);
 	void zeroOutTLBs(const uint64_t& reqPTEPages);
-	const uint64_t fetchAddress(const uint64_t& address);
+	const uint64_t fetchAddressRead(const uint64_t& address);
 	bool isBitmapValid(const uint64_t& address,
 		const uint64_t& physAddress) const;
 	bool isPageValid(const uint64_t& frameNo) const;
@@ -97,7 +99,7 @@ public:
 	void setStackPointer(const uint64_t& address) { 
 		stackPointer = address; }
 	void waitATick() const;
-	const Tile* getTile() const { return masterTile; }
+	Tile* getTile() const { return masterTile; }
 
 	//message passing code
 };
