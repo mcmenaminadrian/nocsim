@@ -3,6 +3,10 @@
 #include <vector>
 #include <utility>
 #include <tuple>
+#include <bitset>
+#include <mutex>
+#include <condition_variable>
+#include <cstdlib>
 #include "memorypacket.hpp"
 #include "memory.hpp"
 #include "processor.hpp"
@@ -95,11 +99,11 @@ void Mux::routeDown(MemoryPacket& packet)
 	topBuffer.second = false;
 	topMutex->unlock();
 	//cross to DDR
-	for (int i = 0; i < DDR_DELAY; i++) {
+	for (unsigned int i = 0; i < DDR_DELAY; i++) {
 		packet.getProcessor()->waitATick();
 	}
 	//get memory
-	for (int i = 0; i < packet.getRequestSize(); i++) {
+	for (unsigned int i = 0; i < packet.getRequestSize(); i++) {
 		packet.fillBuffer(packet.getProcessor()->
 			getTile()->readByte(packet.getRemoteAddress() + i));
 	}

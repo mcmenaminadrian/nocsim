@@ -10,6 +10,7 @@
 #include <tuple>
 #include <condition_variable>
 #include <climits>
+#include <cstdlib>
 #include "ControlThread.hpp"
 #include "memorypacket.hpp"
 #include "mux.hpp"
@@ -74,7 +75,7 @@ void Processor::switchModeVirtual()
 
 void Processor::zeroOutTLBs(const uint64_t& frames)
 {
-	for (int i = 0; i < frames; i++) {
+	for (unsigned int i = 0; i < frames; i++) {
 		tlbs.push_back(tuple<uint64_t, uint64_t, bool>
 			(PAGETABLESLOCAL + (1 << pageShift) * i,
 			 PAGETABLESLOCAL + (1 << pageShift) * i, false));
@@ -92,7 +93,7 @@ void Processor::writeOutPageAndBitmapLengths(const uint64_t& reqPTEPages,
 void Processor::writeOutBasicPageEntries(const uint64_t& reqPTEPages)
 {
 	const uint64_t tablesOffset = 1 << pageShift;
-	for (int i = 0; i < reqPTEPages; i++) {
+	for (unsigned int i = 0; i < reqPTEPages; i++) {
 		long memoryLocalOffset = i * PAGETABLEENTRY + tablesOffset;
 		masterTile->writeLong(
 			PAGETABLESLOCAL + memoryLocalOffset + FRAMEOFFSET, i);
@@ -106,7 +107,7 @@ void Processor::writeOutBasicPageEntries(const uint64_t& reqPTEPages)
 void Processor::markUpBasicPageEntries(const uint64_t& reqPTEPages,
 	const uint64_t& reqBitmapPages)
 {
-	for (int i = 0; i <= reqPTEPages + reqBitmapPages; i++) {
+	for (unsigned int i = 0; i <= reqPTEPages + reqBitmapPages; i++) {
 		const uint64_t pageEntryBase = (1 << pageShift) +
 			i * PAGETABLEENTRY + PAGETABLESLOCAL;
 		const uint64_t mappingAddress = PAGETABLESLOCAL +
@@ -126,7 +127,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	uint64_t memoryAvailable = localMemory->getSize();
 	uint64_t pagesAvailable = memoryAvailable >> pageShift;
 	uint64_t requiredPTESize = pagesAvailable * PAGETABLEENTRY;
-	long requiredPTEPages = requiredPTESize >> pageShift;
+	uint64_t requiredPTEPages = requiredPTESize >> pageShift;
 	if ((requiredPTEPages << pageShift) != requiredPTESize) {
 		requiredPTEPages++;
 	}
@@ -152,16 +153,16 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	pageMask = pageMask << pageShift;
 	bitMask = ~ pageMask;
 	uint64_t pageCount = requiredPTEPages + requiredBitmapPages;
-	for (int i = 0; i <= pageCount; i++) {
+	for (unsigned int i = 0; i <= pageCount; i++) {
 		const uint64_t pageStart =
 			PAGETABLESLOCAL + i * (1 << pageShift);
 		fixTLB(i, pageStart);
-		for (int j = 0; j < bitmapSize * 8; j++) {
+		for (unsigned int j = 0; j < bitmapSize * 8; j++) {
 			markBitmapStart(i, pageStart + j * BITMAP_BYTES);
 		}
 	}
 	fixPageMapStart(++pageCount, stackPointer);
-	for (int i = 0; i < bitmapSize * 8; i++) {
+	for (unsigned int i = 0; i < bitmapSize * 8; i++) {
 		markBitmapStart(pageCount, (stackPointer & pageMask) + i);
 	}
 }
@@ -304,7 +305,7 @@ void Processor::writeBackMemory(const uint64_t& frameNo)
 		frameNo * PAGETABLEENTRY));
 	long byteToRead = -1;
 	uint8_t byteBit = 0;
-	for (int i = 0; i < bitmapSize; i++)
+	for (unsigned int i = 0; i < bitmapSize; i++)
 	{
 		long nextByte = bitToRead / 8;
 		if (nextByte != byteToRead) {
@@ -315,7 +316,8 @@ void Processor::writeBackMemory(const uint64_t& frameNo)
 		}
 		uint8_t actualBit = bitToRead%8;
 		if (byteBit & (1 << actualBit)) {
-			for (int j = 0; j < BITMAP_BYTES/sizeof(uint64_t); j++)
+			for (unsigned int j = 0; 
+				j < BITMAP_BYTES/sizeof(uint64_t); j++)
 			{
 				pcAdvance();
 				uint64_t toGo =
@@ -338,7 +340,8 @@ void Processor::loadMemory(const uint64_t& frameNo,
 	const uint64_t& address)
 {
 	const uint64_t fetchPortion = (address & bitMask) & BITMAP_MASK;
-	for (int i = 0; i < BITMAP_BYTES/sizeof(uint64_t); i+= sizeof(uint64_t)) {
+	for (unsigned int i = 0; i < BITMAP_BYTES/sizeof(uint64_t); 
+		i+= sizeof(uint64_t)) {
 		pcAdvance();
 		uint64_t toGet = masterTile->readLong(
 			fetchAddressRead(address + i));
