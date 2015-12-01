@@ -11,9 +11,9 @@ private:
 	Memory* globalMemory;
 	std::pair<uint64_t, uint64_t> lowerLeft;
 	std::pair<uint64_t, uint64_t> lowerRight;
-	std::pair<MemoryPacket*, bool> topBuffer;
-	std::pair<MemoryPacket*, bool> leftBuffer;
-	std::pair<MemoryPacket*, bool> rightBuffer;
+	bool topBuffer;
+	bool leftBuffer;
+	bool rightBuffer;
 	std::mutex *bottomLeftMutex;
 	std::mutex *bottomRightMutex;
 	std::mutex *topMutex;
@@ -25,14 +25,15 @@ public:
 	Mux* downstreamMuxHigh;
 	Mux():upstreamMux(nullptr), downstreamMuxLow(nullptr),
 		downstreamMuxHigh(nullptr), bottomLeftMutex(nullptr),
-		bottomRightMutex(nullptr), topMutex(nullptr) {};
+		bottomRightMutex(nullptr), topMutex(nullptr), topBuffer(false),
+		leftBuffer(false), rightBuffer(false) {};
 	Mux(Memory *gMem): globalMemory(gMem) {};
 	~Mux();
 	void initialiseMutex();
-	void fillBottomBuffer(std::pair<MemoryPacket*, bool>& buffer,
+	void fillBottomBuffer(bool& buffer,
 		std::mutex *botMutex, Mux* muxBelow, MemoryPacket& packet);
 	void routeDown(MemoryPacket& packet);
-	void fillTopBuffer( std::pair<MemoryPacket*, bool>& bottomBuffer,
+	void fillTopBuffer(bool& bottomBuffer,
 		std::mutex *botMutex, MemoryPacket& packet);
 	void assignGlobalMemory(Memory *gMem){ globalMemory = gMem; }
 	void joinUpMux(const Mux& left, const Mux& right);

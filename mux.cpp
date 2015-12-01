@@ -3,10 +3,6 @@
 #include <vector>
 #include <utility>
 #include <tuple>
-#include <bitset>
-#include <mutex>
-#include <condition_variable>
-#include <cstdlib>
 #include "memorypacket.hpp"
 #include "memory.hpp"
 #include "processor.hpp"
@@ -24,10 +20,8 @@ Mux::~Mux()
 
 void Mux::disarmMutex()
 {
-	if (bottomLeftMutex) {
-		delete bottomLeftMutex;
-		bottomLeftMutex = nullptr;
-	}
+	delete bottomLeftMutex;
+	bottomLeftMutex = nullptr;
 	delete bottomRightMutex;
 	bottomRightMutex = nullptr;
 	delete topMutex;
@@ -61,28 +55,24 @@ const tuple<const uint64_t, const uint64_t, const uint64_t,
 		get<0>(lowerRight), get<1>(lowerRight));
 }
 
-void Mux::fillBottomBuffer(pair<MemoryPacket*, bool>& buffer, mutex *botMutex,
+void Mux::fillBottomBuffer(bool& buffer, mutex *botMutex,
 	Mux* muxBelow, MemoryPacket& packet)
 {
-	int xx = 0;
 	while (true) {
 		packet.getProcessor()->waitATick();
 		botMutex->lock();
 		if (muxBelow) {
 			muxBelow->topMutex->lock();
 		}
-		if (buffer.second == false) {
+		if (buffer == false) {
 			if (muxBelow) {
-				muxBelow->topBuffer.second = false;
+				muxBelow->topBuffer = false;
 				muxBelow->topMutex->unlock();
 			}
-			buffer.first = &packet;
-			buffer.second = true;
-			cout << xx << endl;
+			buffer = true;
 			botMutex->unlock();
 			return;
 		}
-		xx++;
 		if (muxBelow) {
 			muxBelow->topMutex->unlock();
 		}
@@ -96,41 +86,39 @@ void Mux::routeDown(MemoryPacket& packet)
 	packet.getProcessor()->waitATick();
 	//release buffer
 	topMutex->lock();
-	topBuffer.second = false;
+	topBuffer = false;
 	topMutex->unlock();
 	//cross to DDR
-	for (unsigned int i = 0; i < DDR_DELAY; i++) {
+	for (int i = 0; i < DDR_DELAY; i++) {
 		packet.getProcessor()->waitATick();
 	}
 	//get memory
-	for (unsigned int i = 0; i < packet.getRequestSize(); i++) {
+	for (int i = 0; i < packet.getRequestSize(); i++) {
 		packet.fillBuffer(packet.getProcessor()->
 			getTile()->readByte(packet.getRemoteAddress() + i));
 	}
+	return;
 }	
 
 
 void Mux::fillTopBuffer(
-	pair<MemoryPacket*, bool>& bottomBuffer, mutex *botMutex,
+	bool& bottomBuffer, mutex *botMutex,
 	MemoryPacket& packet)
 {
 	while (true) {
 		packet.getProcessor()->waitATick();
 		topMutex->lock();
-		if (topBuffer.second == false) {
+		if (topBuffer == false) {
 			botMutex->lock();
-			bottomBuffer.second = false;
+			bottomBuffer = false;
 			botMutex->unlock();
-			topBuffer.first = &packet;
-			topBuffer.second = true;
+			topBuffer = true;
 			topMutex->unlock();
 			//if we are top layer, then route into memory
 			if (upstreamMux == nullptr) {
-				routeDown(packet);
-				return;
+				return routeDown(packet);
 			} else {
-				upstreamMux->routePacket(packet);
-				return;
+				return upstreamMux->routePacket(packet);
 			}
 		} else {
 			topMutex->unlock();
@@ -149,15 +137,10 @@ void Mux::routePacket(MemoryPacket& packet)
 			packet);
 		return fillTopBuffer(leftBuffer, bottomLeftMutex,
 			packet);
-	} else if (processorIndex >= lowerRight.first && 
-		processorIndex <= lowerRight.second) {
+	} else {
 		fillBottomBuffer(rightBuffer, bottomRightMutex,
 			downstreamMuxHigh, packet);
 		return fillTopBuffer(rightBuffer, bottomRightMutex, packet);
-	}
-	else {
-		cerr << "Misrouted memory packet" << endl;
-		exit(1);
 	}
 }
 

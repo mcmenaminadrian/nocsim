@@ -255,7 +255,8 @@ void Processor::transferGlobalToLocal(const uint64_t& address,
 		maskedAddress, get<1>(tlbEntry) +
 		(maskedAddress & bitMask));
 		for (auto x: answer) {
-			masterTile->writeByte(get<1>(tlbEntry) + offset + (maskedAddress & bitMask), x);
+			masterTile->writeByte(get<1>(tlbEntry) + offset + 
+				(maskedAddress & bitMask), x);
 			offset++;
 		}
 }
