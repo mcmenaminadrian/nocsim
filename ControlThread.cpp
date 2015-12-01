@@ -7,7 +7,8 @@ using namespace std;
 
 ControlThread::ControlThread(unsigned long tcks): ticks(tcks),
 	taskCount(0), beginnable(false)
-{}
+{
+}
 
 void ControlThread::releaseToRun()
 {
@@ -33,6 +34,9 @@ void ControlThread::decrementTaskCount()
 {
 	lock_guard<mutex> lock(taskCountLock);
 	taskCount--;
+	if (signedInCount >= taskCount) {
+		run();
+	}
 }
 
 void ControlThread::run()

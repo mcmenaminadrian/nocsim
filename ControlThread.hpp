@@ -3,9 +3,9 @@
 
 class ControlThread {
 private:
-	unsigned long ticks;
-	long taskCount;
-	long signedInCount; 
+	uint64_t ticks;
+	volatile uint16_t taskCount;
+	volatile uint16_t signedInCount;
 	std::mutex runLock;
 	bool beginnable;
 
