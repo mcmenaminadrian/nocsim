@@ -8,10 +8,10 @@ private:
 	volatile uint16_t signedInCount;
 	std::mutex runLock;
 	bool beginnable;
-
-public:
 	std::condition_variable go;
 	std::mutex taskCountLock;
+
+public:
 	ControlThread(unsigned long count = 0);
 	void incrementTaskCount();
 	void decrementTaskCount();

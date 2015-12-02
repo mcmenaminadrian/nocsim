@@ -12,27 +12,27 @@ ControlThread::ControlThread(unsigned long tcks): ticks(tcks),
 
 void ControlThread::releaseToRun()
 {
+	unique_lock<mutex> lck(runLock);
 	taskCountLock.lock();
 	signedInCount++;
 	if (signedInCount >= taskCount) {
+		lck.unlock();
 		run();
-		taskCountLock.unlock();
 		return;
 	}
-	taskCountLock.unlock();;
-	unique_lock<mutex> lck(runLock);
+	taskCountLock.unlock();
 	go.wait(lck);
 }
 
 void ControlThread::incrementTaskCount()
 {
-	lock_guard<mutex> lock(taskCountLock);
+	unique_lock<mutex> lock(taskCountLock);
 	taskCount++;
 }
 
 void ControlThread::decrementTaskCount()
 {
-	lock_guard<mutex> lock(taskCountLock);
+	unique_lock<mutex> lock(taskCountLock);
 	taskCount--;
 	if (signedInCount >= taskCount) {
 		run();
@@ -46,6 +46,7 @@ void ControlThread::run()
 	ticks++;
 	go.notify_all();
 	cout << "NOTIFIED: " << ticks << endl;
+	taskCountLock.unlock();
 }
 
 void ControlThread::waitForBegin()
