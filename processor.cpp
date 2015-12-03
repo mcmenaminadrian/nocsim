@@ -203,9 +203,9 @@ void Processor::interruptBegin()
 	interruptLock.lock();
 	switchModeReal();
 	for (auto i: registerFile) {
-		pcAdvance();
+		waitATick();
 		pushStackPointer();	
-		pcAdvance();
+		waitATick();
 		masterTile->writeLong(stackPointer, i);
 	}
 }
@@ -213,9 +213,9 @@ void Processor::interruptBegin()
 void Processor::interruptEnd()
 {
 	for (int i = registerFile.size() - 1; i >= 0; i--) {
-		pcAdvance();
+		waitATick();
 		registerFile[i] = masterTile->readLong(stackPointer);
-		pcAdvance();
+		waitATick();
 		popStackPointer();
 	}
 	switchModeVirtual();
@@ -320,14 +320,14 @@ void Processor::writeBackMemory(const uint64_t& frameNo)
 			for (unsigned int j = 0; 
 				j < BITMAP_BYTES/sizeof(uint64_t); j++)
 			{
-				pcAdvance();
+				waitATick();
 				uint64_t toGo =
 					masterTile->readLong(fetchAddressRead(
 					frameNo * (1 << pageShift)
 					+ PAGETABLESLOCAL +
 					bitToRead * BITMAP_BYTES +
 					j * sizeof(uint64_t)));
-				pcAdvance();
+				waitATick();
 				masterTile->writeLong(fetchAddressWrite(
 					physicalAddress +
 					bitToRead * BITMAP_BYTES +
@@ -343,10 +343,10 @@ void Processor::loadMemory(const uint64_t& frameNo,
 	const uint64_t fetchPortion = (address & bitMask) & BITMAP_MASK;
 	for (unsigned int i = 0; i < BITMAP_BYTES/sizeof(uint64_t); 
 		i+= sizeof(uint64_t)) {
-		pcAdvance();
+		waitATick();
 		uint64_t toGet = masterTile->readLong(
 			fetchAddressRead(address + i));
-		pcAdvance();
+		waitATick();
 		masterTile->writeLong(fetchAddressWrite(PAGETABLESLOCAL +
 			frameNo * (1 << pageShift) + fetchPortion + i), toGet);
 	}
@@ -356,10 +356,10 @@ void Processor::fixPageMap(const uint64_t& frameNo,
 	const uint64_t& address) 
 {
 	const uint64_t pageAddress = address & pageMask;
-	pcAdvance();
+	waitATick();
 	localMemory->writeLong(fetchAddressWrite((1 << pageShift) +
 		frameNo * PAGETABLEENTRY), pageAddress);
-	pcAdvance();
+	waitATick();
 	localMemory->writeWord32(fetchAddressWrite((1 << pageShift) +
 		frameNo * PAGETABLEENTRY + FLAGOFFSET), 0x01);
 }
@@ -563,6 +563,13 @@ void Processor::waitATick() const
 {
 	ControlThread *pBarrier = masterTile->getBarrier();
 	pBarrier->releaseToRun();
+}
+
+void Processor::waitGlobalTick() const
+{
+	for (int i = 0; i < GLOBALCLOCKSLOW; i++) {
+		waitATick();
+	}
 }
 
 void Processor::pushStackPointer()

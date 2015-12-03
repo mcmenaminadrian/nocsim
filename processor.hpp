@@ -8,7 +8,8 @@
 #define BITMAP_SHIFT 4
 #define BITMAP_MASK 0xFFFFFFFFFFFFFFF0
 //page mappings
-static const unsigned long PAGETABLESLOCAL = 0xA000000000000000;
+static const uint64_t PAGETABLESLOCAL = 0xA000000000000000;
+static const int GLOBALCLOCKSLOW = 4;
 
 #define fetchAddressWrite fetchAddressRead
 
@@ -99,6 +100,7 @@ public:
 	void setStackPointer(const uint64_t& address) { 
 		stackPointer = address; }
 	void waitATick() const;
+	void waitGlobalTick() const;
 	Tile* getTile() const { return masterTile; }
 
 	//message passing code

@@ -62,7 +62,7 @@ void Mux::fillBottomBuffer(bool& buffer, mutex *botMutex,
 	Mux* muxBelow, MemoryPacket& packet)
 {
 	while (true) {
-		packet.getProcessor()->waitATick();
+		packet.getProcessor()->waitGlobalTick();
 		botMutex->lock();
 		if (muxBelow) {
 			muxBelow->topMutex->lock();
@@ -86,14 +86,14 @@ void Mux::fillBottomBuffer(bool& buffer, mutex *botMutex,
 void Mux::routeDown(MemoryPacket& packet)
 {
 	//delay 1 tick
-	packet.getProcessor()->waitATick();
+	packet.getProcessor()->waitGlobalTick();
 	//release buffer
 	topMutex->lock();
 	topBuffer = false;
 	topMutex->unlock();
 	//cross to DDR
 	for (unsigned int i = 0; i < DDR_DELAY; i++) {
-		packet.getProcessor()->waitATick();
+		packet.getProcessor()->waitGlobalTick();
 	}
 	//get memory
 	for (unsigned int i = 0; i < packet.getRequestSize(); i++) {
@@ -109,7 +109,7 @@ void Mux::fillTopBuffer(
 	MemoryPacket& packet)
 {
 	while (true) {
-		packet.getProcessor()->waitATick();
+		packet.getProcessor()->waitGlobalTick();
 		topMutex->lock();
 		if (topBuffer == false) {
 			botMutex->lock();
