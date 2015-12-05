@@ -462,6 +462,9 @@ const uint64_t Processor::fetchAddressRead(const uint64_t& address)
 					address, get<1>(x));
 			}
 		}
+		//not in TLB - but check if it is in page table
+		waitATick();
+
 		return triggerHardFault(address);
 	} else {
 		//what do we do if it's physical address?

@@ -3,10 +3,10 @@
 #ifndef _PROCESSOR_CLASS_
 #define _PROCESSOR_CLASS_
 
-#define REGISTER_FILE_SIZE 32
-#define BITMAP_BYTES 16
-#define BITMAP_SHIFT 4
-#define BITMAP_MASK 0xFFFFFFFFFFFFFFF0
+static const uint64_t REGISTER_FILE_SIZE = 32;
+static const uint64_t BITMAP_BYTES = 16;
+static const uint64_t BITMAP_SHIFT = 4;
+static const uint64_t BITMAP_MASK = 0xFFFFFFFFFFFFFFF0;
 //page mappings
 static const uint64_t PAGETABLESLOCAL = 0xA000000000000000;
 static const int GLOBALCLOCKSLOW = 4;
