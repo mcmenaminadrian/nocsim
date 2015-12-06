@@ -10,9 +10,10 @@
 #include "memorypacket.hpp"
 #include "mux.hpp"
 #include "memory.hpp"
+#include "tile.hpp"
 #include "processor.hpp"
 #include "noc.hpp"
-#include "tile.hpp"
+
 
 using namespace std;
 

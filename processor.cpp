@@ -602,17 +602,17 @@ void Processor::pcAdvance(const long count)
 	waitATick();
 }
 
-void Processor::waitATick() const
+void Processor::waitATick()
 {
 	ControlThread *pBarrier = masterTile->getBarrier();
 	pBarrier->releaseToRun();
 	totalTicks++;
-	if (totalTicks%clockTicks = 0 && inClock = false) {
+	if (totalTicks%clockTicks == 0 && inClock == false) {
 		activateClock();
 	}
 }
 
-void Processor::waitGlobalTick() const
+void Processor::waitGlobalTick()
 {
 	for (int i = 0; i < GLOBALCLOCKSLOW; i++) {
 		waitATick();

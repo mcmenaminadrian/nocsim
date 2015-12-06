@@ -10,8 +10,9 @@
 #include "memory.hpp"
 #include "tree.hpp"
 #include "noc.hpp"
-#include "processor.hpp"
 #include "tile.hpp"
+#include "processor.hpp"
+
 
 using namespace std;
 

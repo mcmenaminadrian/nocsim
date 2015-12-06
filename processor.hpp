@@ -77,6 +77,7 @@ private:
 		requestRemoteMemory(
 		const uint64_t& size, const uint64_t& remoteAddress,
 		const uint64_t& localAddress);
+	void activateClock();
 	//adjust numbers below to change how CLOCK fuctions
 	const uint8_t clockWipe = 2;
 	const uint16_t clockTicks = 100;
@@ -109,8 +110,8 @@ public:
 	uint64_t getStackPointer() const { return stackPointer;}
 	void setStackPointer(const uint64_t& address) { 
 		stackPointer = address; }
-	void waitATick() const;
-	void waitGlobalTick() const;
+	void waitATick();
+	void waitGlobalTick();
 	Tile* getTile() const { return masterTile; }
 
 	//message passing code

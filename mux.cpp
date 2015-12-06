@@ -8,10 +8,12 @@
 #include <condition_variable>
 #include "memorypacket.hpp"
 #include "memory.hpp"
-#include "processor.hpp"
-#include "mux.hpp"
 #include "ControlThread.hpp"
 #include "tile.hpp"
+#include "processor.hpp"
+#include "mux.hpp"
+
+
 
 
 using namespace std;

@@ -5,10 +5,12 @@
 #include <mutex>
 #include <condition_variable>
 #include <bitset>
+#include <map>
 #include "ControlThread.hpp"
 #include "memorypacket.hpp"
 #include "mux.hpp"
 #include "noc.hpp"
+#include "memory.hpp"
 #include "tile.hpp"
 #include "processor.hpp"
 #include "processorFunc.hpp"
