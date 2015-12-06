@@ -31,6 +31,7 @@
 //page table flags
 //bit 0 - 0 for invalid entry, 1 for valid
 //bit 1 - 0 for moveable, 1 for fixed
+//bit 2 - 0 for CLOCKed out, 1 for CLOCKed in
 
 //TLB model
 //first entry - virtual address 
@@ -44,6 +45,9 @@ Processor::Processor(Tile *parent): masterTile(parent), mode(REAL),
 {
 	registerFile = vector<uint64_t>(REGISTER_FILE_SIZE, 0);
 	statusWord[0] = true;
+	totalTicks = 1;
+	currentTLB = 0;
+	inInterrupt = false;
 }
 
 void Processor::setMode()
@@ -117,7 +121,7 @@ void Processor::markUpBasicPageEntries(const uint64_t& reqPTEPages,
 			mappingAddress >> pageShift);
 		masterTile->writeLong(pageEntryBase + VIRTOFFSET,
 			mappingAddress >> pageShift);
-		masterTile->writeWord32(pageEntryBase + FLAGOFFSET, 0x03);
+		masterTile->writeWord32(pageEntryBase + FLAGOFFSET, 0x07);
 	}
 }
 
@@ -125,8 +129,8 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 {
 	localMemory = local;
 	pageShift = pShift;
-	uint64_t memoryAvailable = localMemory->getSize();
-	uint64_t pagesAvailable = memoryAvailable >> pageShift;
+	memoryAvailable = localMemory->getSize();
+	pagesAvailable = memoryAvailable >> pageShift;
 	uint64_t requiredPTESize = pagesAvailable * PAGETABLEENTRY;
 	uint64_t requiredPTEPages = requiredPTESize >> pageShift;
 	if ((requiredPTEPages << pageShift) != requiredPTESize) {
@@ -202,6 +206,7 @@ const uint64_t Processor::generateLocalAddress(const uint64_t& frame,
 void Processor::interruptBegin()
 {
 	interruptLock.lock();
+	inInterrupt = true;
 	switchModeReal();
 	for (auto i: registerFile) {
 		waitATick();
@@ -220,6 +225,7 @@ void Processor::interruptEnd()
 		popStackPointer();
 	}
 	switchModeVirtual();
+	inInterrupt = false;
 	interruptLock.unlock();
 }
 
@@ -280,16 +286,21 @@ const pair<const uint64_t, bool> Processor::getFreeFrame() const
 {
 	//have we any empty frames?
 	//we assume this to be subcycle
-	uint64_t frames = (localMemory->getSize()) >> pageShift; 
+	uint64_t frames = (localMemory->getSize()) >> pageShift;
+	uint64_t couldBe = 0xFFFF;
 	for (uint64_t i = 0; i < frames; i++) {
 		uint32_t flags = masterTile->readWord32((1 << pageShift)
 			+ i * PAGETABLEENTRY + FLAGOFFSET + PAGETABLESLOCAL);
 		if (!(flags & 0x01)) {
 			return pair<const uint64_t, bool>(i, false);
+		} else if (!(flags & 0x04)) {
+			couldBe = i;
 		}
 	}
+	if (couldBe < 0xFFFF) {
+		return pair<const uint64_t, bool>(couldBe, true);
+	}
 	//no free frames, so we have to pick one
-	//TODO: implement CLOCK or similar
 	return pair<const uint64_t, bool>(7, true);
 }
 
@@ -362,7 +373,7 @@ void Processor::fixPageMap(const uint64_t& frameNo,
 		frameNo * PAGETABLEENTRY), pageAddress);
 	waitATick();
 	localMemory->writeWord32(fetchAddressWrite((1 << pageShift) +
-		frameNo * PAGETABLEENTRY + FLAGOFFSET), 0x01);
+		frameNo * PAGETABLEENTRY + FLAGOFFSET), 0x05);
 }
 
 void Processor::fixPageMapStart(const uint64_t& frameNo,
@@ -372,7 +383,7 @@ void Processor::fixPageMapStart(const uint64_t& frameNo,
 	localMemory->writeLong((1 << pageShift) +
 		frameNo * PAGETABLEENTRY, pageAddress);
 	localMemory->writeWord32((1 << pageShift) +
-		frameNo * PAGETABLEENTRY + FLAGOFFSET, 0x01);
+		frameNo * PAGETABLEENTRY + FLAGOFFSET, 0x05);
 }
 
 void Processor::fixBitmap(const uint64_t& frameNo)
@@ -478,6 +489,12 @@ const uint64_t Processor::fetchAddressRead(const uint64_t& address)
 					(i * PAGETABLEENTRY) + FLAGOFFSET);
 				waitATick();
 				if (flags & 0x01) {
+					waitATick();
+					flags |= 0x04;
+					masterTile->writeWord32(
+						PAGETABLESLOCAL +
+						(i * PAGETABLEENTRY) +
+						FLAGOFFSET, flags);
 					waitATick();
 					fixTLB(i, address);
 					waitATick();
@@ -589,6 +606,10 @@ void Processor::waitATick() const
 {
 	ControlThread *pBarrier = masterTile->getBarrier();
 	pBarrier->releaseToRun();
+	totalTicks++;
+	if (totalTicks%clockTicks = 0 && inClock = false) {
+		activateClock();
+	}
 }
 
 void Processor::waitGlobalTick() const
@@ -615,3 +636,34 @@ void Processor::popStackPointer()
 		throw "Stack Overflow\n";
 	}
 }
+
+void Processor::activateClock()
+{
+	if (inInterrupt) {
+		return;
+	}
+	inClock = true;
+	interruptBegin();
+	for (uint8_t i = 0; i < clockWipe; i++) {
+		waitATick();
+		uint32_t flags = masterTile->readWord32(PAGETABLESLOCAL +
+			(i + currentTLB) * PAGETABLEENTRY + FLAGOFFSET);
+		waitATick();
+		if (flags & 0x02) {
+			continue;
+		}
+		if (!(flags & 0x01)) {
+			continue;
+		}
+		flags &= 0xFFFFFFFB;
+		waitATick();
+		masterTile->writeWord32(PAGETABLESLOCAL + 
+			(i + currentTLB) * PAGETABLEENTRY + FLAGOFFSET, flags);
+		waitATick();
+		get<2>(tlbs[i + currentTLB]) = false;
+	}
+	waitATick();
+	currentTLB = (currentTLB + clockWipe) % pagesAvailable;
+	interruptEnd();
+	inClock = false;
+}	

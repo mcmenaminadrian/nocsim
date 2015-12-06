@@ -10,7 +10,7 @@ static const uint64_t BITMAP_MASK = 0xFFFFFFFFFFFFFFF0;
 //page mappings
 static const uint64_t PAGETABLESLOCAL = 0xA000000000000000;
 static const uint64_t GLOBALCLOCKSLOW = 4;
-static const uint64_t TOTAL_LOCAL_PAGES = TILE_MEM_SIZE << PAGE_SHIFT; 
+static const uint64_t TOTAL_LOCAL_PAGES = TILE_MEM_SIZE >> PAGE_SHIFT; 
 
 #define fetchAddressWrite fetchAddressRead
 
@@ -35,6 +35,10 @@ private:
 	uint64_t stackPointerUnder;
 	uint64_t pageMask;
 	uint64_t bitMask;
+	uint64_t memoryAvailable;
+	uint64_t pagesAvailable;
+	bool inInterrupt;
+	bool inClock;
 	void markUpBasicPageEntries(const uint64_t& reqPTEPages,
 		const uint64_t& reqBitmapPages);
 	void writeOutBasicPageEntries(const uint64_t& reqPTEPages);
@@ -73,6 +77,11 @@ private:
 		requestRemoteMemory(
 		const uint64_t& size, const uint64_t& remoteAddress,
 		const uint64_t& localAddress);
+	//adjust numbers below to change how CLOCK fuctions
+	const uint8_t clockWipe = 2;
+	const uint16_t clockTicks = 100;
+	uint64_t totalTicks;
+	uint64_t currentTLB;
 
 
 public:
