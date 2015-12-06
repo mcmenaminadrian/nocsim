@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	long blockSize = 1024 * 1024 * 1024;
 	long rows = 16;
 	long columns = 16;
-	long pageShift = 10;
+	long pageShift = PAGE_SHIFT;
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-?") == 0) {

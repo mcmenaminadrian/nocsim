@@ -107,7 +107,8 @@ void Processor::writeOutBasicPageEntries(const uint64_t& reqPTEPages)
 void Processor::markUpBasicPageEntries(const uint64_t& reqPTEPages,
 	const uint64_t& reqBitmapPages)
 {
-	for (unsigned int i = 0; i <= reqPTEPages + reqBitmapPages; i++) {
+	//mark for page tables, bit map and 1 notional page for kernel
+	for (unsigned int i = 0; i <= reqPTEPages + reqBitmapPages + 1; i++) {
 		const uint64_t pageEntryBase = (1 << pageShift) +
 			i * PAGETABLEENTRY + PAGETABLESLOCAL;
 		const uint64_t mappingAddress = PAGETABLESLOCAL +
@@ -152,7 +153,7 @@ void Processor::createMemoryMap(Memory *local, long pShift)
 	pageMask = pageMask >> pageShift;
 	pageMask = pageMask << pageShift;
 	bitMask = ~ pageMask;
-	uint64_t pageCount = requiredPTEPages + requiredBitmapPages;
+	uint64_t pageCount = requiredPTEPages + requiredBitmapPages + 1;
 	for (unsigned int i = 0; i <= pageCount; i++) {
 		const uint64_t pageStart =
 			PAGETABLESLOCAL + i * (1 << pageShift);
@@ -450,9 +451,10 @@ const uint64_t Processor::fetchAddressRead(const uint64_t& address)
 {
 	//implement paging logic
 	if (mode == VIRTUAL) {
+		uint64_t pageSought = address & pageMask;
 		for (auto x: tlbs) {
 			if (get<2>(x) &&
-				((address & pageMask) ==
+				((pageSought) ==
 				(get<0>(x) & pageMask))) {
 				//entry in TLB - check bitmap
 				if (!isBitmapValid(address, get<1>(x))) {
@@ -463,8 +465,29 @@ const uint64_t Processor::fetchAddressRead(const uint64_t& address)
 			}
 		}
 		//not in TLB - but check if it is in page table
-		waitATick();
-
+		waitATick(); 
+		for (unsigned int i = 0; i < TOTAL_LOCAL_PAGES; i++) {
+			waitATick();
+			uint64_t virtualPage = PAGETABLESLOCAL +
+				(i * PAGETABLEENTRY) + VIRTOFFSET;
+			waitATick();
+			if (pageSought == virtualPage) {
+				waitATick();
+				uint32_t flags = masterTile->readWord32(
+					PAGETABLESLOCAL + 
+					(i * PAGETABLEENTRY) + FLAGOFFSET);
+				waitATick();
+				if (flags & 0x01) {
+					waitATick();
+					fixTLB(i, address);
+					waitATick();
+					return fetchAddressRead(address);
+				}
+				waitATick();
+			}
+			waitATick();
+		}
+		waitATick();			
 		return triggerHardFault(address);
 	} else {
 		//what do we do if it's physical address?
