@@ -187,6 +187,24 @@ void ProcessorFunctor::operator()()
 	lwi_(REG1, REG0, 0x10000);
 	lwi_(REG1, REG0, 0x10014);
 	lwi_(REG1, REG0, 0x10400);
+	lwi_(REG1, REG0, 0x10800);
+	lwi_(REG1, REG0, 0x10C00);
+	lwi_(REG1, REG0, 0x11000);
+	lwi_(REG1, REG0, 0x11400);
+	lwi_(REG1, REG0, 0x11800);
+	lwi_(REG1, REG0, 0x11C00);
+	lwi_(REG1, REG0, 0x12000);
+	lwi_(REG1, REG0, 0x12400);
+	lwi_(REG1, REG0, 0x12800);
+	lwi_(REG1, REG0, 0x12C00);
+	lwi_(REG1, REG0, 0x13000);
+	lwi_(REG1, REG0, 0x13400);
+	lwi_(REG1, REG0, 0x13800);
+	lwi_(REG1, REG0, 0x13C00);
+	lwi_(REG1, REG0, 0x14000);
+	lwi_(REG1, REG0, 0x14400);
+	lwi_(REG1, REG0, 0x15400);
+
 	swi_(REG1, REG0, 0x12000);
 	cout << " - our work here is done" << endl;
 	Tile *masterTile = proc->getTile();

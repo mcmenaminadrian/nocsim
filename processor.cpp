@@ -664,6 +664,6 @@ void Processor::activateClock()
 	}
 	waitATick();
 	currentTLB = (currentTLB + clockWipe) % pagesAvailable;
-	interruptEnd();
 	inClock = false;
+	interruptEnd();
 }	
