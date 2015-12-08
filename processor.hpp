@@ -79,7 +79,7 @@ private:
 		const uint64_t& localAddress);
 	void activateClock();
 	//adjust numbers below to change how CLOCK fuctions
-	const uint8_t clockWipe = 2;
+	const uint8_t clockWipe = 4;
 	const uint16_t clockTicks = 100;
 	uint64_t totalTicks;
 	uint64_t currentTLB;

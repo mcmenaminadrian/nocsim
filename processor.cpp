@@ -291,6 +291,9 @@ const pair<const uint64_t, bool> Processor::getFreeFrame() const
 	for (uint64_t i = 0; i < frames; i++) {
 		uint32_t flags = masterTile->readWord32((1 << pageShift)
 			+ i * PAGETABLEENTRY + FLAGOFFSET + PAGETABLESLOCAL);
+		if (flags & 0x02) {
+			continue;
+		}
 		if (!(flags & 0x01)) {
 			return pair<const uint64_t, bool>(i, false);
 		} else if (!(flags & 0x04)) {
@@ -311,7 +314,7 @@ void Processor::writeBackMemory(const uint64_t& frameNo)
 		masterTile->readLong(fetchAddressRead(PAGETABLESLOCAL));
 	const uint64_t bitmapOffset =
 		(1 + totalPTEPages) * (1 << pageShift);
-	const uint64_t bitmapSize = (1 << pageShift) / (BITMAP_BYTES * 8);
+	const uint64_t bitmapSizeBytes = (1 << pageShift) / (BITMAP_BYTES * 8);
 	uint64_t bitToRead = frameNo * bitmapSize;
 	const uint64_t physicalAddress =
 		localMemory->readLong(fetchAddressRead((1 << pageShift) +
@@ -646,18 +649,19 @@ void Processor::activateClock()
 	interruptBegin();
 	for (uint8_t i = 0; i < clockWipe; i++) {
 		waitATick();
-		uint32_t flags = masterTile->readWord32(PAGETABLESLOCAL +
+		uint32_t flags = masterTile->readWord32(
+			(1 << pageShift) + PAGETABLESLOCAL +
 			(i + currentTLB) * PAGETABLEENTRY + FLAGOFFSET);
 		waitATick();
-		if (flags & 0x02) {
+		if (flags == 0 || flags & 0x02) {
 			continue;
 		}
 		if (!(flags & 0x01)) {
 			continue;
 		}
-		flags &= 0xFFFFFFFB;
+		flags = flags & (~0x04);
 		waitATick();
-		masterTile->writeWord32(PAGETABLESLOCAL + 
+		masterTile->writeWord32((1 << pageShift) + PAGETABLESLOCAL + 
 			(i + currentTLB) * PAGETABLEENTRY + FLAGOFFSET, flags);
 		waitATick();
 		get<2>(tlbs[i + currentTLB]) = false;
