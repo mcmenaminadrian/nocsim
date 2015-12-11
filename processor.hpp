@@ -80,7 +80,7 @@ private:
 	void activateClock();
 	//adjust numbers below to change how CLOCK fuctions
 	const uint8_t clockWipe = 4;
-	const uint16_t clockTicks = 100;
+	const uint16_t clockTicks = 6000;
 	uint64_t totalTicks;
 	uint64_t currentTLB;
 
